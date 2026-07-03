@@ -1,0 +1,18 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // World leaderboard is publicly readable so the scoreboard screen works
+    // for every player, including guests with no local profile.
+    // All writes go through the submitScore Cloud Function (admin SDK,
+    // bypasses rules) so caps/monotonicity/rate-limits/moderation are
+    // enforced server-side — clients can never write here directly.
+    match /players/{uid} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /countries/{code} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

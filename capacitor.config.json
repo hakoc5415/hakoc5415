@@ -1,0 +1,28 @@
+{
+  "appId": "com.vikingraid.ro",
+  "appName": "RO! Viking Raid",
+  "webDir": "www",
+  "backgroundColor": "#06101e",
+  "android": {
+    "backgroundColor": "#06101e"
+  },
+  "ios": {
+    "backgroundColor": "#06101e",
+    "contentInset": "always"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "backgroundColor": "#06101e",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false,
+      "splashFullScreen": true,
+      "splashImmersive": true
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#06101e",
+      "overlaysWebView": true
+    }
+  }
+}

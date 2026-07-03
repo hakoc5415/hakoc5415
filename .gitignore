@@ -1,0 +1,27 @@
+node_modules/
+functions/node_modules/
+functions/package-lock.json
+
+# Android
+android/local.properties
+android/.gradle/
+android/app/build/
+android/build/
+android/captures/
+android/.idea/
+*.iml
+
+# iOS
+ios/App/Pods/
+ios/App/build/
+ios/App/DerivedData/
+ios/App/*.xcworkspace/xcuserdata/
+ios/App/*.xcodeproj/xcuserdata/
+ios/App/*.xcodeproj/project.xcworkspace/xcuserdata/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
+.DS_Store
