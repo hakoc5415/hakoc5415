@@ -1,33 +1,4 @@
 {
-  "indexes": [
-    {
-      "collectionGroup": "players",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "totalScore", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "players",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "bestCombo", "order": "DESCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "players",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "bestTime", "order": "ASCENDING" }
-      ]
-    },
-    {
-      "collectionGroup": "countries",
-      "queryScope": "COLLECTION",
-      "fields": [
-        { "fieldPath": "total", "order": "DESCENDING" }
-      ]
-    }
-  ],
+  "indexes": [],
   "fieldOverrides": []
 }
