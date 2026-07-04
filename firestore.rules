@@ -8,7 +8,12 @@ service cloud.firestore {
     // enforced server-side — clients can never write here directly.
     match /players/{uid} {
       allow read: if true;
-      allow write: if false;
+      // Score writes still go only through the submitScore Cloud Function.
+      allow create, update: if false;
+      // …but a signed-in player may delete their OWN entry (leaving the game /
+      // deleting their profile), so it disappears from the world board reliably
+      // without depending on a Cloud Function.
+      allow delete: if request.auth != null && request.auth.uid == uid;
     }
     match /countries/{code} {
       allow read: if true;

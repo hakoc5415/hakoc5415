@@ -18,6 +18,8 @@ import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import {
   getFirestore,
   collection,
+  doc,
+  deleteDoc,
   query,
   orderBy,
   limit as fsLimit,
@@ -116,18 +118,25 @@ class RoLeaderboardClient {
    *  state first so a pending write can't re-create the doc, then asks the
    *  deleteMyScore Cloud Function to delete it and refreshes the cached board. */
   async deleteRemote() {
+    // Clear local sync state and the cached board immediately so the entry
+    // disappears from the UI right away, even before the network round-trip.
     try {
       localStorage.removeItem(PROFILE_KEY);
       localStorage.removeItem(QUEUE_KEY);
+      localStorage.removeItem(CACHE_KEY);
     } catch (e) { /* ignore */ }
-    if (!this.uid || !this.functions) return;
+    this._lastFetch = {};
+    notifyUpdated();
+    await this.ready; // make sure anonymous auth resolved so uid exists
+    if (!this.uid || !this.db) return;
     try {
-      await httpsCallable(this.functions, 'deleteMyScore')();
-      try { localStorage.removeItem(CACHE_KEY); } catch (e) { /* ignore */ }
-      notifyUpdated();
+      // Delete our own players/{uid} doc directly (allowed by firestore.rules).
+      // Doesn't need the Cloud Function, so it can't be defeated by a missing/failed deploy.
+      await deleteDoc(doc(this.db, 'players', this.uid));
     } catch (e) {
       console.warn('[RoLeaderboard] deleteRemote failed', e);
     }
+    notifyUpdated();
   }
 
   /** Call after recordWin()/recordCombo() produce a new personal best. */
