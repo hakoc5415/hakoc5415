@@ -1005,7 +1005,7 @@
         <div style="text-align:center;font-size:12px;color:#fff;opacity:.78">Stage: <b style="color:var(--gold,#ffcb05)">{{ stageName }}</b> · Best combo: <b style="color:var(--gold,#ffcb05)">×{{ bestComboR }}</b></div>
         <div style="display:flex;align-items:center;justify-content:center;gap:20px">
           <button onClick="{{ openTutorial }}" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:11px;letter-spacing:1.5px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:12px 0">ⓘ HOW TO PLAY</button>
-          <a href="Privacy Policy.dc.html" style="color:rgba(255,255,255,.42);font-size:11px;letter-spacing:1.5px;text-decoration:underline;text-underline-offset:3px;padding:12px 0">PRIVACY</a>
+          <a href="privacy.html" style="color:rgba(255,255,255,.42);font-size:11px;letter-spacing:1.5px;text-decoration:underline;text-underline-offset:3px;padding:12px 0">PRIVACY</a>
         </div>
       </div>
     </div>
@@ -1054,7 +1054,7 @@
         </div>
         <div style="text-align:right">
           <sc-if value="{{ lastIsBest }}" hint-placeholder-val="{{ false }}"><div style="display:inline-block;font-family:var(--display,'Anton');font-size:12px;letter-spacing:1px;color:#fff;background:var(--accent,#ba0c2f);padding:3px 9px;border-radius:8px">NEW BEST!</div></sc-if>
-          <div style="font-size:11px;color:rgba(255,255,255,.72);margin-top:6px">Time {{ lastTimeVal }} · Total {{ playerTotal }}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,.72);margin-top:6px">{{ lastScoreSub }}</div>
         </div>
       </div>
       </sc-if>
@@ -1444,11 +1444,14 @@ class Component extends DCLogic {
     this._applyStats({stageId,score,combo:maxCombo,timeSec});
   }
   recordCombo(maxCombo){ this._applyStats({combo:maxCombo}); }
-  recordLoss(s){
+  recordLoss(){
     // Save a partial score even on a failed run, so losing a stage still counts
     // toward the player's total and the world leaderboard. Scaled by how far
     // they got; no completion-time bonus. _applyStats only overwrites a stage's
     // stored score when this beats the previous best, so a loss can never lower it.
+    // Called AFTER the lose setState commits (via setTimeout) so the lastScore it
+    // sets isn't clobbered by the enclosing updater — same pattern as recordWin.
+    const s=this.state;
     const score=Math.max(0,Math.round(1000*((s.progress||0)/100)+(s.maxCombo||0)*60+(s.perfects||0)*25));
     this._applyStats({stageId:s.stageId,score,combo:s.maxCombo,timeSec:null});
   }
@@ -1563,14 +1566,14 @@ class Component extends DCLogic {
       const progress=Math.max(0,s.progress-1.2);
       const d=this.diff(progress);
       const next={shields,combo:0,progress,zoneWidth:d.zoneWidth,speedDur:d.speedDur,tier:d.tier,floor:d.floor,zoneLeft:this.rollZone(d.zoneWidth)};
-      if(shields<=0){ next.screen='result'; next.result='lose'; this._save(progress,s.maxCombo); setTimeout(()=>this.sfx('lose'),60); this.recordLoss(s); }
+      if(shields<=0){ next.screen='result'; next.result='lose'; this._save(progress,s.maxCombo); setTimeout(()=>this.sfx('lose'),60); setTimeout(()=>this.recordLoss(),60); }
       return next;
     });
     if(this.state.stageId===4){ this._redMs=5000; this._paintRed(); }
   }
   _save(dist,combo){ this.setState(s=>{ const best={dist:Math.max(s.best.dist,dist),combo:Math.max(s.best.combo,combo)}; try{localStorage.setItem('ro_best_dist',best.dist);localStorage.setItem('ro_best_combo',best.combo);}catch(e){} return {best}; }); }
   _paintRed(){ const ms=Math.max(0,this._redMs==null?5000:this._redMs); const b=this.redBarRef&&this.redBarRef.current; const n=this.redNumRef&&this.redNumRef.current; const low=ms<2000; if(b){ b.style.width=(ms/5000*100).toFixed(1)+'%'; b.style.background=low?'linear-gradient(90deg,#ffce2b,#ba0c2f)':'linear-gradient(90deg,#7d0820,#ba0c2f)'; } if(n){ n.textContent=Math.ceil(ms/1000); n.style.color=low?'#ff5252':'var(--gold,#ffcb05)'; } }
-  redTimeout(){ this.shake(); this.flash('#ba0c2f',240); this.sfx('miss'); this.buzz(140); this.addPop('TIME UP!','miss'); this.setState(s=>{ if(s.screen!=='game'||s.result) return null; const shields=s.shields-1; const next={shields}; if(shields<=0){ next.screen='result'; next.result='lose'; this._save(s.progress,s.maxCombo); setTimeout(()=>this.sfx('lose'),60); this.recordLoss(s); } return next; }); }
+  redTimeout(){ this.shake(); this.flash('#ba0c2f',240); this.sfx('miss'); this.buzz(140); this.addPop('TIME UP!','miss'); this.setState(s=>{ if(s.screen!=='game'||s.result) return null; const shields=s.shields-1; const next={shields}; if(shields<=0){ next.screen='result'; next.result='lose'; this._save(s.progress,s.maxCombo); setTimeout(()=>this.sfx('lose'),60); setTimeout(()=>this.recordLoss(),60); } return next; }); }
 
   // ---------- Times Square "BIG SCREEN" bonus window (stage 5) ----------
   startBigScreen(){ if(this.state.screen!=='game'||this.state.result||this.state.stageId!==5) return; this._bsAcc=0; this._bsNext=3.6; this.flash('var(--gold,#ffcb05)',200); this.sfx('combo'); this.buzz([20,30,20]); this.addEvent("YOU'RE ON THE BIG SCREEN! 📸",'RO now — every hit scores ×2'); this.setState({bigScreen:true}); }
@@ -1608,7 +1611,7 @@ class Component extends DCLogic {
     this.setState(s=>{
       const shields=s.shields-1; const oppGoals=s.oppGoals+1;
       const next={shields,oppGoals,combo:0};
-      if(shields<=0){ next.screen='result'; next.result='lose'; this._save(s.progress,s.maxCombo); setTimeout(()=>this.sfx('lose'),60); this.recordLoss(s); }
+      if(shields<=0){ next.screen='result'; next.result='lose'; this._save(s.progress,s.maxCombo); setTimeout(()=>this.sfx('lose'),60); setTimeout(()=>this.recordLoss(),60); }
       return next;
     });
   }
@@ -1620,7 +1623,7 @@ class Component extends DCLogic {
   st6TimeUp(){ if(this.state.screen!=='game'||this.state.result||this.state.roundTrans) return; const rounds=(this.STAGES[5]||{}).rounds||[]; const r=this.state.round; const advanced=this.state.norGoals>this.state.oppGoals;
     if(advanced && r<rounds.length-1){ this.sfx('combo'); this.flash('var(--gold,#ffcb05)',220); this.buzz([20,40,20]); this.setState({roundTrans:{from:(rounds[r]||{}).label,to:(rounds[r+1]||{}).label,opp:(rounds[r+1]||{}).opp,flag:(rounds[r+1]||{}).flag,score:this.state.norGoals+'-'+this.state.oppGoals}}); }
     else if(advanced){ this.flash('var(--gold,#ffcb05)',260); this.setState(s=>{ this._save(100,s.maxCombo); return {screen:'result',result:'win'}; }); setTimeout(()=>{this.sfx('win');this._unlockNext();this.recordWin(6,this.state.maxCombo,this.state.perfects,this.state.strokes);},60); }
-    else { this.shake(); this.flash('#ba0c2f',260); this.setState(s=>{ this._save(s.progress,s.maxCombo); return {screen:'result',result:'lose'}; }); setTimeout(()=>this.sfx('lose'),60); this.recordLoss(this.state); }
+    else { this.shake(); this.flash('#ba0c2f',260); this.setState(s=>{ this._save(s.progress,s.maxCombo); return {screen:'result',result:'lose'}; }); setTimeout(()=>this.sfx('lose'),60); setTimeout(()=>this.recordLoss(),60); }
   }
 
   // ---------- theme ----------
@@ -2403,12 +2406,12 @@ class Component extends DCLogic {
     const medalOf=(i)=>i===0?'🥇':i===1?'🥈':i===2?'🥉':('#'+(i+1));
     const rowStyleOf=(isCur)=>({display:'flex',flexDirection:'column',gap:'9px',padding:'13px 14px',borderRadius:'14px',border:'1.5px solid '+(isCur?'var(--gold,#ffcb05)':'rgba(255,255,255,.12)'),background:isCur?'rgba(255,203,5,.12)':'rgba(255,255,255,.05)'});
     const boardCat=s.boardCat||'total';
-    const boardCats=[['total','TOTAL'],['time','TIME'],['combo','COMBO'],['country','COUNTRY']];
+    const boardCats=[['total','TOTAL'],['combo','COMBO'],['country','COUNTRY']];
     const catTabs=boardCats.map(([id,label])=>({ id, label, active:boardCat===id, onClick:()=>this.setBoardCat(id),
       style:{flex:1,height:'38px',borderRadius:'10px',border:'none',cursor:'pointer',fontFamily:"var(--display,'Anton')",fontSize:'12px',letterSpacing:'1px',background:boardCat===id?'var(--gold,#ffcb05)':'rgba(255,255,255,.07)',color:boardCat===id?'#1a1206':'#cfe0f0'} }));
     let boardRows=[], myRankPos='—', boardHint='';
     const boardScope=s.boardScope||'world';
-    const scopeTabs=[['world','🌍 WORLD'],['device','THIS DEVICE']].map(([id,label])=>({ id, label, onClick:()=>this.setBoardScope(id),
+    const scopeTabs=[['world','🌍 WORLD']].map(([id,label])=>({ id, label, onClick:()=>this.setBoardScope(id),
       style:{padding:'7px 16px',borderRadius:'20px',border:'1px solid '+(boardScope===id?'var(--gold,#ffcb05)':'rgba(255,255,255,.2)'),cursor:'pointer',fontSize:'10px',letterSpacing:'2px',fontWeight:700,background:boardScope===id?'rgba(255,203,5,.16)':'rgba(255,255,255,.06)',color:boardScope===id?'var(--gold,#ffcb05)':'rgba(255,255,255,.65)'} }));
     const entrants=boardScope==='world'?profiles.concat(this._worldPlayers()):profiles;
     if(boardCat==='country'){
@@ -2448,10 +2451,18 @@ class Component extends DCLogic {
     }
     const boardEmpty=boardRows.length===0;
     const ls=s.lastScore;
-    const showStageScore=won && !!ls && ls.stageId===s.stageId;
+    // Show the earned score card on BOTH win and loss (recordLoss stores a
+    // partial score on a failed run, so losing still shows what you earned).
+    const showStageScore=!!ls && ls.stageId===s.stageId;
     const lastScoreVal=ls?ls.score.toLocaleString():'0';
     const lastTimeVal=ls?ls.timeSec+'s':'—';
-    const lastIsBest=!!(ls&&ls.isBest);
+    // Points earned from clear time (faster = more) — same formula as scoreFor().
+    const lastTimeBonus=ls?Math.max(0,Math.round((100-ls.timeSec)*16)).toLocaleString():'0';
+    const lastIsBest=!!(ls&&ls.isBest&&won);
+    // Score sub-line: on a win, show the time bonus; on a loss, just the earned total.
+    const lastScoreSub=won
+      ? ('⏱ '+lastTimeVal+' → +'+lastTimeBonus+' pts · Total '+playerTotal.toLocaleString())
+      : ('Did not finish · Total '+playerTotal.toLocaleString());
     const countryList=this.COUNTRIES.map(c=>({ code:c.code, flag:c.flag, name:c.name, active:s.newCountry===c.code, onSelect:()=>this.setCountry(c.code),
       style:{display:'flex',alignItems:'center',gap:'12px',width:'100%',padding:'11px 14px',borderRadius:'10px',cursor:'pointer',textAlign:'left',border:'1.5px solid '+(s.newCountry===c.code?'var(--gold,#ffcb05)':'rgba(255,255,255,.12)'),background:s.newCountry===c.code?'rgba(255,203,5,.14)':'rgba(255,255,255,.04)'} }));
 
@@ -2520,7 +2531,7 @@ class Component extends DCLogic {
       nameErr:s.nameErr, nameRef:this.nameRef, onNameKey:this.onNameKey, submitName:this.submitName,
       createAccount:this.createAccount, selectAccount:this.selectAccount, goBoard:this.goBoard, goAccount:this.goAccount, setCountry:this.setCountry, setBoardCat:this.setBoardCat,
       showTutorial:isMenu && s.showTutorial, dismissTutorial:this.dismissTutorial, openTutorial:this.openTutorial,
-      showStageScore, lastScoreVal, lastTimeVal, lastIsBest,
+      showStageScore, lastScoreVal, lastTimeVal, lastTimeBonus, lastScoreSub, lastIsBest,
       rootStyle, showScene:!isStages && !isSplash && !isAccount && !isBoard, isGame, isMenu, isResult, isStages, isSplash, isStage1, isStage2, isStage3,
       isStage5, tsSkyStyle, tsHazeStyle, tsBuildings, tsWallLStyle, tsWallRStyle, tsBoards, tsFlags, tsRoBoardStyle, tsFlagBoardStyle, tsWcBoardStyle, tsNorgeBoardStyle, tsStripBoardStyle, tsTowerStyle, tsTowerScreenStyle, tsStreetStyle, tsStreetLinesStyle, tsCabs, tsLive, tsLiveBannerStyle, tsCurbStyle, tsCrosswalkStyle, tsStepsStyle, tsFarCrowdStyle, tsTickerStyle, tsTickerTextStyle, tsLamps,
       palaceSkyStyle, moonStyle, stars, plazaStyle, plazaLinesStyle,
