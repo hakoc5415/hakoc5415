@@ -1084,7 +1084,7 @@
     <div style="position:absolute;inset:0;display:flex;flex-direction:column;padding:calc(36px + env(safe-area-inset-top)) 22px calc(24px + env(safe-area-inset-bottom));background:linear-gradient(#0a1f3a,#06121f);z-index:6">
       <div style="text-align:center;font-family:var(--display,'Anton');font-size:34px;color:#fff;letter-spacing:1px">STAGES</div>
       <div style="text-align:center;font-size:12px;color:#9fc3e8;margin-top:2px">The RO journey — a new theme each stage</div>
-      <div style="flex:1;display:flex;flex-direction:column;gap:12px;margin-top:22px">
+      <div style="flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:12px;margin-top:22px;padding-bottom:4px">
         <sc-for list="{{ stageCards }}" as="c" hint-placeholder-count="3">
           <button onClick="{{ c.onClick }}" style="{{ c.style }}">
             <span style="{{ c.iconStyle }}">{{ c.icon }}</span>
@@ -1095,6 +1095,22 @@
             <span style="{{ c.badgeStyle }}">{{ c.badge }}</span>
           </button>
         </sc-for>
+        <div style="display:flex;align-items:center;gap:14px;width:100%;padding:15px 16px;border-radius:16px;border:2px dashed rgba(255,255,255,.16);background:rgba(255,255,255,.03);color:#fff;opacity:.6;text-align:left">
+          <span style="font-size:30px;filter:grayscale(1);flex:0 0 auto;line-height:1">🎉</span>
+          <span style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-family:var(--display,'Anton');font-size:18px;letter-spacing:.5px">VICTORY PARADE</span>
+            <span style="font-size:11px;opacity:.7">Oslo homecoming</span>
+          </span>
+          <span style="margin-left:auto;font-family:var(--display,'Anton');font-size:11px;letter-spacing:1px;color:#9fb0c2;white-space:nowrap">COMING SOON 🔒</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:14px;width:100%;padding:15px 16px;border-radius:16px;border:2px dashed rgba(255,255,255,.16);background:rgba(255,255,255,.03);color:#fff;opacity:.6;text-align:left">
+          <span style="font-size:30px;filter:grayscale(1);flex:0 0 auto;line-height:1">🌌</span>
+          <span style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-family:var(--display,'Anton');font-size:18px;letter-spacing:.5px">NORTHERN LIGHTS</span>
+            <span style="font-size:11px;opacity:.7">Aurora finale</span>
+          </span>
+          <span style="margin-left:auto;font-family:var(--display,'Anton');font-size:11px;letter-spacing:1px;color:#9fb0c2;white-space:nowrap">COMING SOON 🔒</span>
+        </div>
       </div>
       <button onClick="{{ goMenu }}" style="height:54px;border:2px solid rgba(255,255,255,.4);border-radius:16px;background:transparent;color:#fff;font-family:var(--display,'Anton');font-size:16px;letter-spacing:1px;cursor:pointer">MENU</button>
     </div>
