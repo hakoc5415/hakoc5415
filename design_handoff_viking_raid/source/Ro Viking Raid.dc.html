@@ -1375,11 +1375,10 @@ class Component extends DCLogic {
   // native bridge isn't present (e.g. previewing this file directly) or the
   // device has never been online, so the board is never empty.
   _worldPlayers(){
-    if(window.RoLeaderboard){
-      const live=window.RoLeaderboard.getWorldPlayers(this.state.boardCat);
-      if(live && live.length) return live;
-    }
-    return this._simulatedWorldPlayers();
+    // Real world board only — device profiles + live Firebase players. No demo
+    // bots (the simulated pool below is kept only for offline design preview).
+    if(window.RoLeaderboard) return window.RoLeaderboard.getWorldPlayers(this.state.boardCat)||[];
+    return [];
   }
   _simulatedWorldPlayers(){
     if(this._bots) return this._bots;
@@ -1445,6 +1444,14 @@ class Component extends DCLogic {
     this._applyStats({stageId,score,combo:maxCombo,timeSec});
   }
   recordCombo(maxCombo){ this._applyStats({combo:maxCombo}); }
+  recordLoss(s){
+    // Save a partial score even on a failed run, so losing a stage still counts
+    // toward the player's total and the world leaderboard. Scaled by how far
+    // they got; no completion-time bonus. _applyStats only overwrites a stage's
+    // stored score when this beats the previous best, so a loss can never lower it.
+    const score=Math.max(0,Math.round(1000*((s.progress||0)/100)+(s.maxCombo||0)*60+(s.perfects||0)*25));
+    this._applyStats({stageId:s.stageId,score,combo:s.maxCombo,timeSec:null});
+  }
 
   // ---------- sea life & events ----------
   spawnSeaLife(){
@@ -1556,14 +1563,14 @@ class Component extends DCLogic {
       const progress=Math.max(0,s.progress-1.2);
       const d=this.diff(progress);
       const next={shields,combo:0,progress,zoneWidth:d.zoneWidth,speedDur:d.speedDur,tier:d.tier,floor:d.floor,zoneLeft:this.rollZone(d.zoneWidth)};
-      if(shields<=0){ next.screen='result'; next.result='lose'; this._save(progress,s.maxCombo); setTimeout(()=>this.sfx('lose'),60); this.recordCombo(s.maxCombo); }
+      if(shields<=0){ next.screen='result'; next.result='lose'; this._save(progress,s.maxCombo); setTimeout(()=>this.sfx('lose'),60); this.recordLoss(s); }
       return next;
     });
     if(this.state.stageId===4){ this._redMs=5000; this._paintRed(); }
   }
   _save(dist,combo){ this.setState(s=>{ const best={dist:Math.max(s.best.dist,dist),combo:Math.max(s.best.combo,combo)}; try{localStorage.setItem('ro_best_dist',best.dist);localStorage.setItem('ro_best_combo',best.combo);}catch(e){} return {best}; }); }
   _paintRed(){ const ms=Math.max(0,this._redMs==null?5000:this._redMs); const b=this.redBarRef&&this.redBarRef.current; const n=this.redNumRef&&this.redNumRef.current; const low=ms<2000; if(b){ b.style.width=(ms/5000*100).toFixed(1)+'%'; b.style.background=low?'linear-gradient(90deg,#ffce2b,#ba0c2f)':'linear-gradient(90deg,#7d0820,#ba0c2f)'; } if(n){ n.textContent=Math.ceil(ms/1000); n.style.color=low?'#ff5252':'var(--gold,#ffcb05)'; } }
-  redTimeout(){ this.shake(); this.flash('#ba0c2f',240); this.sfx('miss'); this.buzz(140); this.addPop('TIME UP!','miss'); this.setState(s=>{ if(s.screen!=='game'||s.result) return null; const shields=s.shields-1; const next={shields}; if(shields<=0){ next.screen='result'; next.result='lose'; this._save(s.progress,s.maxCombo); setTimeout(()=>this.sfx('lose'),60); this.recordCombo(s.maxCombo); } return next; }); }
+  redTimeout(){ this.shake(); this.flash('#ba0c2f',240); this.sfx('miss'); this.buzz(140); this.addPop('TIME UP!','miss'); this.setState(s=>{ if(s.screen!=='game'||s.result) return null; const shields=s.shields-1; const next={shields}; if(shields<=0){ next.screen='result'; next.result='lose'; this._save(s.progress,s.maxCombo); setTimeout(()=>this.sfx('lose'),60); this.recordLoss(s); } return next; }); }
 
   // ---------- Times Square "BIG SCREEN" bonus window (stage 5) ----------
   startBigScreen(){ if(this.state.screen!=='game'||this.state.result||this.state.stageId!==5) return; this._bsAcc=0; this._bsNext=3.6; this.flash('var(--gold,#ffcb05)',200); this.sfx('combo'); this.buzz([20,30,20]); this.addEvent("YOU'RE ON THE BIG SCREEN! 📸",'RO now — every hit scores ×2'); this.setState({bigScreen:true}); }
@@ -1601,7 +1608,7 @@ class Component extends DCLogic {
     this.setState(s=>{
       const shields=s.shields-1; const oppGoals=s.oppGoals+1;
       const next={shields,oppGoals,combo:0};
-      if(shields<=0){ next.screen='result'; next.result='lose'; this._save(s.progress,s.maxCombo); setTimeout(()=>this.sfx('lose'),60); this.recordCombo(s.maxCombo); }
+      if(shields<=0){ next.screen='result'; next.result='lose'; this._save(s.progress,s.maxCombo); setTimeout(()=>this.sfx('lose'),60); this.recordLoss(s); }
       return next;
     });
   }
@@ -1613,7 +1620,7 @@ class Component extends DCLogic {
   st6TimeUp(){ if(this.state.screen!=='game'||this.state.result||this.state.roundTrans) return; const rounds=(this.STAGES[5]||{}).rounds||[]; const r=this.state.round; const advanced=this.state.norGoals>this.state.oppGoals;
     if(advanced && r<rounds.length-1){ this.sfx('combo'); this.flash('var(--gold,#ffcb05)',220); this.buzz([20,40,20]); this.setState({roundTrans:{from:(rounds[r]||{}).label,to:(rounds[r+1]||{}).label,opp:(rounds[r+1]||{}).opp,flag:(rounds[r+1]||{}).flag,score:this.state.norGoals+'-'+this.state.oppGoals}}); }
     else if(advanced){ this.flash('var(--gold,#ffcb05)',260); this.setState(s=>{ this._save(100,s.maxCombo); return {screen:'result',result:'win'}; }); setTimeout(()=>{this.sfx('win');this._unlockNext();this.recordWin(6,this.state.maxCombo,this.state.perfects,this.state.strokes);},60); }
-    else { this.shake(); this.flash('#ba0c2f',260); this.setState(s=>{ this._save(s.progress,s.maxCombo); return {screen:'result',result:'lose'}; }); setTimeout(()=>this.sfx('lose'),60); this.recordCombo(this.state.maxCombo); }
+    else { this.shake(); this.flash('#ba0c2f',260); this.setState(s=>{ this._save(s.progress,s.maxCombo); return {screen:'result',result:'lose'}; }); setTimeout(()=>this.sfx('lose'),60); this.recordLoss(this.state); }
   }
 
   // ---------- theme ----------
