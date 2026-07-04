@@ -835,10 +835,14 @@
       <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,32,91,.18),transparent 30%,transparent 70%,rgba(0,0,0,.4))"></div>
 
       <!-- simple modern logomark: gold tile + minimal salmon -->
-      <div style="position:relative;width:96px;height:96px;border-radius:26px;background:var(--gold,#ffcb05);box-shadow:0 14px 36px rgba(255,203,5,.22);display:flex;align-items:center;justify-content:center;animation:bob 4.2s ease-in-out infinite">
-        <!-- H.A.K studio mark: black play triangle -->
-        <svg width="44" height="44" viewBox="0 0 52 52" style="margin-left:5px">
-          <path d="M17 12 L41 26 L17 40 Z" fill="#0b0f1a" stroke="#0b0f1a" stroke-width="8" stroke-linejoin="round" stroke-linecap="round"/>
+      <div style="position:relative;width:96px;height:96px;animation:bob 4.2s ease-in-out infinite;filter:drop-shadow(0 14px 30px rgba(255,203,5,.22))">
+        <!-- H.A.K studio mark: yellow tile with a knocked-out (negative-space) play triangle -->
+        <svg width="96" height="96" viewBox="0 0 96 96">
+          <defs><mask id="hakPlayCut">
+            <rect width="96" height="96" rx="26" fill="#fff"/>
+            <path d="M40 29 L67 48 L40 67 Z" fill="#000" stroke="#000" stroke-width="7" stroke-linejoin="round" stroke-linecap="round"/>
+          </mask></defs>
+          <rect width="96" height="96" rx="26" fill="#ffcb05" mask="url(#hakPlayCut)"/>
         </svg>
       </div>
 
