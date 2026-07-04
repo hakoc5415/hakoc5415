@@ -896,10 +896,13 @@
         <div style="text-align:center;font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.45);margin-bottom:12px">— OR CONTINUE AS —</div>
         <div style="display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto">
           <sc-for list="{{ profilesList }}" as="p" hint-placeholder-count="0">
-            <button onClick="{{ p.onSelect }}" style="display:flex;align-items:center;justify-content:space-between;gap:10px;height:50px;padding:0 16px;border-radius:12px;border:1.5px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05);color:#fff;cursor:pointer;text-align:left">
-              <span style="font-family:var(--display,'Anton');font-size:16px;letter-spacing:1px">{{ p.name }}</span>
-              <span style="font-size:12px;color:var(--gold,#ffcb05)">{{ p.total }} pts</span>
-            </button>
+            <div style="display:flex;align-items:center;gap:8px;height:50px;padding:0 8px 0 16px;border-radius:12px;border:1.5px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05)">
+              <div onClick="{{ p.onSelect }}" style="flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:10px;height:100%;cursor:pointer;color:#fff">
+                <span style="font-family:var(--display,'Anton');font-size:16px;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</span>
+                <span style="font-size:12px;color:var(--gold,#ffcb05);white-space:nowrap">{{ p.total }} pts</span>
+              </div>
+              <button onClick="{{ p.onDelete }}" aria-label="Delete profile" style="flex:0 0 auto;width:34px;height:34px;border:none;border-radius:9px;background:rgba(186,12,47,.16);color:#ff7a90;font-size:16px;line-height:1;cursor:pointer">✕</button>
+            </div>
           </sc-for>
         </div>
       </div>
@@ -928,7 +931,6 @@
         <div style="font-family:var(--display,'Anton');font-size:30px;color:var(--gold,#ffcb05);min-width:46px;text-align:center">{{ myRankPos }}</div>
         <div style="flex:1;min-width:0">
           <div style="font-family:var(--display,'Anton');font-size:18px;color:#fff;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ playerName }}</div>
-          <div style="font-size:11px;letter-spacing:2px;color:var(--gold,#ffcb05)">{{ playerRank }}</div>
         </div>
         <div style="text-align:right">
           <div style="font-family:var(--display,'Anton');font-size:24px;color:var(--gold,#ffcb05)">{{ playerTotal }}</div>
@@ -978,7 +980,6 @@
           <span style="width:20px;height:15px;min-width:20px;border-radius:2px;box-shadow:0 1px 2px rgba(0,0,0,.5);display:inline-block;background:url({{ playerFlag }}) center/cover no-repeat"></span>
           <span style="font-family:var(--display,'Anton');font-size:14px;color:#fff;letter-spacing:.5px">{{ playerName }}</span>
           <span style="width:1px;height:13px;background:rgba(255,255,255,.25)"></span>
-          <span style="font-size:11px;letter-spacing:2px;color:var(--gold,#ffcb05)">{{ playerRank }}</span>
           <span style="font-size:11px;color:rgba(255,255,255,.7)">{{ playerTotal }} pts</span>
         </button>
         <div style="display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;letter-spacing:4px;color:var(--gold,#ffcb05);font-family:var(--display,'Anton');text-shadow:0 1px 8px rgba(0,0,0,.95),0 0 14px rgba(0,0,0,.7)"><span style="font-size:18px">🏆</span> WORLD CUP 2026</div>
@@ -1409,6 +1410,21 @@ class Component extends DCLogic {
     try{localStorage.setItem('ro_currentId',id);}catch(e){}
     this.setState({currentId:id,screen:'menu'});
     if(window.RoLeaderboard){ const p=this.state.profiles.find(x=>x.id===id); if(p) window.RoLeaderboard.setProfile({id:p.id,name:p.name,countryCode:this.countryOf(p).code}); }
+  };
+  deleteAccount=(id)=>{
+    const prof=this.state.profiles.find(x=>x.id===id);
+    const name=prof?prof.name:'this profile';
+    try{ if(typeof confirm==='function' && !confirm('Delete "'+name+'"? Scores for this profile will be removed from this device. This cannot be undone.')) return; }catch(e){}
+    this.setState(s=>{
+      const profiles=s.profiles.filter(x=>x.id!==id);
+      this._persistProfiles(profiles);
+      let currentId=s.currentId;
+      if(currentId===id){
+        currentId=profiles.length?profiles[0].id:null;
+        try{ if(currentId) localStorage.setItem('ro_currentId',currentId); else localStorage.removeItem('ro_currentId'); }catch(e){}
+      }
+      return { profiles, currentId, screen: profiles.length?s.screen:'account' };
+    });
   };
   scoreFor(maxCombo,perfects,strokes,timeSec){
     const base=1000;
@@ -2400,7 +2416,7 @@ class Component extends DCLogic {
     const playerRank=pTier.name; const playerRankColor=pTier.color;
     const playerCountry=this.countryOf(cur); const playerFlag=playerCountry.flag;
     const profilesList=profiles.slice().sort((a,b)=>this._totalOf(b)-this._totalOf(a)).map(p=>({
-      id:p.id, name:p.name, flag:this.countryOf(p).flag, total:this._totalOf(p).toLocaleString(), isCurrent:p.id===s.currentId, onSelect:()=>this.selectAccount(p.id)
+      id:p.id, name:p.name, flag:this.countryOf(p).flag, total:this._totalOf(p).toLocaleString(), isCurrent:p.id===s.currentId, onSelect:()=>this.selectAccount(p.id), onDelete:()=>this.deleteAccount(p.id)
     }));
     const stageAbbr=['S1','S2','S3','S4','S5','S6'];
     const medalOf=(i)=>i===0?'🥇':i===1?'🥈':i===2?'🥉':('#'+(i+1));
@@ -2445,7 +2461,7 @@ class Component extends DCLogic {
       boardRows=arr.map((p,i)=>{ const isCur=p.id===s.currentId;
         const cells=[1,2,3,4,5,6].map((id,j)=>({ label:stageAbbr[j], val:(p.scores&&p.scores[id])?p.scores[id].toLocaleString():'—', has:!!(p.scores&&p.scores[id]) }));
         return { id:p.id, rank:i+1, medal:medalOf(i), flag:this.countryOf(p).flag, name:p.name,
-          sub:this.rankTier(this._totalOf(p)).name, statVal:this._totalOf(p).toLocaleString(), statLabel:'TOTAL', hasCells:true, cells, isCur, rowStyle:rowStyleOf(isCur) }; });
+          sub:this.countryOf(p).name, statVal:this._totalOf(p).toLocaleString(), statLabel:'TOTAL', hasCells:true, cells, isCur, rowStyle:rowStyleOf(isCur) }; });
       const mi=arr.findIndex(p=>p.id===s.currentId); myRankPos=mi<0?'—':'#'+(mi+1);
       boardHint=boardScope==='world'?'World ranking by total score':'Players ranked by total score';
     }
