@@ -122,3 +122,30 @@ exports.submitScore = onCall(async (request) => {
 
   return { ok: true };
 });
+
+// Remove the caller's leaderboard entry (players/{uid}) and roll back its
+// contribution to the country aggregate. Called when a player deletes their
+// profile in-game so they disappear from the world board.
+exports.deleteMyScore = onCall(async (request) => {
+  const uid = request.auth && request.auth.uid;
+  if (!uid) throw new HttpsError('unauthenticated', 'Anonymous sign-in required.');
+
+  const playerRef = db.collection('players').doc(uid);
+  await db.runTransaction(async (tx) => {
+    const snap = await tx.get(playerRef);
+    if (!snap.exists) return; // nothing to delete
+    const data = snap.data();
+    const total = totalOf(data.scores || {});
+    const code = data.countryCode;
+    tx.delete(playerRef);
+    if (code) {
+      const countRef = db.collection('countries').doc(code);
+      tx.set(countRef, {
+        total: FieldValue.increment(-total),
+        count: FieldValue.increment(-1),
+      }, { merge: true });
+    }
+  });
+
+  return { ok: true };
+});

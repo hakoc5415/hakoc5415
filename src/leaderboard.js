@@ -111,6 +111,25 @@ class RoLeaderboardClient {
     this._flushQueue();
   }
 
+  /** Remove this device's world-board entry (players/{uid}) — called when the
+   *  player deletes the profile that's currently synced. Clears the local sync
+   *  state first so a pending write can't re-create the doc, then asks the
+   *  deleteMyScore Cloud Function to delete it and refreshes the cached board. */
+  async deleteRemote() {
+    try {
+      localStorage.removeItem(PROFILE_KEY);
+      localStorage.removeItem(QUEUE_KEY);
+    } catch (e) { /* ignore */ }
+    if (!this.uid || !this.functions) return;
+    try {
+      await httpsCallable(this.functions, 'deleteMyScore')();
+      try { localStorage.removeItem(CACHE_KEY); } catch (e) { /* ignore */ }
+      notifyUpdated();
+    } catch (e) {
+      console.warn('[RoLeaderboard] deleteRemote failed', e);
+    }
+  }
+
   /** Call after recordWin()/recordCombo() produce a new personal best. */
   submitScore(patch) {
     const profile = readJSON(PROFILE_KEY, null);

@@ -1394,7 +1394,9 @@ class Component extends DCLogic {
   _worldPlayers(){
     // Real world board only — device profiles + live Firebase players. No demo
     // bots (the simulated pool below is kept only for offline design preview).
-    if(window.RoLeaderboard) return window.RoLeaderboard.getWorldPlayers(this.state.boardCat)||[];
+    // Always fetch the player list (the COUNTRY tab is grouped client-side from
+    // players, so it needs players, not the country-aggregate docs).
+    if(window.RoLeaderboard){ const cat=this.state.boardCat==='country'?'total':this.state.boardCat; return window.RoLeaderboard.getWorldPlayers(cat)||[]; }
     return [];
   }
   _simulatedWorldPlayers(){
@@ -1429,18 +1431,16 @@ class Component extends DCLogic {
   };
   deleteAccount=(id)=>{
     const prof=this.state.profiles.find(x=>x.id===id);
-    const name=prof?prof.name:'this profile';
-    try{ if(typeof confirm==='function' && !confirm('Delete "'+name+'"? Scores for this profile will be removed from this device. This cannot be undone.')) return; }catch(e){}
-    this.setState(s=>{
-      const profiles=s.profiles.filter(x=>x.id!==id);
-      this._persistProfiles(profiles);
-      let currentId=s.currentId;
-      if(currentId===id){
-        currentId=profiles.length?profiles[0].id:null;
-        try{ if(currentId) localStorage.setItem('ro_currentId',currentId); else localStorage.removeItem('ro_currentId'); }catch(e){}
-      }
-      return { profiles, currentId, screen: profiles.length?s.screen:'account' };
-    });
+    if(!prof) return;
+    try{ if(typeof confirm==='function' && !confirm('Delete "'+prof.name+'"? Its scores are removed from this device and from the world leaderboard. This cannot be undone.')) return; }catch(e){}
+    const wasCurrent=this.state.currentId===id;
+    const remaining=this.state.profiles.filter(x=>x.id!==id);
+    const newCurrentId=wasCurrent?(remaining.length?remaining[0].id:null):this.state.currentId;
+    this._persistProfiles(remaining);
+    try{ if(wasCurrent){ if(newCurrentId) localStorage.setItem('ro_currentId',newCurrentId); else localStorage.removeItem('ro_currentId'); } }catch(e){}
+    this.setState({ profiles:remaining, currentId:newCurrentId, screen: remaining.length?this.state.screen:'account' });
+    // Remove this device's world-board entry when deleting the profile that's synced.
+    if(window.RoLeaderboard && wasCurrent) window.RoLeaderboard.deleteRemote();
   };
   scoreFor(maxCombo,perfects,strokes,timeSec){
     const base=1000;
@@ -2445,7 +2445,14 @@ class Component extends DCLogic {
     const boardScope=s.boardScope||'world';
     const scopeTabs=[['world','🌍 WORLD']].map(([id,label])=>({ id, label, onClick:()=>this.setBoardScope(id),
       style:{padding:'7px 16px',borderRadius:'20px',border:'1px solid '+(boardScope===id?'var(--gold,#ffcb05)':'rgba(255,255,255,.2)'),cursor:'pointer',fontSize:'10px',letterSpacing:'2px',fontWeight:700,background:boardScope===id?'rgba(255,203,5,.16)':'rgba(255,255,255,.06)',color:boardScope===id?'var(--gold,#ffcb05)':'rgba(255,255,255,.65)'} }));
-    const entrants=boardScope==='world'?profiles.concat(this._worldPlayers()):profiles;
+    // World board = local device profiles + live Firebase players, de-duplicated:
+    // this device's own synced player comes back from Firebase with the same
+    // name+country as its local profile, so drop those to avoid showing a name twice.
+    const _idKey=(x)=>((x.name||'').trim().toLowerCase()+'|'+this.countryOf(x).code);
+    const _localKeys=new Set(profiles.map(_idKey));
+    const entrants=boardScope==='world'
+      ? profiles.concat(this._worldPlayers().filter(w=>!_localKeys.has(_idKey(w))))
+      : profiles;
     if(boardCat==='country'){
       const map={};
       entrants.forEach(p=>{ const c=this.countryOf(p); const code=c.code; if(!map[code]) map[code]={country:c,total:0,count:0}; map[code].total+=this._totalOf(p); map[code].count+=1; });
