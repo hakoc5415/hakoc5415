@@ -17,6 +17,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import {
   getFirestore,
+  initializeFirestore,
   collection,
   doc,
   deleteDoc,
@@ -80,7 +81,15 @@ class RoLeaderboardClient {
     try {
       this.app = initializeApp(config || window.RO_FIREBASE_CONFIG);
       this.auth = getAuth(this.app);
-      this.db = getFirestore(this.app);
+      // Auto-detect long-polling: Firestore's default WebChannel transport often
+      // fails inside native WebViews (iOS WKWebView / Android), so reads never
+      // arrive and the world board stays empty. This falls back to long-polling
+      // there while keeping WebChannel in normal browsers.
+      try {
+        this.db = initializeFirestore(this.app, { experimentalAutoDetectLongPolling: true });
+      } catch (e) {
+        this.db = getFirestore(this.app); // already initialized (e.g. hot reload)
+      }
       this.functions = getFunctions(this.app);
     } catch (e) {
       console.warn('[RoLeaderboard] Firebase init failed — world board stays offline/simulated.', e);
