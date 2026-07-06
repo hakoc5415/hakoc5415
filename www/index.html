@@ -857,7 +857,7 @@
 
       <!-- start prompt -->
       <div style="position:absolute;bottom:54px;display:flex;align-items:center;gap:10px;padding:13px 26px;border:1.5px solid rgba(255,255,255,.22);border-radius:40px;animation:tapBlink 1.8s ease-in-out infinite">
-        <span style="font-family:'Archivo',sans-serif;font-weight:800;font-size:13px;letter-spacing:3px;color:#fff">TAP TO START · b14</span>
+        <span style="font-family:'Archivo',sans-serif;font-weight:800;font-size:13px;letter-spacing:3px;color:#fff">TAP TO START · b16</span>
         <span style="width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:9px solid var(--gold,#ffcb05)"></span>
       </div>
     </div>
@@ -1012,7 +1012,7 @@
     <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(3,6,12,.74);z-index:90">
       <div style="width:100%;max-width:344px;background:linear-gradient(#0e2440,#091627);border:2px solid var(--gold,#ffcb05);border-radius:20px;padding:22px;box-shadow:0 18px 50px rgba(0,0,0,.6)">
         <div style="text-align:center">
-          <div style="font-family:var(--display,'Anton');font-size:11px;letter-spacing:4px;color:var(--gold,#ffcb05)">HOW TO PLAY · b14</div>
+          <div style="font-family:var(--display,'Anton');font-size:11px;letter-spacing:4px;color:var(--gold,#ffcb05)">HOW TO PLAY · b16</div>
           <div style="font-family:var(--display,'Anton');font-size:29px;color:#fff;line-height:1;margin-top:6px">ROW TO AMERICA 🛶</div>
           <div style="font-size:12.5px;color:#cfe0f0;margin-top:8px;line-height:1.5">Norway’s fans are rowing across the Atlantic. Keep the rhythm and cross all 5 zones — fjord to coast!</div>
         </div>
@@ -1178,6 +1178,7 @@ class Component extends DCLogic {
     // iOS safety net: expose a plain-JS hook so a document-level tap handler can
     // dismiss the first-launch tutorial even if the WebView's synthetic event
     // binding on the button misbehaves. See the inline fallback script in <body>.
+    this._mountT=performance.now();
     window.__roDismissTutorial=()=>{ if(this.state.showTutorial) this.dismissTutorial(); };
     window.__roEnterMenu=()=>{ if(this.state.screen==='splash') this.enterMenu(); };
     // Live world leaderboard (see README "Leaderboard backend"): the native
@@ -1361,7 +1362,7 @@ class Component extends DCLogic {
   dismissIntro=()=>{ this._redMs=5000; this._last=performance.now(); this._stageStart=performance.now(); this.setState({intro:false},()=>this._paintRed()); };
   playStage=(id)=>{ const st=this.STAGES[id-1]; if(!st||st.locked||this.state.unlocked<id) return; this.setState({stageId:id},()=>this.start()); };
   goMenu=()=>{ this.setState({screen:'menu'}); };
-  enterMenu=()=>{ this.ac(); this.setState(s=>({screen:s.currentId?'menu':'account'})); };
+  enterMenu=()=>{ if(this._mountT&&(performance.now()-this._mountT)<700) return; this.ac(); this.setState(s=>({screen:s.currentId?'menu':'account'})); };
   goStages=()=>{ this.setState({screen:'stages'}); };
   quitStage=()=>{ this.stopMusic(); this.setState({screen:'stages',result:null,roundTrans:null,intro:false}); };
   goBoard=()=>{ this.setState({screen:'board'}); };
@@ -2637,14 +2638,32 @@ class Component extends DCLogic {
     }
     return null;
   }
+  function overlayFor(){
+    var all=document.querySelectorAll('div');
+    for(var i=0;i<all.length;i++){
+      var d=all[i];
+      if(d.style && d.style.zIndex==='90' && /ROW TO AMERICA/.test(d.textContent||'')) return d;
+    }
+    return null;
+  }
+  var handled=false;
   function handle(e){
     try{
       var hit=inButton(e.target);
-      console.log('[b14] tap',(e.type),'->',hit||'(other)');
-      if(hit==='tutorial' && typeof window.__roDismissTutorial==='function'){
-        window.__roDismissTutorial();
-      }
-    }catch(err){ console.log('[b14] handler error', err && err.message); }
+      if(e.type==='touchend') console.log('[b16] tap ->',hit||'(other)');
+      if(hit!=='tutorial') return;
+      if(handled) return; handled=true;
+      var hookType=typeof window.__roDismissTutorial;
+      console.log('[b16] LETS ROW tapped; reactHook='+hookType);
+      try{ localStorage.setItem('ro_tut','1'); }catch(_){}
+      if(hookType==='function'){ try{ window.__roDismissTutorial(); }catch(_){}}
+      setTimeout(function(){
+        var ov=overlayFor();
+        console.log('[b16] after react-dismiss, overlay still present='+(!!ov));
+        if(ov){ ov.style.display='none'; console.log('[b16] force-hid tutorial overlay via DOM'); }
+        setTimeout(function(){ handled=false; },400);
+      },60);
+    }catch(err){ console.log('[b16] handler error', err && err.message); handled=false; }
   }
   document.addEventListener('touchend', handle, true);
   document.addEventListener('click', handle, true);
