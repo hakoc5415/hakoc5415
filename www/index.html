@@ -857,7 +857,7 @@
 
       <!-- start prompt -->
       <div style="position:absolute;bottom:54px;display:flex;align-items:center;gap:10px;padding:13px 26px;border:1.5px solid rgba(255,255,255,.22);border-radius:40px;animation:tapBlink 1.8s ease-in-out infinite">
-        <span style="font-family:'Archivo',sans-serif;font-weight:800;font-size:13px;letter-spacing:3px;color:#fff">TAP TO START · b18</span>
+        <span style="font-family:'Archivo',sans-serif;font-weight:800;font-size:13px;letter-spacing:3px;color:#fff">TAP TO START · b19</span>
         <span style="width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:9px solid var(--gold,#ffcb05)"></span>
       </div>
     </div>
@@ -1012,7 +1012,7 @@
     <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(3,6,12,.74);z-index:90">
       <div style="width:100%;max-width:344px;background:linear-gradient(#0e2440,#091627);border:2px solid var(--gold,#ffcb05);border-radius:20px;padding:22px;box-shadow:0 18px 50px rgba(0,0,0,.6)">
         <div style="text-align:center">
-          <div style="font-family:var(--display,'Anton');font-size:11px;letter-spacing:4px;color:var(--gold,#ffcb05)">HOW TO PLAY · b18</div>
+          <div style="font-family:var(--display,'Anton');font-size:11px;letter-spacing:4px;color:var(--gold,#ffcb05)">HOW TO PLAY · b19</div>
           <div style="font-family:var(--display,'Anton');font-size:29px;color:#fff;line-height:1;margin-top:6px">ROW TO AMERICA 🛶</div>
           <div style="font-size:12.5px;color:#cfe0f0;margin-top:8px;line-height:1.5">Norway’s fans are rowing across the Atlantic. Keep the rhythm and cross all 5 zones — fjord to coast!</div>
         </div>
@@ -2650,20 +2650,20 @@ class Component extends DCLogic {
   function handle(e){
     try{
       var hit=inButton(e.target);
-      if(e.type==='touchend') console.log('[b18] tap ->',hit||'(other)');
+      if(e.type==='touchend') console.log('[b19] tap ->',hit||'(other)');
       if(hit!=='tutorial') return;
       if(handled) return; handled=true;
       var hookType=typeof window.__roDismissTutorial;
-      console.log('[b18] LETS ROW tapped; reactHook='+hookType);
+      console.log('[b19] LETS ROW tapped; reactHook='+hookType);
       try{ localStorage.setItem('ro_tut','1'); }catch(_){}
       if(hookType==='function'){ try{ window.__roDismissTutorial(); }catch(_){}}
       setTimeout(function(){
         var ov=overlayFor();
-        console.log('[b18] after react-dismiss, overlay still present='+(!!ov));
-        if(ov){ ov.style.display='none'; console.log('[b18] force-hid tutorial overlay via DOM'); }
+        console.log('[b19] after react-dismiss, overlay still present='+(!!ov));
+        if(ov){ ov.style.display='none'; console.log('[b19] force-hid tutorial overlay via DOM'); }
         setTimeout(function(){ handled=false; },400);
       },60);
-    }catch(err){ console.log('[b18] handler error', err && err.message); handled=false; }
+    }catch(err){ console.log('[b19] handler error', err && err.message); handled=false; }
   }
   document.addEventListener('touchend', handle, true);
   document.addEventListener('click', handle, true);
@@ -2675,11 +2675,23 @@ class Component extends DCLogic {
     setTimeout(function(){
       var mounted = !!document.getElementById('dc-root');
       var rawLeft = !!document.querySelector('x-dc');
-      console.log('[b18] BOOT CHECK: mounted='+mounted+' rawTemplate='+rawLeft+
+      console.log('[b19] BOOT CHECK: mounted='+mounted+' rawTemplate='+rawLeft+
         ' React='+(typeof window.React)+' hook='+(typeof window.__roDismissTutorial));
-      if(!mounted) console.log('[b18] BOOT FAILED — runtime did not mount; raw template is on screen.');
+      if(!mounted) console.log('[b19] BOOT FAILED — runtime did not mount; raw template is on screen.');
     },3000);
   });
+  // iOS keyboard leaves the page scrolled up after typing in the name field
+  // (WKWebView shifts the viewport for the keyboard and doesn't always restore
+  // it), so the whole UI sits high with a gap at the bottom. Snap back to 0
+  // whenever an input loses focus or the visual viewport settles.
+  function snapBack(){ window.scrollTo(0,0); document.documentElement.scrollTop=0; document.body.scrollTop=0; }
+  window.addEventListener('focusout', function(){ setTimeout(snapBack, 60); });
+  if (window.visualViewport){
+    window.visualViewport.addEventListener('resize', function(){
+      var a=document.activeElement;
+      if(!a || (a.tagName!=='INPUT' && a.tagName!=='TEXTAREA')) setTimeout(snapBack, 60);
+    });
+  }
 })();
 </script>
 </body>

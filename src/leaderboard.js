@@ -81,15 +81,21 @@ class RoLeaderboardClient {
     try {
       this.app = initializeApp(config || window.RO_FIREBASE_CONFIG);
       this.auth = getAuth(this.app);
-      // Auto-detect long-polling: Firestore's default WebChannel transport often
-      // fails inside native WebViews (iOS WKWebView / Android), so reads never
-      // arrive and the world board stays empty. This falls back to long-polling
-      // there while keeping WebChannel in normal browsers.
+      // Firestore's default WebChannel transport fails inside native WebViews
+      // (iOS WKWebView especially, where the page origin is capacitor://localhost),
+      // so reads never arrive and the world board stays empty. Auto-detect is not
+      // reliable there either — FORCE long-polling on the native apps, keep
+      // auto-detect for normal browsers.
+      const cap = window.Capacitor;
+      const isNative = !!(cap && cap.isNativePlatform && cap.isNativePlatform());
       try {
-        this.db = initializeFirestore(this.app, { experimentalAutoDetectLongPolling: true });
+        this.db = initializeFirestore(this.app, isNative
+          ? { experimentalForceLongPolling: true }
+          : { experimentalAutoDetectLongPolling: true });
       } catch (e) {
         this.db = getFirestore(this.app); // already initialized (e.g. hot reload)
       }
+      console.log('[RoLB] init: native=' + isNative + ' transport=' + (isNative ? 'forced-long-polling' : 'auto-detect'));
       this.functions = getFunctions(this.app);
     } catch (e) {
       console.warn('[RoLeaderboard] Firebase init failed — world board stays offline/simulated.', e);
@@ -101,6 +107,7 @@ class RoLeaderboardClient {
       onAuthStateChanged(this.auth, (user) => {
         if (user) {
           this.uid = user.uid;
+          console.log('[RoLB] signed in anonymously, uid=' + user.uid.slice(0, 6) + '…');
           resolve(true);
         }
       });
@@ -204,12 +211,14 @@ class RoLeaderboardClient {
       const players = category === 'country'
         ? await this._fetchCountries()
         : await this._fetchTop(category);
+      console.log('[RoLB] world fetch ok: ' + category + ' -> ' + players.length + ' rows');
       const cache = readJSON(CACHE_KEY, {});
       cache[category] = { players, ts: Date.now() };
       writeJSON(CACHE_KEY, cache);
       notifyUpdated();
     } catch (e) {
-      console.warn('[RoLeaderboard] world board refresh failed, using cache', e);
+      console.warn('[RoLB] world fetch FAILED (' + category + '): ' + ((e && (e.code || e.message)) || e));
+      this._lastFetch[category] = Date.now() - 10000; // retry in ~5s instead of the full 15s debounce
     }
   }
 
