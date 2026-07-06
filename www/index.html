@@ -702,7 +702,7 @@
     <sc-if value="{{ showStdHud }}" hint-placeholder-val="{{ true }}">
     <div style="position:absolute;top:0;left:0;right:0;padding:calc(14px + env(safe-area-inset-top)) 14px 0;z-index:6">
       <div style="display:flex;justify-content:space-between;align-items:center;font-family:var(--display,'Anton');font-size:11px;letter-spacing:1px;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6)">
-        <span>{{ barFrom }}</span><span style="display:flex;flex-direction:column;align-items:center;line-height:1.15;opacity:.9"><span>{{ zoneName }}</span><span style="font-size:8px;letter-spacing:2px;color:var(--gold,#ffcb05);opacity:.95">{{ floorLabel }}</span></span><span style="display:flex;align-items:center;gap:8px">{{ barTo }} <button onClick="{{ toggleMute }}" style="width:44px;height:44px;border:none;border-radius:10px;background:rgba(0,0,0,.35);color:#fff;font-size:16px;cursor:pointer">{{ muteIcon }}</button><button onClick="{{ quitStage }}" title="Back to stages" style="height:44px;padding:0 14px;border:none;border-radius:8px;background:rgba(0,0,0,.3);color:#fff;font-size:12px;font-family:var(--display,'Anton');letter-spacing:1px;cursor:pointer;display:flex;align-items:center;gap:5px">← EXIT</button></span>
+        <span>{{ barFrom }}</span><span style="display:flex;flex-direction:column;align-items:center;line-height:1.15;opacity:.9"><span>{{ zoneName }}</span><span style="font-size:8px;letter-spacing:2px;color:var(--gold,#ffcb05);opacity:.95">{{ floorLabel }}</span></span><span style="display:flex;align-items:center;gap:8px">{{ barTo }} <button sc-camel-on-click="{{ toggleMute }}" style="width:44px;height:44px;border:none;border-radius:10px;background:rgba(0,0,0,.35);color:#fff;font-size:16px;cursor:pointer">{{ muteIcon }}</button><button sc-camel-on-click="{{ quitStage }}" title="Back to stages" style="height:44px;padding:0 14px;border:none;border-radius:8px;background:rgba(0,0,0,.3);color:#fff;font-size:12px;font-family:var(--display,'Anton');letter-spacing:1px;cursor:pointer;display:flex;align-items:center;gap:5px">← EXIT</button></span>
       </div>
       <div style="position:relative;height:9px;margin-top:6px;background:rgba(0,0,0,.34);border-radius:6px;overflow:hidden">
         <div style="{{ vfillStyle }}"></div>
@@ -748,8 +748,8 @@
           <sc-for list="{{ shieldsArr }}" as="sh" hint-placeholder-count="5"><div style="{{ sh.style }}"></div></sc-for>
         </div>
         <div style="display:flex;align-items:center;gap:6px">
-          <button onClick="{{ toggleMute }}" style="width:44px;height:44px;border:none;border-radius:10px;background:rgba(0,0,0,.35);color:#fff;font-size:16px;cursor:pointer">{{ muteIcon }}</button>
-          <button onClick="{{ quitStage }}" title="Back to stages" style="height:44px;padding:0 14px;border:none;border-radius:8px;background:rgba(0,0,0,.3);color:#fff;font-size:12px;font-family:var(--display,'Anton');letter-spacing:1px;cursor:pointer;display:flex;align-items:center;gap:5px">← EXIT</button>
+          <button sc-camel-on-click="{{ toggleMute }}" style="width:44px;height:44px;border:none;border-radius:10px;background:rgba(0,0,0,.35);color:#fff;font-size:16px;cursor:pointer">{{ muteIcon }}</button>
+          <button sc-camel-on-click="{{ quitStage }}" title="Back to stages" style="height:44px;padding:0 14px;border:none;border-radius:8px;background:rgba(0,0,0,.3);color:#fff;font-size:12px;font-family:var(--display,'Anton');letter-spacing:1px;cursor:pointer;display:flex;align-items:center;gap:5px">← EXIT</button>
         </div>
         <div style="text-align:right;line-height:1;font-family:var(--display,'Anton');color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6)">
           <div ref="{{ comboRef }}" style="font-size:24px;color:var(--gold,#ffcb05)">×{{ combo }}</div>
@@ -804,7 +804,7 @@
       </div>
       </sc-if>
       <div style="text-align:center;margin-bottom:10px;font-size:11px;letter-spacing:1px;color:#fff;opacity:.96;text-shadow:0 1px 7px rgba(0,0,0,.95),0 0 12px rgba(0,0,0,.7)">{{ actionHint }}</div>
-      <button onPointerDown="{{ ro }}" style="width:100%;height:84px;border:none;border-radius:var(--radius,18px);background:var(--accent,#ba0c2f);color:var(--btn-text,#fff);font-family:var(--display,'Anton');font-size:38px;letter-spacing:4px;cursor:pointer;box-shadow:0 7px 0 var(--accent2,#00205b),var(--glow,none);animation:btnPulse 1.4s ease-in-out infinite;-webkit-tap-highlight-color:transparent">{{ actionLabel }}</button>
+      <button sc-camel-on-pointer-down="{{ ro }}" style="width:100%;height:84px;border:none;border-radius:var(--radius,18px);background:var(--accent,#ba0c2f);color:var(--btn-text,#fff);font-family:var(--display,'Anton');font-size:38px;letter-spacing:4px;cursor:pointer;box-shadow:0 7px 0 var(--accent2,#00205b),var(--glow,none);animation:btnPulse 1.4s ease-in-out infinite;-webkit-tap-highlight-color:transparent">{{ actionLabel }}</button>
     </div>
     </sc-if>
 
@@ -822,7 +822,7 @@
           <span style="color:var(--accent,#ba0c2f)">{{ barTo }}</span>
         </div>
         <div style="font-size:13px;line-height:1.6;opacity:.9;margin-top:10px;padding-top:14px;border-top:1px solid rgba(13,27,42,.12)">{{ introDesc }}</div>
-        <button onClick="{{ dismissIntro }}" style="width:100%;height:60px;margin-top:20px;border:none;border-radius:var(--radius,18px);background:var(--accent,#ba0c2f);color:#fff;font-family:var(--display,'Anton');font-size:20px;letter-spacing:2px;cursor:pointer;box-shadow:0 5px 0 #7d0820;-webkit-tap-highlight-color:transparent">{{ introBtn }}</button>
+        <button sc-camel-on-click="{{ dismissIntro }}" style="width:100%;height:60px;margin-top:20px;border:none;border-radius:var(--radius,18px);background:var(--accent,#ba0c2f);color:#fff;font-family:var(--display,'Anton');font-size:20px;letter-spacing:2px;cursor:pointer;box-shadow:0 5px 0 #7d0820;-webkit-tap-highlight-color:transparent">{{ introBtn }}</button>
       </div>
     </div>
     </sc-if>
@@ -837,14 +837,14 @@
         <div style="display:flex;justify-content:center"><span style="width:76px;height:57px;border-radius:5px;box-shadow:0 3px 10px rgba(0,0,0,.5);display:inline-block;background:url({{ rtFlag }}) center/cover no-repeat"></span></div>
         <div style="font-family:var(--display,'Anton');font-size:30px;color:#fff;margin-top:8px">{{ rtTo }}</div>
         <div style="font-size:12.5px;color:#9fc3e8;margin-top:8px;line-height:1.5">Time's up — you lead <b style="color:#fff">{{ rtScore }}</b>!<br>Next opponent: <b style="color:#fff">{{ rtOpp }}</b> — score reset, your shields carry over!</div>
-        <button onClick="{{ continueRound }}" style="width:100%;height:58px;margin-top:22px;border:none;border-radius:16px;background:var(--accent,#ba0c2f);color:#fff;font-family:var(--display,'Anton');font-size:20px;letter-spacing:2px;cursor:pointer;box-shadow:0 5px 0 #7d0820;-webkit-tap-highlight-color:transparent">CONTINUE ▸</button>
+        <button sc-camel-on-click="{{ continueRound }}" style="width:100%;height:58px;margin-top:22px;border:none;border-radius:16px;background:var(--accent,#ba0c2f);color:#fff;font-family:var(--display,'Anton');font-size:20px;letter-spacing:2px;cursor:pointer;box-shadow:0 5px 0 #7d0820;-webkit-tap-highlight-color:transparent">CONTINUE ▸</button>
       </div>
     </div>
     </sc-if>
 
     <!-- ===================== STUDIO INTRO / START ===================== -->
     <sc-if value="{{ isSplash }}" hint-placeholder-val="{{ true }}">
-    <div onClick="{{ enterMenu }}" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;background:#0b0f1a;z-index:80;cursor:pointer;overflow:hidden">
+    <div sc-camel-on-click="{{ enterMenu }}" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;background:#0b0f1a;z-index:80;cursor:pointer;overflow:hidden">
 
       <!-- subtle top/bottom vignette -->
       <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,32,91,.18),transparent 30%,transparent 70%,rgba(0,0,0,.4))"></div>
@@ -872,19 +872,19 @@
         <div style="font-size:13px;color:#9fc3e8;margin-top:10px;line-height:1.5">Enter your name to start ranking your raids.<br>Your combos &amp; clear times become your score.</div>
       </div>
       <div style="margin-top:26px;display:flex;flex-direction:column;gap:12px">
-        <input ref="{{ nameRef }}" onKeyDown="{{ onNameKey }}" maxlength="16" placeholder="YOUR NAME" autocomplete="off" style="height:58px;border-radius:14px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;font-family:var(--display,'Anton');font-size:24px;letter-spacing:2px;text-align:center;outline:none">
+        <input ref="{{ nameRef }}" sc-camel-on-key-down="{{ onNameKey }}" maxlength="16" placeholder="YOUR NAME" autocomplete="off" style="height:58px;border-radius:14px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;font-family:var(--display,'Anton');font-size:24px;letter-spacing:2px;text-align:center;outline:none">
         <sc-if value="{{ nameErr }}" hint-placeholder-val="{{ false }}"><div style="text-align:center;font-size:12px;color:#ff7a7a">Please enter a name to continue.</div></sc-if>
         <div style="font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.5);text-align:center;margin-top:6px">SELECT YOUR COUNTRY</div>
         <div style="display:flex;flex-direction:column;gap:6px;max-height:230px;overflow-y:auto;padding:4px;border-radius:12px;background:rgba(0,0,0,.25)">
           <sc-for list="{{ countryList }}" as="c" hint-placeholder-count="6">
-            <button onClick="{{ c.onSelect }}" style="{{ c.style }}">
+            <button sc-camel-on-click="{{ c.onSelect }}" style="{{ c.style }}">
               <span style="width:27px;height:20px;min-width:27px;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,.5);display:inline-block;background:url({{ c.flag }}) center/cover no-repeat"></span>
               <span style="flex:1;font-family:var(--display,'Anton');font-size:15px;letter-spacing:.5px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ c.name }}</span>
               <sc-if value="{{ c.active }}" hint-placeholder-val="{{ false }}"><span style="font-size:15px;color:var(--gold,#ffcb05)">✓</span></sc-if>
             </button>
           </sc-for>
         </div>
-        <button onClick="{{ submitName }}" style="height:62px;border:none;border-radius:14px;background:var(--accent,#ba0c2f);color:#fff;font-family:var(--display,'Anton');font-size:22px;letter-spacing:2px;cursor:pointer;box-shadow:0 5px 0 var(--accent2,#00205b)">CREATE &amp; PLAY ▸</button>
+        <button sc-camel-on-click="{{ submitName }}" style="height:62px;border:none;border-radius:14px;background:var(--accent,#ba0c2f);color:#fff;font-family:var(--display,'Anton');font-size:22px;letter-spacing:2px;cursor:pointer;box-shadow:0 5px 0 var(--accent2,#00205b)">CREATE &amp; PLAY ▸</button>
       </div>
       <sc-if value="{{ hasProfiles }}" hint-placeholder-val="{{ false }}">
       <div style="margin-top:28px">
@@ -892,11 +892,11 @@
         <div style="display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto">
           <sc-for list="{{ profilesList }}" as="p" hint-placeholder-count="0">
             <div style="display:flex;align-items:center;gap:8px;height:50px;padding:0 8px 0 16px;border-radius:12px;border:1.5px solid rgba(255,255,255,.18);background:rgba(255,255,255,.05)">
-              <div onClick="{{ p.onSelect }}" style="flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:10px;height:100%;cursor:pointer;color:#fff">
+              <div sc-camel-on-click="{{ p.onSelect }}" style="flex:1;min-width:0;display:flex;align-items:center;justify-content:space-between;gap:10px;height:100%;cursor:pointer;color:#fff">
                 <span style="font-family:var(--display,'Anton');font-size:16px;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.name }}</span>
                 <span style="font-size:12px;color:var(--gold,#ffcb05);white-space:nowrap">{{ p.total }} pts</span>
               </div>
-              <button onClick="{{ p.onDelete }}" aria-label="Delete profile" style="flex:0 0 auto;width:34px;height:34px;border:none;border-radius:9px;background:rgba(186,12,47,.16);color:#ff7a90;font-size:16px;line-height:1;cursor:pointer">✕</button>
+              <button sc-camel-on-click="{{ p.onDelete }}" aria-label="Delete profile" style="flex:0 0 auto;width:34px;height:34px;border:none;border-radius:9px;background:rgba(186,12,47,.16);color:#ff7a90;font-size:16px;line-height:1;cursor:pointer">✕</button>
             </div>
           </sc-for>
         </div>
@@ -913,13 +913,13 @@
         <div style="font-size:12px;color:#9fc3e8;margin-top:2px">{{ boardHint }}</div>
         <div style="display:inline-flex;gap:6px;margin-top:10px">
           <sc-for list="{{ scopeTabs }}" as="sc" hint-placeholder-count="2">
-            <button onClick="{{ sc.onClick }}" style="{{ sc.style }}">{{ sc.label }}</button>
+            <button sc-camel-on-click="{{ sc.onClick }}" style="{{ sc.style }}">{{ sc.label }}</button>
           </sc-for>
         </div>
       </div>
       <div style="display:flex;gap:6px;margin-top:14px">
         <sc-for list="{{ catTabs }}" as="t" hint-placeholder-count="4">
-          <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
+          <button sc-camel-on-click="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
         </sc-for>
       </div>
       <div style="display:flex;align-items:center;gap:12px;margin-top:16px;padding:12px 16px;border-radius:14px;background:rgba(255,203,5,.10);border:1.5px solid rgba(255,203,5,.35)">
@@ -963,7 +963,7 @@
           </div>
         </sc-for>
       </div>
-      <button onClick="{{ goMenu }}" style="height:54px;margin-top:12px;border:2px solid rgba(255,255,255,.4);border-radius:16px;background:transparent;color:#fff;font-family:var(--display,'Anton');font-size:16px;letter-spacing:1px;cursor:pointer">MENU</button>
+      <button sc-camel-on-click="{{ goMenu }}" style="height:54px;margin-top:12px;border:2px solid rgba(255,255,255,.4);border-radius:16px;background:transparent;color:#fff;font-family:var(--display,'Anton');font-size:16px;letter-spacing:1px;cursor:pointer">MENU</button>
     </div>
     </sc-if>
 
@@ -971,7 +971,7 @@
     <sc-if value="{{ isMenu }}" hint-placeholder-val="{{ true }}">
     <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:calc(40px + env(safe-area-inset-top)) 22px calc(26px + env(safe-area-inset-bottom));background:linear-gradient(rgba(0,0,0,.62) 0%,rgba(0,0,0,.32) 24%,rgba(0,0,0,.3) 64%,rgba(0,0,0,.62) 100%);z-index:60">
       <div style="text-align:center">
-        <button onClick="{{ goAccount }}" style="display:inline-flex;align-items:center;gap:9px;padding:7px 14px;border-radius:30px;background:rgba(0,0,0,.42);border:1px solid rgba(255,255,255,.2);margin-bottom:14px;cursor:pointer">
+        <button sc-camel-on-click="{{ goAccount }}" style="display:inline-flex;align-items:center;gap:9px;padding:7px 14px;border-radius:30px;background:rgba(0,0,0,.42);border:1px solid rgba(255,255,255,.2);margin-bottom:14px;cursor:pointer">
           <span style="width:20px;height:15px;min-width:20px;border-radius:2px;box-shadow:0 1px 2px rgba(0,0,0,.5);display:inline-block;background:url({{ playerFlag }}) center/cover no-repeat"></span>
           <span style="font-family:var(--display,'Anton');font-size:14px;color:#fff;letter-spacing:.5px">{{ playerName }}</span>
           <span style="width:1px;height:13px;background:rgba(255,255,255,.25)"></span>
@@ -992,15 +992,15 @@
 
       <div style="width:100%;max-width:340px;display:flex;flex-direction:column;gap:14px">
         <div style="text-align:center;font-size:11.5px;letter-spacing:.3px;color:#fff;opacity:.92;line-height:1.55;text-shadow:0 1px 6px rgba(0,0,0,.9)">Tap <b style="color:var(--gold,#ffcb05)">RO!</b> when the sweeping line is in the gold zone · red center = <b style="color:var(--gold,#ffcb05)">PERFECT</b></div>
-        <button onClick="{{ playCurrent }}" style="height:74px;border:none;border-radius:var(--radius,18px);background:var(--accent,#ba0c2f);color:var(--btn-text,#fff);font-family:var(--display,'Anton');font-size:28px;letter-spacing:3px;cursor:pointer;box-shadow:0 6px 0 var(--accent2,#00205b),var(--glow,none)">PLAY ▸ {{ stageIcon }}</button>
+        <button sc-camel-on-click="{{ playCurrent }}" style="height:74px;border:none;border-radius:var(--radius,18px);background:var(--accent,#ba0c2f);color:var(--btn-text,#fff);font-family:var(--display,'Anton');font-size:28px;letter-spacing:3px;cursor:pointer;box-shadow:0 6px 0 var(--accent2,#00205b),var(--glow,none)">PLAY ▸ {{ stageIcon }}</button>
         <div style="display:flex;gap:10px">
-          <button onClick="{{ goStages }}" style="flex:1;height:50px;border:2px solid rgba(255,255,255,.5);border-radius:var(--radius,18px);background:var(--panel,rgba(255,255,255,.14));color:var(--panel-ink,#fff);font-family:var(--display,'Anton');font-size:15px;letter-spacing:1px;cursor:pointer">STAGES</button>
-          <button onClick="{{ goBoard }}" style="flex:1;height:50px;border:2px solid rgba(255,255,255,.5);border-radius:var(--radius,18px);background:var(--panel,rgba(255,255,255,.14));color:var(--panel-ink,#fff);font-family:var(--display,'Anton');font-size:15px;letter-spacing:1px;cursor:pointer">SCORES</button>
-          <button onClick="{{ toggleMute }}" style="flex:0 0 56px;height:50px;border:2px solid rgba(255,255,255,.5);border-radius:var(--radius,18px);background:var(--panel,rgba(255,255,255,.14));color:var(--panel-ink,#fff);font-size:18px;cursor:pointer">{{ muteIcon }}</button>
+          <button sc-camel-on-click="{{ goStages }}" style="flex:1;height:50px;border:2px solid rgba(255,255,255,.5);border-radius:var(--radius,18px);background:var(--panel,rgba(255,255,255,.14));color:var(--panel-ink,#fff);font-family:var(--display,'Anton');font-size:15px;letter-spacing:1px;cursor:pointer">STAGES</button>
+          <button sc-camel-on-click="{{ goBoard }}" style="flex:1;height:50px;border:2px solid rgba(255,255,255,.5);border-radius:var(--radius,18px);background:var(--panel,rgba(255,255,255,.14));color:var(--panel-ink,#fff);font-family:var(--display,'Anton');font-size:15px;letter-spacing:1px;cursor:pointer">SCORES</button>
+          <button sc-camel-on-click="{{ toggleMute }}" style="flex:0 0 56px;height:50px;border:2px solid rgba(255,255,255,.5);border-radius:var(--radius,18px);background:var(--panel,rgba(255,255,255,.14));color:var(--panel-ink,#fff);font-size:18px;cursor:pointer">{{ muteIcon }}</button>
         </div>
         <div style="text-align:center;font-size:12px;color:#fff;opacity:.78">Stage: <b style="color:var(--gold,#ffcb05)">{{ stageName }}</b> · Best combo: <b style="color:var(--gold,#ffcb05)">×{{ bestComboR }}</b></div>
         <div style="display:flex;align-items:center;justify-content:center;gap:20px">
-          <button onClick="{{ openTutorial }}" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:11px;letter-spacing:1.5px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:12px 0">ⓘ HOW TO PLAY</button>
+          <button sc-camel-on-click="{{ openTutorial }}" style="background:none;border:none;color:rgba(255,255,255,.6);font-size:11px;letter-spacing:1.5px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:12px 0">ⓘ HOW TO PLAY</button>
           <a href="privacy.html" style="color:rgba(255,255,255,.42);font-size:11px;letter-spacing:1.5px;text-decoration:underline;text-underline-offset:3px;padding:12px 0">PRIVACY</a>
         </div>
       </div>
@@ -1029,7 +1029,7 @@
           <div style="display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:#dfe9f2;line-height:1.45"><span style="font-size:16px;flex:0 0 auto">🔥</span><span>Chain hits to build a <b style="color:var(--gold,#ffcb05)">COMBO</b>. Faster clears + bigger combos = higher score.</span></div>
           <div style="display:flex;gap:10px;align-items:flex-start;font-size:12.5px;color:#dfe9f2;line-height:1.45"><span style="font-size:16px;flex:0 0 auto">🏆</span><span>Every stage scores points — climb the <b style="color:var(--gold,#ffcb05)">SCOREBOARD</b> by total, time, combo &amp; country.</span></div>
         </div>
-        <button onClick="{{ dismissTutorial }}" style="margin-top:18px;width:100%;height:58px;border:none;border-radius:14px;background:var(--accent,#ba0c2f);color:var(--btn-text,#fff);font-family:var(--display,'Anton');font-size:22px;letter-spacing:2px;cursor:pointer;box-shadow:0 5px 0 var(--accent2,#00205b)">LET’S ROW! ▸</button>
+        <button sc-camel-on-click="{{ dismissTutorial }}" style="margin-top:18px;width:100%;height:58px;border:none;border-radius:14px;background:var(--accent,#ba0c2f);color:var(--btn-text,#fff);font-family:var(--display,'Anton');font-size:22px;letter-spacing:2px;cursor:pointer;box-shadow:0 5px 0 var(--accent2,#00205b)">LET’S ROW! ▸</button>
       </div>
     </div>
     </sc-if>
@@ -1062,13 +1062,13 @@
       </div>
       <div style="width:100%;max-width:340px;display:flex;flex-direction:column;gap:10px">
         <sc-if value="{{ hasNext }}" hint-placeholder-val="{{ false }}">
-        <button onClick="{{ playNext }}" style="height:62px;border:none;border-radius:var(--radius,18px);background:var(--gold,#ffcb05);color:#1a1206;font-family:var(--display,'Anton');font-size:22px;letter-spacing:1px;cursor:pointer;box-shadow:0 5px 0 #b78a00">NEXT STAGE ▸</button>
+        <button sc-camel-on-click="{{ playNext }}" style="height:62px;border:none;border-radius:var(--radius,18px);background:var(--gold,#ffcb05);color:#1a1206;font-family:var(--display,'Anton');font-size:22px;letter-spacing:1px;cursor:pointer;box-shadow:0 5px 0 #b78a00">NEXT STAGE ▸</button>
         </sc-if>
-        <button onClick="{{ start }}" style="height:62px;border:none;border-radius:var(--radius,18px);background:var(--accent,#ba0c2f);color:var(--btn-text,#fff);font-family:var(--display,'Anton');font-size:24px;letter-spacing:2px;cursor:pointer;box-shadow:0 5px 0 var(--accent2,#00205b),var(--glow,none)">TRY AGAIN</button>
+        <button sc-camel-on-click="{{ start }}" style="height:62px;border:none;border-radius:var(--radius,18px);background:var(--accent,#ba0c2f);color:var(--btn-text,#fff);font-family:var(--display,'Anton');font-size:24px;letter-spacing:2px;cursor:pointer;box-shadow:0 5px 0 var(--accent2,#00205b),var(--glow,none)">TRY AGAIN</button>
         <div style="display:flex;gap:10px">
-          <button onClick="{{ goStages }}" style="flex:1;height:50px;border:2px solid rgba(255,255,255,.5);border-radius:var(--radius,18px);background:var(--panel,rgba(255,255,255,.16));color:var(--panel-ink,#fff);font-family:var(--display,'Anton');font-size:14px;cursor:pointer">STAGES</button>
-          <button onClick="{{ goBoard }}" style="flex:1;height:50px;border:2px solid rgba(255,255,255,.5);border-radius:var(--radius,18px);background:var(--panel,rgba(255,255,255,.16));color:var(--panel-ink,#fff);font-family:var(--display,'Anton');font-size:14px;cursor:pointer">SCORES</button>
-          <button onClick="{{ goMenu }}" style="flex:1;height:50px;border:2px solid rgba(255,255,255,.5);border-radius:var(--radius,18px);background:var(--panel,rgba(255,255,255,.16));color:var(--panel-ink,#fff);font-family:var(--display,'Anton');font-size:14px;cursor:pointer">MENU</button>
+          <button sc-camel-on-click="{{ goStages }}" style="flex:1;height:50px;border:2px solid rgba(255,255,255,.5);border-radius:var(--radius,18px);background:var(--panel,rgba(255,255,255,.16));color:var(--panel-ink,#fff);font-family:var(--display,'Anton');font-size:14px;cursor:pointer">STAGES</button>
+          <button sc-camel-on-click="{{ goBoard }}" style="flex:1;height:50px;border:2px solid rgba(255,255,255,.5);border-radius:var(--radius,18px);background:var(--panel,rgba(255,255,255,.16));color:var(--panel-ink,#fff);font-family:var(--display,'Anton');font-size:14px;cursor:pointer">SCORES</button>
+          <button sc-camel-on-click="{{ goMenu }}" style="flex:1;height:50px;border:2px solid rgba(255,255,255,.5);border-radius:var(--radius,18px);background:var(--panel,rgba(255,255,255,.16));color:var(--panel-ink,#fff);font-family:var(--display,'Anton');font-size:14px;cursor:pointer">MENU</button>
         </div>
       </div>
     </div>
@@ -1081,7 +1081,7 @@
       <div style="text-align:center;font-size:12px;color:#9fc3e8;margin-top:2px">The RO journey — a new theme each stage</div>
       <div style="flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:12px;margin-top:22px;padding-bottom:4px">
         <sc-for list="{{ stageCards }}" as="c" hint-placeholder-count="3">
-          <button onClick="{{ c.onClick }}" style="{{ c.style }}">
+          <button sc-camel-on-click="{{ c.onClick }}" style="{{ c.style }}">
             <span style="{{ c.iconStyle }}">{{ c.icon }}</span>
             <span style="display:flex;flex-direction:column;gap:2px">
               <span style="font-family:var(--display,'Anton');font-size:18px;letter-spacing:.5px">{{ c.name }}</span>
@@ -1107,7 +1107,7 @@
           <span style="margin-left:auto;font-family:var(--display,'Anton');font-size:11px;letter-spacing:1px;color:#9fb0c2;white-space:nowrap">COMING SOON 🔒</span>
         </div>
       </div>
-      <button onClick="{{ goMenu }}" style="height:54px;border:2px solid rgba(255,255,255,.4);border-radius:16px;background:transparent;color:#fff;font-family:var(--display,'Anton');font-size:16px;letter-spacing:1px;cursor:pointer">MENU</button>
+      <button sc-camel-on-click="{{ goMenu }}" style="height:54px;border:2px solid rgba(255,255,255,.4);border-radius:16px;background:transparent;color:#fff;font-family:var(--display,'Anton');font-size:16px;letter-spacing:1px;cursor:pointer">MENU</button>
     </div>
     </sc-if>
 
