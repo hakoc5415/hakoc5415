@@ -78,6 +78,7 @@ class RoLeaderboardClient {
   init(config) {
     if (this._configured) return this.ready;
     this._configured = true;
+    console.log('[RoLB] init starting; config=' + (config || window.RO_FIREBASE_CONFIG ? 'present' : 'MISSING') + ' online=' + navigator.onLine);
     try {
       this.app = initializeApp(config || window.RO_FIREBASE_CONFIG);
       this.auth = getAuth(this.app);
@@ -112,13 +113,26 @@ class RoLeaderboardClient {
         }
       });
       signInAnonymously(this.auth).catch((e) => {
-        console.warn('[RoLeaderboard] anonymous sign-in failed', e);
+        console.warn('[RoLB] anonymous sign-in FAILED: ' + ((e && (e.code || e.message)) || e));
         resolve(false);
       });
+      // If neither success nor failure within 10s, say so — a silent hang here
+      // (e.g. blocked network) is otherwise invisible in the console.
+      setTimeout(() => {
+        if (!this.uid) console.warn('[RoLB] still not signed in after 10s — network to firebase blocked or very slow?');
+      }, 10000);
     });
 
     window.addEventListener('online', () => this._flushQueue());
-    this.ready.then((ok) => ok && this._flushQueue());
+    this.ready.then((ok) => {
+      if (!ok) return;
+      this._flushQueue();
+      // Prefetch the world board as soon as auth lands so the SCORES screen has
+      // rows even if it was opened (and rendered) before sign-in completed.
+      this._refresh('total');
+      this._refresh('combo');
+      this._refresh('country');
+    });
     return this.ready;
   }
 
@@ -200,7 +214,13 @@ class RoLeaderboardClient {
     const cache = readJSON(CACHE_KEY, {});
     const entry = cache[category];
     const stale = !entry || Date.now() - entry.ts > CACHE_TTL_MS;
-    if (stale && this.uid) this._refresh(category); // fire and forget
+    if (stale) {
+      if (this.uid) this._refresh(category); // fire and forget
+      else if (!this._warnedNoAuth) {
+        this._warnedNoAuth = true;
+        console.warn('[RoLB] world board requested but not signed in yet — refresh skipped (will retry once auth completes)');
+      }
+    }
     return entry ? entry.players : [];
   }
 
@@ -279,5 +299,10 @@ class RoLeaderboardClient {
   }
 }
 
+console.log('[RoLB] script loaded');
 window.RoLeaderboard = new RoLeaderboardClient();
-window.RoLeaderboard.init();
+try {
+  window.RoLeaderboard.init();
+} catch (e) {
+  console.warn('[RoLB] init THREW: ' + ((e && e.message) || e));
+}
