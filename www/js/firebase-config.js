@@ -1,13 +1,12 @@
-// Placeholder Firebase Web config — REPLACE with the real project's values
-// before shipping (Firebase console → Project settings → General → Your apps
-// → Web app → SDK setup and configuration). These values are public client
-// identifiers, not secrets; access control is enforced by firestore.rules and
-// by the submitScore Cloud Function, not by hiding this file.
+// Firebase web-app config for the RO! world leaderboard (project: ro-viking-raid).
+// These values are public client identifiers, not secrets; access control is
+// enforced by firestore.rules and the submitScore Cloud Function, not by
+// hiding this file.
 window.RO_FIREBASE_CONFIG = {
-  apiKey: 'REPLACE_ME',
-  authDomain: 'REPLACE_ME.firebaseapp.com',
-  projectId: 'REPLACE_ME',
-  storageBucket: 'REPLACE_ME.appspot.com',
-  messagingSenderId: 'REPLACE_ME',
-  appId: 'REPLACE_ME',
+  apiKey: 'AIzaSyC43HEn66DhA3Ljk5DdGOIb2d0hYecFlH4',
+  authDomain: 'ro-viking-raid.firebaseapp.com',
+  projectId: 'ro-viking-raid',
+  storageBucket: 'ro-viking-raid.firebasestorage.app',
+  messagingSenderId: '127623883054',
+  appId: '1:127623883054:web:7ee2125ba438194e23f2bf',
 };
