@@ -771,7 +771,7 @@
 
     <!-- ===================== VERTICAL SKILL BAR (side) ===================== -->
     <sc-if value="{{ isGame }}" hint-placeholder-val="{{ true }}">
-    <div style="position:absolute;right:14px;top:calc(19vh + env(safe-area-inset-top));height:46vh;width:52px;z-index:6">
+    <div style="position:absolute;right:14px;top:max(27vh, calc(19vh + env(safe-area-inset-top)));height:46vh;width:52px;z-index:6">
       <div ref="{{ trackRef }}" style="position:relative;height:100%;background:var(--panel,rgba(255,255,255,.92));border:2px solid var(--panel-bd,rgba(13,27,42,.14));border-radius:var(--radius,18px);overflow:hidden;box-shadow:var(--glow,none)">
         <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,0,0,.12)"></div>
         <div ref="{{ zoneRef }}" style="{{ zoneStyle }}"></div>
