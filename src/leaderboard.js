@@ -63,6 +63,46 @@ function totalOf(scores) {
   return [1, 2, 3, 4, 5, 6].reduce((a, id) => a + ((scores && scores[id]) || 0), 0);
 }
 
+// ---------- REST transport (native WebViews) ----------
+// Inside WKWebView the Firebase JS SDK's network layers (WebChannel for
+// Firestore AND the auth fetch pipeline) can hang without ever resolving —
+// observed as "signInAnonymously neither succeeds nor fails". On native we
+// therefore bypass the SDK entirely and speak plain HTTPS:
+//   - Identity Toolkit REST for anonymous auth (signUp / token refresh)
+//   - Firestore documents:runQuery for the public board reads
+//   - the callable-function HTTP protocol for submitScore
+const REST_AUTH_KEY = 'ro_lb_rest_auth';
+
+function fetchJSON(url, opts, timeoutMs) {
+  return new Promise((resolve, reject) => {
+    const ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    const t = setTimeout(() => {
+      if (ctrl) ctrl.abort();
+      reject(new Error('timeout after ' + (timeoutMs || 15000) + 'ms'));
+    }, timeoutMs || 15000);
+    fetch(url, Object.assign({}, opts || {}, ctrl ? { signal: ctrl.signal } : {}))
+      .then((r) => r.json().then((j) => { clearTimeout(t); resolve({ status: r.status, json: j }); }))
+      .catch((e) => { clearTimeout(t); reject(e); });
+  });
+}
+
+function decodeFsValue(v) {
+  if (!v || typeof v !== 'object') return v;
+  if ('stringValue' in v) return v.stringValue;
+  if ('integerValue' in v) return parseInt(v.integerValue, 10);
+  if ('doubleValue' in v) return v.doubleValue;
+  if ('booleanValue' in v) return v.booleanValue;
+  if ('nullValue' in v) return null;
+  if ('mapValue' in v) return decodeFsFields((v.mapValue && v.mapValue.fields) || {});
+  if ('arrayValue' in v) return ((v.arrayValue && v.arrayValue.values) || []).map(decodeFsValue);
+  return null;
+}
+function decodeFsFields(fields) {
+  const out = {};
+  for (const k in fields) out[k] = decodeFsValue(fields[k]);
+  return out;
+}
+
 class RoLeaderboardClient {
   constructor() {
     this.app = null;
@@ -78,25 +118,24 @@ class RoLeaderboardClient {
   init(config) {
     if (this._configured) return this.ready;
     this._configured = true;
-    console.log('[RoLB] init starting; config=' + (config || window.RO_FIREBASE_CONFIG ? 'present' : 'MISSING') + ' online=' + navigator.onLine);
+    const cfg = config || window.RO_FIREBASE_CONFIG;
+    console.log('[RoLB] init starting; config=' + (cfg ? 'present' : 'MISSING') + ' online=' + navigator.onLine);
+    const cap = window.Capacitor;
+    const isNative = !!(cap && cap.isNativePlatform && cap.isNativePlatform()) || !!window.RO_FORCE_REST;
+    if (isNative && cfg) return this._initRest(cfg);
     try {
-      this.app = initializeApp(config || window.RO_FIREBASE_CONFIG);
+      this.app = initializeApp(cfg);
       this.auth = getAuth(this.app);
-      // Firestore's default WebChannel transport fails inside native WebViews
-      // (iOS WKWebView especially, where the page origin is capacitor://localhost),
-      // so reads never arrive and the world board stays empty. Auto-detect is not
-      // reliable there either — FORCE long-polling on the native apps, keep
-      // auto-detect for normal browsers.
-      const cap = window.Capacitor;
-      const isNative = !!(cap && cap.isNativePlatform && cap.isNativePlatform());
+      // Firestore's default WebChannel transport can fail inside embedded
+      // webviews; auto-detect falls back to long-polling there while keeping
+      // WebChannel in normal browsers. (Native apps don't reach this path —
+      // they use the REST transport above.)
       try {
-        this.db = initializeFirestore(this.app, isNative
-          ? { experimentalForceLongPolling: true }
-          : { experimentalAutoDetectLongPolling: true });
+        this.db = initializeFirestore(this.app, { experimentalAutoDetectLongPolling: true });
       } catch (e) {
         this.db = getFirestore(this.app); // already initialized (e.g. hot reload)
       }
-      console.log('[RoLB] init: native=' + isNative + ' transport=' + (isNative ? 'forced-long-polling' : 'auto-detect'));
+      console.log('[RoLB] init: web mode (SDK, auto-detect transport)');
       this.functions = getFunctions(this.app);
     } catch (e) {
       console.warn('[RoLeaderboard] Firebase init failed — world board stays offline/simulated.', e);
@@ -136,6 +175,167 @@ class RoLeaderboardClient {
     return this.ready;
   }
 
+  /** Native path: plain-HTTPS Firebase (no SDK transports). */
+  _initRest(cfg) {
+    this.mode = 'rest';
+    this._cfg = cfg;
+    this._fsBase = 'https://firestore.googleapis.com/v1/projects/' + cfg.projectId + '/databases/(default)/documents';
+    this._fnBase = 'https://us-central1-' + cfg.projectId + '.cloudfunctions.net';
+    console.log('[RoLB] init: native -> REST mode (bypassing SDK transports)');
+    // NETTEST: one cheap unauthenticated read. If even this hangs/fails, the
+    // WebView itself has no working network (e.g. the simulator's network
+    // process crashed) and nothing app-side can fix that.
+    fetchJSON(this._fsBase + '/countries?pageSize=1&key=' + cfg.apiKey, { method: 'GET' }, 10000)
+      .then((r) => console.log('[RoLB] NETTEST firestore REST: HTTP ' + r.status))
+      .catch((e) => console.warn('[RoLB] NETTEST FAILED: ' + e.message + ' — WebView has no working network (restart the Simulator / try a real device)'));
+    this.ready = this._restAuth().then((ok) => {
+      if (ok) {
+        this._flushQueue();
+        this._refresh('total');
+        this._refresh('combo');
+        this._refresh('country');
+      } else {
+        // Board reads are public — fill the board even without auth.
+        this._refresh('total');
+        this._refresh('combo');
+        this._refresh('country');
+      }
+      return ok;
+    });
+    window.addEventListener('online', () => this._flushQueue());
+    return this.ready;
+  }
+
+  /** Ensure a valid anonymous REST session; sets this.uid + this._idToken. */
+  async _restAuth() {
+    try {
+      const now = Date.now();
+      let s = readJSON(REST_AUTH_KEY, null);
+      if (s && s.exp && s.exp - now > 60000) {
+        this.uid = s.localId;
+        this._idToken = s.idToken;
+        return true;
+      }
+      if (s && s.refreshToken) {
+        try {
+          const r = await fetchJSON(
+            'https://securetoken.googleapis.com/v1/token?key=' + this._cfg.apiKey,
+            {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+              body: 'grant_type=refresh_token&refresh_token=' + encodeURIComponent(s.refreshToken),
+            }, 12000);
+          if (r.status === 200 && r.json.id_token) {
+            s = {
+              localId: r.json.user_id,
+              idToken: r.json.id_token,
+              refreshToken: r.json.refresh_token || s.refreshToken,
+              exp: now + (parseInt(r.json.expires_in, 10) || 3600) * 1000,
+            };
+            writeJSON(REST_AUTH_KEY, s);
+            this.uid = s.localId;
+            this._idToken = s.idToken;
+            console.log('[RoLB] REST auth refreshed, uid=' + s.localId.slice(0, 6) + '…');
+            return true;
+          }
+          console.warn('[RoLB] REST token refresh got HTTP ' + r.status + ' — signing up fresh');
+        } catch (e) {
+          console.warn('[RoLB] REST token refresh failed: ' + e.message);
+        }
+      }
+      const r = await fetchJSON(
+        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + this._cfg.apiKey,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ returnSecureToken: true }),
+        }, 12000);
+      if (r.status === 200 && r.json.localId) {
+        const sess = {
+          localId: r.json.localId,
+          idToken: r.json.idToken,
+          refreshToken: r.json.refreshToken,
+          exp: Date.now() + (parseInt(r.json.expiresIn, 10) || 3600) * 1000,
+        };
+        writeJSON(REST_AUTH_KEY, sess);
+        this.uid = sess.localId;
+        this._idToken = sess.idToken;
+        console.log('[RoLB] REST anonymous sign-in ok, uid=' + sess.localId.slice(0, 6) + '…');
+        return true;
+      }
+      console.warn('[RoLB] REST sign-in FAILED: HTTP ' + r.status + ' ' + JSON.stringify(r.json && r.json.error && r.json.error.message));
+      return false;
+    } catch (e) {
+      console.warn('[RoLB] REST auth error: ' + e.message);
+      return false;
+    }
+  }
+
+  async _restRunQuery(structuredQuery) {
+    const r = await fetchJSON(this._fsBase + ':runQuery?key=' + this._cfg.apiKey, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ structuredQuery }),
+    }, 15000);
+    if (r.status !== 200) throw new Error('runQuery HTTP ' + r.status);
+    return (Array.isArray(r.json) ? r.json : [])
+      .filter((x) => x.document)
+      .map((x) => ({
+        id: x.document.name.split('/').pop(),
+        data: decodeFsFields(x.document.fields || {}),
+      }));
+  }
+
+  async _restFetchBoard(category) {
+    if (category === 'country') {
+      const rows = await this._restRunQuery({
+        from: [{ collectionId: 'countries' }],
+        orderBy: [{ field: { fieldPath: 'total' }, direction: 'DESCENDING' }],
+        limit: TOP_N,
+      });
+      return rows.map((r) => ({ id: r.id, country: { code: r.id }, total: r.data.total, count: r.data.count }));
+    }
+    if (category === 'time') {
+      const rows = await this._restRunQuery({
+        from: [{ collectionId: 'players' }],
+        where: { fieldFilter: { field: { fieldPath: 'bestTime' }, op: 'GREATER_THAN', value: { doubleValue: 0 } } },
+        orderBy: [{ field: { fieldPath: 'bestTime' }, direction: 'ASCENDING' }],
+        limit: TOP_N,
+      });
+      return rows.map((r) => this._toEntrant(r.id, r.data));
+    }
+    const field = category === 'combo' ? 'bestCombo' : 'totalScore';
+    const rows = await this._restRunQuery({
+      from: [{ collectionId: 'players' }],
+      orderBy: [{ field: { fieldPath: field }, direction: 'DESCENDING' }],
+      limit: TOP_N,
+    });
+    return rows.map((r) => this._toEntrant(r.id, r.data));
+  }
+
+  async _restSubmit(job) {
+    const r = await fetchJSON(this._fnBase + '/submitScore', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + this._idToken,
+      },
+      body: JSON.stringify({
+        data: {
+          name: job.profile.name,
+          countryCode: job.profile.countryCode,
+          stageId: job.patch && job.patch.stageId,
+          score: job.patch && job.patch.score,
+          combo: job.patch && job.patch.combo,
+          timeSec: job.patch && job.patch.timeSec,
+        },
+      }),
+    }, 15000);
+    if (r.status !== 200 || (r.json && r.json.error)) {
+      throw new Error('submitScore HTTP ' + r.status + ' ' + JSON.stringify(r.json && r.json.error && r.json.error.message));
+    }
+  }
+
   /** Call after a local profile is created/selected. Cheap, queued like scores. */
   setProfile(profile) {
     writeJSON(PROFILE_KEY, profile);
@@ -158,6 +358,22 @@ class RoLeaderboardClient {
     this._lastFetch = {};
     notifyUpdated();
     await this.ready; // make sure anonymous auth resolved so uid exists
+    if (this.mode === 'rest') {
+      const ok = await this._restAuth();
+      if (ok && this.uid) {
+        try {
+          const r = await fetchJSON(this._fsBase + '/players/' + this.uid + '?key=' + this._cfg.apiKey, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + this._idToken },
+          }, 12000);
+          console.log('[RoLB] REST delete players/' + this.uid.slice(0, 6) + '…: HTTP ' + r.status);
+        } catch (e) {
+          console.warn('[RoLB] REST delete failed: ' + e.message);
+        }
+      }
+      notifyUpdated();
+      return;
+    }
     if (!this.uid || !this.db) return;
     try {
       // Delete our own players/{uid} doc directly (allowed by firestore.rules).
@@ -189,6 +405,25 @@ class RoLeaderboardClient {
     if (!this.uid) return;
     let q = readJSON(QUEUE_KEY, []);
     if (!q.length) return;
+    if (this.mode === 'rest') {
+      const ok = await this._restAuth(); // refresh the token if it's near expiry
+      if (!ok) return;
+      const remaining = [];
+      for (const job of q) {
+        try {
+          await this._restSubmit(job);
+        } catch (e) {
+          console.warn('[RoLB] REST submit failed (stays queued): ' + e.message);
+          remaining.push(job);
+        }
+      }
+      writeJSON(QUEUE_KEY, remaining);
+      if (q.length !== remaining.length) {
+        console.log('[RoLB] REST submitted ' + (q.length - remaining.length) + ' queued score(s)');
+        this._lastFetch = {}; // let the next board render refetch fresh rows
+      }
+      return;
+    }
     const submit = httpsCallable(this.functions, 'submitScore');
     const remaining = [];
     for (const job of q) {
@@ -215,7 +450,8 @@ class RoLeaderboardClient {
     const entry = cache[category];
     const stale = !entry || Date.now() - entry.ts > CACHE_TTL_MS;
     if (stale) {
-      if (this.uid) this._refresh(category); // fire and forget
+      // Board reads are public: in REST mode they don't need auth at all.
+      if (this.uid || this.mode === 'rest') this._refresh(category); // fire and forget
       else if (!this._warnedNoAuth) {
         this._warnedNoAuth = true;
         console.warn('[RoLB] world board requested but not signed in yet — refresh skipped (will retry once auth completes)');
@@ -228,9 +464,9 @@ class RoLeaderboardClient {
     if (this._lastFetch[category] && Date.now() - this._lastFetch[category] < 15000) return; // debounce
     this._lastFetch[category] = Date.now();
     try {
-      const players = category === 'country'
-        ? await this._fetchCountries()
-        : await this._fetchTop(category);
+      const players = this.mode === 'rest'
+        ? await this._restFetchBoard(category)
+        : (category === 'country' ? await this._fetchCountries() : await this._fetchTop(category));
       console.log('[RoLB] world fetch ok: ' + category + ' -> ' + players.length + ' rows');
       const cache = readJSON(CACHE_KEY, {});
       cache[category] = { players, ts: Date.now() };
@@ -279,6 +515,32 @@ class RoLeaderboardClient {
   async getMyRank(category) {
     const profile = readJSON(PROFILE_KEY, null);
     if (!profile || !this.uid) return null;
+    if (this.mode === 'rest') {
+      try {
+        if (category === 'time') return null; // TIME tab is not shown anymore
+        const field = category === 'combo' ? 'bestCombo' : 'totalScore';
+        const value = category === 'combo' ? profile.bestCombo : totalOf(profile.scores);
+        const r = await fetchJSON(this._fsBase + ':runAggregationQuery?key=' + this._cfg.apiKey, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            structuredAggregationQuery: {
+              structuredQuery: {
+                from: [{ collectionId: 'players' }],
+                where: { fieldFilter: { field: { fieldPath: field }, op: 'GREATER_THAN', value: { integerValue: String(value || 0) } } },
+              },
+              aggregations: [{ count: {}, alias: 'c' }],
+            },
+          }),
+        }, 12000);
+        const c = r.status === 200 && Array.isArray(r.json) && r.json[0] && r.json[0].result
+          && r.json[0].result.aggregateFields && r.json[0].result.aggregateFields.c;
+        if (c && c.integerValue != null) return parseInt(c.integerValue, 10) + 1;
+        return null;
+      } catch (e) {
+        return null;
+      }
+    }
     const col = collection(this.db, 'players');
     try {
       if (category === 'time') {
