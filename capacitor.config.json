@@ -8,7 +8,7 @@
   },
   "ios": {
     "backgroundColor": "#06101e",
-    "contentInset": "always"
+    "contentInset": "never"
   },
   "plugins": {
     "SplashScreen": {

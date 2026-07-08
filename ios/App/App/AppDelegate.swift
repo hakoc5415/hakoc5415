@@ -8,9 +8,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // `.ambient` lets game audio (WebAudio AudioContext) respect the physical silent switch,
-        // and mixes with (rather than interrupting) other apps' audio — see README "Haptics"/iOS section.
-        try? AVAudioSession.sharedInstance().setCategory(.ambient, options: [.mixWithOthers])
+        // `.playback` so the game's WebAudio still sounds when the ring/silent switch
+        // is on (rhythm gameplay needs the RO! cue + music). `.mixWithOthers` keeps it
+        // polite — it layers over, rather than interrupting, any music the user is playing.
+        try? AVAudioSession.sharedInstance().setCategory(.playback, options: [.mixWithOthers])
         try? AVAudioSession.sharedInstance().setActive(true)
         return true
     }
