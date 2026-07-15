@@ -145,6 +145,7 @@
   @keyframes waveT40{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,40px,0)}}
   @keyframes glintT{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,190px,0)}}
   @keyframes rainT{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50px,260px,0)}}
+  @keyframes beamSway{from{transform:rotate(18deg)}to{transform:rotate(34deg)}}
   @keyframes foamPulse{0%,100%{opacity:.45;transform:translateX(-50%) scaleY(1)}50%{opacity:.8;transform:translateX(-50%) scaleY(1.08)}}
   @keyframes flagFlap{0%,100%{transform:skewX(-8deg) scaleX(.96)}50%{transform:skewX(9deg) scaleX(1.04)}}
   @keyframes scarfWave{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-3px) rotate(4deg)}}
@@ -239,8 +240,11 @@
 
       <!-- fjord cliffs (sides) -->
       <sc-if value="{{ isFjord }}" hint-placeholder-val="{{ true }}">
+        <div style="{{ seaPatchStyle }}"></div>
         <div style="{{ leftCliffStyle }}"></div>
+        <div style="{{ leftGrassStyle }}"></div>
         <div style="{{ rightCliffStyle }}"></div>
+        <div style="{{ rightGrassStyle }}"></div>
         <sc-for list="{{ bankDecor }}" as="bd" hint-placeholder-count="0"><div style="{{ bd.style }}"></div></sc-for>
       </sc-if>
 
@@ -342,6 +346,15 @@
             <div style="{{ s.style }}"></div>
           </sc-for>
 
+          <!-- red/white striped sail billowing over mid-ship (reference style) -->
+          <sc-if value="{{ isStage1 }}" hint-placeholder-val="{{ true }}">
+            <div style="position:absolute;left:50%;top:39%;transform:translateX(-50%);width:148px;height:64px;z-index:6;pointer-events:none">
+              <div style="position:absolute;left:50%;top:40px;transform:translateX(-50%);width:168px;height:22px;background:radial-gradient(50% 100% at 50% 0,rgba(0,15,35,.28),transparent 72%)"></div>
+              <div style="position:absolute;inset:0;border-radius:9px 9px 30% 30%/9px 9px 22px 22px;overflow:hidden;background:repeating-linear-gradient(90deg,#c62b33 0 19px,#f3ede2 19px 38px);box-shadow:inset 0 -10px 14px rgba(120,20,25,.32),inset 0 5px 7px rgba(255,255,255,.35),0 4px 8px rgba(0,15,35,.25)"></div>
+              <div style="position:absolute;left:-6px;right:-6px;top:-4px;height:8px;border-radius:4px;background:linear-gradient(90deg,#5d4426,#8a6236 50%,#5d4426);box-shadow:0 2px 3px rgba(0,15,35,.4)"></div>
+              <div style="position:absolute;left:50%;top:-9px;transform:translateX(-50%);width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 36% 30%,#8a6236,#4a3318 74%);box-shadow:0 2px 3px rgba(0,15,35,.5)"></div>
+            </div>
+          </sc-if>
           <!-- The Grand Cup trophy held at the bow -->
           <div style="{{ trophyStyle }}">🏆</div>
         </div>
@@ -352,6 +365,7 @@
       <!-- ===== AVM escalator scene (stage 2) ===== -->
       <sc-if value="{{ isStage2 }}" hint-placeholder-val="{{ false }}">
         <div style="{{ mallBgStyle }}"></div>
+        <div style="position:absolute;inset:0;z-index:9;pointer-events:none;background:radial-gradient(90% 55% at 50% 6%,rgba(255,244,214,.20),transparent 58%),radial-gradient(130% 110% at 50% 45%,transparent 62%,rgba(6,10,22,.34) 100%)"></div>
         <div style="{{ floorTilesStyle }}"></div>
         <sc-if value="{{ showSkylight }}" hint-placeholder-val="{{ true }}"><div style="{{ skylightStyle }}"></div><div style="{{ ceilingBandStyle }}"></div></sc-if>
         <sc-if value="{{ isRoof }}" hint-placeholder-val="{{ false }}"><div style="{{ rooftopSkyStyle }}"></div></sc-if>
@@ -417,6 +431,9 @@
       <!-- ===== Oslo Royal Palace scene (stage 3) ===== -->
       <sc-if value="{{ isStage3 }}" hint-placeholder-val="{{ false }}">
         <div style="{{ palaceSkyStyle }}"></div>
+        <!-- celebration searchlight beams sweeping the night sky -->
+        <div style="position:absolute;left:16%;bottom:24%;width:64px;height:135%;z-index:9;pointer-events:none;transform-origin:50% 100%;transform:rotate(24deg);background:linear-gradient(180deg,transparent 0,rgba(235,242,255,.11) 30%,rgba(235,242,255,.04) 75%,transparent);clip-path:polygon(38% 100%,62% 100%,100% 0,0 0);animation:beamSway 7.5s ease-in-out infinite alternate"></div>
+        <div style="position:absolute;right:16%;bottom:24%;width:64px;height:135%;z-index:9;pointer-events:none;transform-origin:50% 100%;transform:rotate(-24deg);background:linear-gradient(180deg,transparent 0,rgba(235,242,255,.11) 30%,rgba(235,242,255,.04) 75%,transparent);clip-path:polygon(38% 100%,62% 100%,100% 0,0 0);animation:beamSway 7.5s ease-in-out -3.7s infinite alternate-reverse"></div>
         <sc-for list="{{ stars }}" as="st" hint-placeholder-count="0"><div style="{{ st.style }}"></div></sc-for>
         <div style="{{ moonStyle }}"></div>
         <!-- facade -->
@@ -518,6 +535,11 @@
       <sc-if value="{{ isStage4 }}" hint-placeholder-val="{{ false }}">
         <div style="{{ chamberWallStyle }}"></div>
         <div style="{{ domeStyle }}"></div>
+        <!-- velvet drapes with scalloped swags + gold fringe (reference style) -->
+        <div style="position:absolute;top:0;left:0;right:0;height:15%;z-index:2;pointer-events:none;background:linear-gradient(180deg,#4a0810 0,#6d0f1c 55%,#7e1320 100%);box-shadow:inset 0 -14px 22px rgba(0,0,0,.35)"></div>
+        <div style="position:absolute;top:13.2%;left:0;right:0;height:6.5%;z-index:2;pointer-events:none;background:radial-gradient(62% 100% at 50% 0,#6d0f1c 66%,#4a0810 69%,transparent 70%);background-size:20% 100%;background-repeat:repeat-x;filter:drop-shadow(0 3px 0 rgba(216,180,64,.85)) drop-shadow(0 4px 4px rgba(0,0,0,.4))"></div>
+        <div style="position:absolute;top:0;left:-24px;width:110px;height:34%;z-index:2;pointer-events:none;border-radius:0 0 70% 0/0 0 100% 0;background:linear-gradient(105deg,#3d060d,#6d0f1c 55%,#8c1a28);box-shadow:inset -14px 0 20px rgba(0,0,0,.45),inset 4px 0 0 rgba(216,180,64,.5)"></div>
+        <div style="position:absolute;top:0;right:-24px;width:110px;height:34%;z-index:2;pointer-events:none;border-radius:0 0 0 70%/0 0 0 100%;background:linear-gradient(255deg,#3d060d,#6d0f1c 55%,#8c1a28);box-shadow:inset 14px 0 20px rgba(0,0,0,.45),inset -4px 0 0 rgba(216,180,64,.5)"></div>
         <div style="{{ domeCorniceStyle }}"></div>
         <div style="{{ domeRosetteStyle }}"></div>
         <!-- framing gold columns -->
@@ -574,16 +596,19 @@
           </div>
         </div>
         <!-- chandelier (hangs in front) -->
+        <div style="position:absolute;left:50%;top:14%;transform:translate(-50%,-50%);width:300px;height:220px;z-index:15;pointer-events:none;background:radial-gradient(50% 50% at 50% 50%,rgba(255,196,96,.34),rgba(255,196,96,.10) 55%,transparent 72%)"></div>
         <div style="{{ chandCordStyle }}"></div>
         <div style="{{ chandBodyStyle }}"></div>
         <sc-for list="{{ chand }}" as="cb" hint-placeholder-count="0"><div style="{{ cb.style }}"></div></sc-for>
         <div style="{{ chandFinialStyle }}"></div>
+        <div style="position:absolute;inset:0;z-index:18;pointer-events:none;background:radial-gradient(130% 105% at 50% 38%,transparent 58%,rgba(20,0,4,.38) 100%)"></div>
         <sc-if value="{{ voteBanner }}" hint-placeholder-val="{{ false }}"><div style="{{ voteBannerStyle }}">PASSED UNANIMOUSLY! 🔨</div></sc-if>
       </sc-if>
 
       <!-- ===== Times Square scene (stage 5) — New York'ta RO ===== -->
       <sc-if value="{{ isStage5 }}" hint-placeholder-val="{{ false }}">
         <div style="{{ tsSkyStyle }}"></div>
+        <div style="position:absolute;inset:0;z-index:9;pointer-events:none;background:radial-gradient(70% 34% at 30% 26%,rgba(255,80,140,.10),transparent 70%),radial-gradient(70% 34% at 72% 34%,rgba(60,160,255,.10),transparent 70%),radial-gradient(130% 110% at 50% 45%,transparent 60%,rgba(3,6,14,.38) 100%)"></div>
         <!-- distant skyline + vanishing point haze -->
         <sc-for list="{{ tsBuildings }}" as="bd" hint-placeholder-count="6"><div style="{{ bd.style }}"></div></sc-for>
         <div style="{{ tsTowerStyle }}"></div>
@@ -680,7 +705,16 @@
         </div>
         <sc-for list="{{ st6CrowdFlags }}" as="cf" hint-placeholder-count="0"><div style="{{ cf.pole }}"></div><div style="{{ cf.wrap }}"></div></sc-for>
         <div ref="{{ roWaveRef }}" style="{{ roWaveStyle }}"></div>
+        <div style="position:absolute;top:2%;left:4%;width:200px;height:60%;z-index:1;pointer-events:none;transform:rotate(16deg);transform-origin:0 0;background:linear-gradient(168deg,rgba(240,248,255,.16),rgba(240,248,255,.04) 60%,transparent 75%);clip-path:polygon(0 0,26% 0,100% 100%,40% 100%)"></div>
+        <div style="position:absolute;top:2%;right:4%;width:200px;height:60%;z-index:1;pointer-events:none;transform:rotate(-16deg);transform-origin:100% 0;background:linear-gradient(192deg,rgba(240,248,255,.16),rgba(240,248,255,.04) 60%,transparent 75%);clip-path:polygon(74% 0,100% 0,60% 100%,0 100%)"></div>
         <div style="{{ st6Pitch }}"></div>
+        <!-- pitch-side advertising boards (reference style) -->
+        <div style="position:absolute;left:0;right:0;bottom:27%;height:22px;z-index:4;pointer-events:none;display:flex;box-shadow:0 3px 6px rgba(0,0,0,.45)">
+          <div style="flex:1;background:linear-gradient(180deg,#f3ede2,#d9d2c4);display:flex;align-items:center;justify-content:center;font-family:var(--display,'Anton');font-size:11px;letter-spacing:2px;color:#0c1526;overflow:hidden;white-space:nowrap">RO!</div>
+          <div style="flex:1.4;background:linear-gradient(180deg,#ba0c2f,#8e1b1b);display:flex;align-items:center;justify-content:center;font-family:var(--display,'Anton');font-size:11px;letter-spacing:2px;color:#fff;overflow:hidden;white-space:nowrap">THE GRAND CUP</div>
+          <div style="flex:1;background:linear-gradient(180deg,#00205b,#001438);display:flex;align-items:center;justify-content:center;font-family:var(--display,'Anton');font-size:11px;letter-spacing:2px;color:#fff;overflow:hidden;white-space:nowrap">NORGE</div>
+          <div style="flex:1.2;background:linear-gradient(180deg,#f3ede2,#d9d2c4);display:flex;align-items:center;justify-content:center;font-family:var(--display,'Anton');font-size:11px;letter-spacing:2px;color:#0c1526;overflow:hidden;white-space:nowrap">STADIUM RO</div>
+        </div>
         <div style="{{ st6PitchLine }}"></div>
         <div style="{{ st6CenterCircle }}"></div>
         <div style="{{ st6PenBox }}"></div>
@@ -697,9 +731,7 @@
         </div>
       </sc-for>
       <!-- RO pops -->
-      <sc-for list="{{ pops }}" as="p" hint-placeholder-count="0">
-        <div style="{{ p.style }}">{{ p.text }}</div>
-      </sc-for>
+      <div ref="{{ popLayerRef }}" style="position:absolute;inset:0;pointer-events:none;z-index:7"></div>
     </div>
     </sc-if>
 
@@ -876,17 +908,30 @@
     <div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:calc(36px + env(safe-area-inset-top)) 26px calc(24px + env(safe-area-inset-bottom));background:linear-gradient(#0a1730,#06101e);z-index:80;overflow-y:auto">
       <div style="text-align:center">
         <div style="font-family:'Archivo',sans-serif;font-weight:700;font-size:11px;letter-spacing:5px;color:var(--gold,#ffcb05)">RO! — VIKING RAID</div>
-        <div style="font-family:var(--display,'Anton');font-size:38px;color:#fff;line-height:1;margin-top:10px">CREATE ACCOUNT</div>
-        <div style="font-size:13px;color:#9fc3e8;margin-top:10px;line-height:1.5">Enter your name to start ranking your raids.<br>Your combos &amp; clear times become your score.</div>
+        <div style="font-family:var(--display,'Anton');font-size:36px;color:#fff;line-height:1;margin-top:10px">PLAYER ACCOUNT</div>
       </div>
-      <div style="margin-top:26px;display:flex;flex-direction:column;gap:12px">
-        <input ref="{{ nameRef }}" sc-camel-on-key-down="{{ onNameKey }}" maxlength="16" placeholder="YOUR NAME" autocomplete="off" style="height:58px;border-radius:14px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;font-family:var(--display,'Anton');font-size:24px;letter-spacing:2px;text-align:center;outline:none">
-        <input ref="{{ passRef }}" type="password" maxlength="40" placeholder="PASSWORD (MIN 6)" autocomplete="new-password" style="height:52px;border-radius:14px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;font-family:'Archivo',sans-serif;font-weight:700;font-size:17px;letter-spacing:2px;text-align:center;outline:none">
-        <div style="text-align:center;font-size:10.5px;color:rgba(255,255,255,.45);margin-top:-4px">Your name + password lets you log back into this account on any device.</div>
-        <sc-if value="{{ nameErr }}" hint-placeholder-val="{{ false }}"><div style="text-align:center;font-size:12px;color:#ff7a7a">Please enter a name to continue.</div></sc-if>
-        <sc-if value="{{ hasAuthErr }}" hint-placeholder-val="{{ false }}"><div style="text-align:center;font-size:12px;color:#ff7a7a">{{ authErr }}</div></sc-if>
-        <div style="font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.5);text-align:center;margin-top:6px">SELECT YOUR COUNTRY</div>
-        <div style="display:flex;flex-direction:column;gap:6px;max-height:230px;overflow-y:auto;padding:4px;border-radius:12px;background:rgba(0,0,0,.25)">
+
+      <sc-if value="{{ hasSession }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:16px;display:flex;align-items:center;justify-content:center;gap:12px;padding:10px 14px;border-radius:12px;background:rgba(255,203,5,.08);border:1px solid rgba(255,203,5,.25)">
+        <span style="font-size:12px;color:#ffcb05">Signed in as <b>{{ sessionName }}</b></span>
+        <button sc-camel-on-click="{{ logoutAccount }}" style="border:none;border-radius:9px;background:rgba(186,12,47,.25);color:#ff9aa8;font-size:11.5px;letter-spacing:1px;padding:8px 12px;cursor:pointer">LOG OUT</button>
+      </div>
+      </sc-if>
+
+      <!-- segmented tabs -->
+      <div style="margin-top:18px;display:flex;gap:8px;padding:6px;border-radius:16px;background:rgba(0,0,0,.3)">
+        <button sc-camel-on-click="{{ setTabCreate }}" style="{{ tabCreateStyle }}">NEW PLAYER</button>
+        <button sc-camel-on-click="{{ setTabLogin }}" style="{{ tabLoginStyle }}">LOG IN</button>
+      </div>
+
+      <!-- NEW PLAYER -->
+      <sc-if value="{{ isCreateTab }}" hint-placeholder-val="{{ true }}">
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:11px">
+        <input ref="{{ nameRef }}" sc-camel-on-key-down="{{ onNameKey }}" maxlength="16" placeholder="YOUR NAME" autocomplete="off" style="height:56px;border-radius:14px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;font-family:var(--display,'Anton');font-size:22px;letter-spacing:2px;text-align:center;outline:none">
+        <input ref="{{ passRef }}" type="password" maxlength="40" placeholder="CHOOSE A PASSWORD" autocomplete="new-password" style="height:50px;border-radius:14px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;letter-spacing:2px;text-align:center;outline:none">
+        <div style="text-align:center;font-size:10.5px;color:rgba(255,255,255,.45);margin-top:-3px">Min 6 characters — lets you log back in on any device.</div>
+        <div style="font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.5);text-align:center;margin-top:4px">SELECT YOUR COUNTRY</div>
+        <div style="display:flex;flex-direction:column;gap:6px;max-height:172px;overflow-y:auto;padding:4px;border-radius:12px;background:rgba(0,0,0,.25)">
           <sc-for list="{{ countryList }}" as="c" hint-placeholder-count="6">
             <button sc-camel-on-click="{{ c.onSelect }}" style="{{ c.style }}">
               <span style="width:27px;height:20px;min-width:27px;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,.5);display:inline-block;background:url({{ c.flag }}) center/cover no-repeat"></span>
@@ -895,22 +940,23 @@
             </button>
           </sc-for>
         </div>
-        <button sc-camel-on-click="{{ submitName }}" style="height:62px;border:none;border-radius:14px;background:var(--accent,#ba0c2f);color:#fff;font-family:var(--display,'Anton');font-size:22px;letter-spacing:2px;cursor:pointer;box-shadow:0 5px 0 var(--accent2,#00205b)">{{ createLabel }}</button>
-      </div>
-      <div style="margin-top:24px">
-        <div style="text-align:center;font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.45);margin-bottom:10px">— OR LOG IN TO YOUR ACCOUNT —</div>
-        <div style="display:flex;flex-direction:column;gap:9px">
-          <input ref="{{ loginNameRef }}" maxlength="16" placeholder="USERNAME" autocomplete="off" style="height:48px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:#fff;font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;letter-spacing:1.5px;text-align:center;outline:none">
-          <input ref="{{ loginPassRef }}" type="password" maxlength="40" placeholder="PASSWORD" autocomplete="current-password" style="height:48px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:#fff;font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;letter-spacing:1.5px;text-align:center;outline:none">
-          <button sc-camel-on-click="{{ loginAccount }}" style="height:52px;border:2px solid rgba(255,255,255,.4);border-radius:12px;background:rgba(255,255,255,.1);color:#fff;font-family:var(--display,'Anton');font-size:17px;letter-spacing:2px;cursor:pointer">{{ loginLabel }}</button>
-        </div>
-      </div>
-      <sc-if value="{{ hasSession }}" hint-placeholder-val="{{ false }}">
-      <div style="margin-top:18px;display:flex;align-items:center;justify-content:center;gap:12px;padding:10px 14px;border-radius:12px;background:rgba(255,203,5,.08);border:1px solid rgba(255,203,5,.25)">
-        <span style="font-size:12px;color:#ffcb05">Signed in as <b>{{ sessionName }}</b></span>
-        <button sc-camel-on-click="{{ logoutAccount }}" style="border:none;border-radius:9px;background:rgba(186,12,47,.25);color:#ff9aa8;font-size:11.5px;letter-spacing:1px;padding:8px 12px;cursor:pointer">LOG OUT</button>
+        <sc-if value="{{ nameErr }}" hint-placeholder-val="{{ false }}"><div style="text-align:center;font-size:12px;color:#ff7a7a">Please enter a name to continue.</div></sc-if>
+        <sc-if value="{{ hasAuthErr }}" hint-placeholder-val="{{ false }}"><div style="text-align:center;font-size:12px;color:#ff7a7a">{{ authErr }}</div></sc-if>
+        <button sc-camel-on-click="{{ submitName }}" style="height:60px;border:none;border-radius:14px;background:var(--accent,#ba0c2f);color:#fff;font-family:var(--display,'Anton');font-size:21px;letter-spacing:2px;cursor:pointer;box-shadow:0 5px 0 var(--accent2,#00205b)">{{ createLabel }}</button>
       </div>
       </sc-if>
+
+      <!-- LOG IN -->
+      <sc-if value="{{ isLoginTab }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:14px;display:flex;flex-direction:column;gap:11px">
+        <div style="text-align:center;font-size:12px;color:#9fc3e8;line-height:1.5">Welcome back! Enter the name and password<br>you created your account with.</div>
+        <input ref="{{ loginNameRef }}" maxlength="16" placeholder="YOUR NAME" autocomplete="off" style="height:56px;border-radius:14px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;font-family:var(--display,'Anton');font-size:22px;letter-spacing:2px;text-align:center;outline:none">
+        <input ref="{{ loginPassRef }}" type="password" maxlength="40" placeholder="PASSWORD" autocomplete="current-password" style="height:50px;border-radius:14px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;font-family:'Archivo',sans-serif;font-weight:700;font-size:16px;letter-spacing:2px;text-align:center;outline:none">
+        <sc-if value="{{ hasAuthErr }}" hint-placeholder-val="{{ false }}"><div style="text-align:center;font-size:12px;color:#ff7a7a">{{ authErr }}</div></sc-if>
+        <button sc-camel-on-click="{{ loginAccount }}" style="height:60px;border:none;border-radius:14px;background:var(--accent,#ba0c2f);color:#fff;font-family:var(--display,'Anton');font-size:21px;letter-spacing:2px;cursor:pointer;box-shadow:0 5px 0 var(--accent2,#00205b)">{{ loginLabel }}</button>
+      </div>
+      </sc-if>
+
       <sc-if value="{{ hasProfiles }}" hint-placeholder-val="{{ false }}">
       <div style="margin-top:28px">
         <div style="text-align:center;font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.45);margin-bottom:12px">— OR CONTINUE AS —</div>
@@ -1194,7 +1240,7 @@ class Component extends DCLogic {
       zoneLeft:40, zoneWidth:28, speedDur:1.7, tier:0,
       sealife:[], event:null, bigScreen:false, round:0, norGoals:0, oppGoals:0, roCount:0, matchGoals:0, roundTrans:null, balls:[],
       pops:[], result:null, best,
-      profiles, currentId, lastScore:null, nameErr:false, authErr:'', authBusy:false, boardCat:'total', boardScope:'world', newCountry:'NO', showTutorial:!seenTut
+      profiles, currentId, lastScore:null, nameErr:false, authErr:'', authBusy:false, authTab:'create', boardCat:'total', boardScope:'world', newCountry:'NO', showTutorial:!seenTut
     };
     this.stageRef=React.createRef(); this.shipRef=React.createRef(); this.oarsRef=React.createRef();
     this.trackRef=React.createRef(); this.zoneRef=React.createRef(); this.perfectRef=React.createRef();
@@ -1205,6 +1251,7 @@ class Component extends DCLogic {
     this.roMsBarRef=React.createRef(); this.roMsNumRef=React.createRef(); this._roMs=5000;
     this.redBarRef=React.createRef(); this.redNumRef=React.createRef(); this._redMs=5000;
     this.nameRef=React.createRef(); this.passRef=React.createRef(); this.loginNameRef=React.createRef(); this.loginPassRef=React.createRef();
+    this.popLayerRef=React.createRef();
     this._pid=0; this._sid=0; this._eid=0;
   }
   componentDidMount(){
@@ -1382,29 +1429,36 @@ class Component extends DCLogic {
     });
     root.querySelectorAll('.mpFig').forEach(f=>{ f.animate([{transform:'translateY(0)'},{transform:'translateY(-5px)',offset:.4},{transform:'translateY(0)'}],{duration:520,easing:'ease-out',composite:'add'}); });
   }
+  _spawnPop(styleObj,text,life){
+    const host=this.popLayerRef.current; if(!host) return;
+    const el=document.createElement('div');
+    if(text) el.textContent=text;
+    Object.assign(el.style,styleObj);
+    host.appendChild(el);
+    setTimeout(()=>{ try{host.removeChild(el);}catch(e){} },life);
+    // keep the layer bounded even under frantic tapping
+    while(host.children.length>14) host.removeChild(host.firstChild);
+  }
   addPop(text,kind){
     if(kind==='perfect'){
-      // Video-style celebration: golden sunburst + big PERFECT! banner.
-      const rid=++this._pid, tid=++this._pid;
-      const rays={position:'absolute',left:'50%',bottom:'30%',width:'240px',height:'240px',transform:'translate(-50%,50%)',pointerEvents:'none',zIndex:6,
+      // Video-style celebration: golden sunburst + big gold banner. Direct DOM —
+      // no React re-render on the hot tap path.
+      this._spawnPop({position:'absolute',left:'50%',bottom:'30%',width:'240px',height:'240px',transform:'translate(-50%,50%)',
         background:'repeating-conic-gradient(from 8deg,rgba(255,210,62,.75) 0deg 9deg,transparent 9deg 30deg)',
-        clipPath:'circle(50% at 50% 50%)',maskImage:'radial-gradient(circle,rgba(0,0,0,.9) 30%,transparent 70%)',WebkitMaskImage:'radial-gradient(circle,rgba(0,0,0,.9) 30%,transparent 70%)',
-        animation:'raysKf .9s ease-out forwards'};
-      const txt={position:'absolute',left:'50%',bottom:'38%',transform:'translate(-50%,0)',fontFamily:"var(--display,'Anton')",fontSize:(String(text||'').length>10?'40px':'54px'),letterSpacing:'2px',color:'#ffd23e',
-        WebkitTextStroke:'2.5px #fff',textShadow:'0 4px 0 #a06400,0 8px 18px rgba(0,0,0,.45)',pointerEvents:'none',whiteSpace:'nowrap',animation:'burstPop .8s forwards',zIndex:7};
-      this.setState(s=>({pops:[...s.pops,{id:rid,text:'',style:rays},{id:tid,text:(text||'PERFECT!'),style:txt}]}));
-      setTimeout(()=>this.setState(s=>({pops:s.pops.filter(p=>p.id!==rid&&p.id!==tid)})),920);
+        clipPath:'circle(50% at 50% 50%)',webkitMaskImage:'radial-gradient(circle,rgba(0,0,0,.9) 30%,transparent 70%)',
+        animation:'raysKf .9s ease-out forwards'},'',900);
+      this._spawnPop({position:'absolute',left:'50%',bottom:'38%',transform:'translate(-50%,0)',fontFamily:"var(--display,'Anton')",
+        fontSize:(String(text||'').length>10?'40px':'54px'),letterSpacing:'2px',color:'#ffd23e',
+        webkitTextStroke:'2.5px #fff',textShadow:'0 4px 0 #a06400,0 8px 18px rgba(0,0,0,.45)',whiteSpace:'nowrap',
+        animation:'burstPop .8s forwards'},text||'PERFECT!',820);
       return;
     }
-    const id=++this._pid; const left=42+Math.random()*16; const color=kind==='miss'?'#ff5252':'#fff';
-    const style={position:'absolute',left:left+'%',bottom:'46%',transform:'translate(-50%,0)',fontFamily:"var(--display,'Anton')",fontSize:'36px',color,WebkitTextStroke:'2px rgba(0,0,0,.35)',pointerEvents:'none',whiteSpace:'nowrap',animation:'popKf .8s forwards',zIndex:7};
-    this.setState(s=>({pops:[...s.pops,{id,text,style}]}));
-    setTimeout(()=>this.setState(s=>({pops:s.pops.filter(p=>p.id!==id)})),820);
+    const left=42+Math.random()*16; const color=kind==='miss'?'#ff5252':'#fff';
+    this._spawnPop({position:'absolute',left:left+'%',bottom:'46%',transform:'translate(-50%,0)',fontFamily:"var(--display,'Anton')",
+      fontSize:'36px',color,webkitTextStroke:'2px rgba(0,0,0,.35)',whiteSpace:'nowrap',animation:'popKf .8s forwards'},text,820);
   }
-  roShout(){ const n=4+Math.floor(Math.random()*3); for(let i=0;i<n;i++){ const id=++this._pid; const left=10+Math.random()*80; const bottom=(28+Math.random()*50); const size=20+Math.random()*26; const rot=(Math.random()*34-17); const color=Math.random()<0.5?'var(--gold,#ffcb05)':'#fff';
-      const style={position:'absolute',left:left+'%',bottom:bottom+'%',transform:'translate(-50%,0) rotate('+rot.toFixed(1)+'deg)',fontFamily:"var(--display,'Anton')",fontSize:size.toFixed(0)+'px',color,WebkitTextStroke:'2px rgba(0,0,0,.35)',pointerEvents:'none',whiteSpace:'nowrap',animation:'popKf .8s forwards',zIndex:7};
-      this.setState(s=>({pops:[...s.pops,{id,text:'RO',style}]}));
-      setTimeout(()=>this.setState(s=>({pops:s.pops.filter(p=>p.id!==id)})),840);
+  roShout(){ const n=4+Math.floor(Math.random()*3); for(let i=0;i<n;i++){ const left=10+Math.random()*80; const bottom=(28+Math.random()*50); const size=20+Math.random()*26; const rot=(Math.random()*34-17); const color=Math.random()<0.5?'var(--gold,#ffcb05)':'#fff';
+      this._spawnPop({position:'absolute',left:left+'%',bottom:bottom+'%',transform:'translate(-50%,0) rotate('+rot.toFixed(1)+'deg)',fontFamily:"var(--display,'Anton')",fontSize:size.toFixed(0)+'px',color,webkitTextStroke:'2px rgba(0,0,0,.35)',whiteSpace:'nowrap',animation:'popKf .8s forwards'},'RO',840);
     }
   }
 
@@ -1517,6 +1571,7 @@ class Component extends DCLogic {
       lb.setProfile({id,name,countryCode:country.code});
     }).catch(()=>this.setState({authErr:'Could not reach the server — check your connection.',authBusy:false}));
   };
+  setAuthTab=(t)=>{ this.setState({authTab:t,authErr:'',nameErr:false}); };
   logoutAccount=()=>{
     const lb=window.RoLeaderboard;
     if(lb&&lb.logout) lb.logout();
@@ -1812,21 +1867,39 @@ class Component extends DCLogic {
     const waveDur=sFloor===3?'1.0s':sFloor===4?'1.6s':'2.4s', waveDur2=sFloor===3?'1.6s':sFloor===4?'2.4s':'3.4s';
     const seaWaveStyle={position:'absolute',left:0,right:0,bottom:'-64px',top:'calc(18% - 64px)',backgroundImage:'repeating-linear-gradient(180deg,transparent 0 28px,rgba(255,255,255,.07) 28px 32px,transparent 32px 64px)',backgroundSize:'100% 64px',animation:'waveT64 '+waveDur+' linear infinite',willChange:'transform',pointerEvents:'none'};
     const seaWaveStyle2={position:'absolute',left:0,right:0,bottom:'-40px',top:'calc(40% - 40px)',backgroundImage:'repeating-linear-gradient(180deg,transparent 0 18px,rgba(255,255,255,.05) 18px 20px,transparent 20px 40px)',backgroundSize:'100% 40px',animation:'waveT40 '+waveDur2+' linear infinite',willChange:'transform',pointerEvents:'none'};
-    const leftCliffStyle={position:'absolute',left:0,top:'16%',bottom:0,width:'78px',background:'linear-gradient(90deg,color-mix(in srgb,var(--bg-far,#2f7d4f) 55%,#0a2e18),color-mix(in srgb,var(--bg-far,#2f7d4f) 88%,#7dc46b) 55%,var(--bg-far,#2f7d4f))',clipPath:'polygon(0 0,100% 0,72% 7%,94% 14%,76% 22%,92% 31%,74% 40%,94% 50%,76% 60%,92% 69%,74% 79%,94% 89%,78% 100%,0 100%)',zIndex:1,filter:'drop-shadow(4px 0 0 rgba(255,255,255,.8))'};
-    const rightCliffStyle={position:'absolute',right:0,top:'16%',bottom:0,width:'78px',background:'linear-gradient(270deg,color-mix(in srgb,var(--bg-far,#2f7d4f) 55%,#0a2e18),color-mix(in srgb,var(--bg-far,#2f7d4f) 88%,#7dc46b) 55%,var(--bg-far,#2f7d4f))',clipPath:'polygon(100% 0,0 0,28% 7%,6% 14%,24% 22%,8% 31%,26% 40%,6% 50%,24% 60%,8% 69%,26% 79%,6% 89%,22% 100%,100% 100%)',zIndex:1,filter:'drop-shadow(-4px 0 0 rgba(255,255,255,.8))'};
+    const bankClipL='polygon(0 0,100% 0,72% 7%,94% 14%,76% 22%,92% 31%,74% 40%,94% 50%,76% 60%,92% 69%,74% 79%,94% 89%,78% 100%,0 100%)';
+    const bankClipR='polygon(100% 0,0 0,28% 7%,6% 14%,24% 22%,8% 31%,26% 40%,6% 50%,24% 60%,8% 69%,26% 79%,6% 89%,22% 100%,100% 100%)';
+    const grassTex='radial-gradient(7px 5px at 22% 24%,rgba(255,255,255,.09),transparent 71%),radial-gradient(6px 4px at 66% 60%,rgba(255,255,255,.07),transparent 71%),radial-gradient(7px 5px at 38% 86%,rgba(0,40,16,.11),transparent 71%),radial-gradient(5px 4px at 78% 14%,rgba(0,40,16,.09),transparent 71%)';
+    const rockTex='repeating-linear-gradient(175deg,#7a6a52 0 5px,#655741 5px 9px,#584a36 9px 14px)';
+    // rocky cliff face along the waterline (wide layer, white foam via drop-shadow)…
+    const leftCliffStyle={position:'absolute',left:0,top:'16%',bottom:0,width:'78px',background:rockTex,clipPath:bankClipL,zIndex:1,filter:'drop-shadow(4px 0 0 rgba(255,255,255,.85))'};
+    // …under a narrower sunlit grass layer with mottled texture
+    const leftGrassStyle={position:'absolute',left:0,top:'16%',bottom:0,width:'64px',background:grassTex+',linear-gradient(90deg,color-mix(in srgb,var(--bg-far,#2f7d4f) 62%,#0a2e18),color-mix(in srgb,var(--bg-far,#2f7d4f) 80%,#8fce74) 55%,color-mix(in srgb,var(--bg-far,#2f7d4f) 92%,#6fbf62))',backgroundSize:'30px 24px,30px 24px,30px 24px,30px 24px,100% 100%',clipPath:bankClipL,zIndex:1};
+    const rightCliffStyle={position:'absolute',right:0,top:'16%',bottom:0,width:'78px',background:rockTex,clipPath:bankClipR,zIndex:1,filter:'drop-shadow(-4px 0 0 rgba(255,255,255,.85))'};
+    const rightGrassStyle={position:'absolute',right:0,top:'16%',bottom:0,width:'64px',background:grassTex+',linear-gradient(270deg,color-mix(in srgb,var(--bg-far,#2f7d4f) 62%,#0a2e18),color-mix(in srgb,var(--bg-far,#2f7d4f) 80%,#8fce74) 55%,color-mix(in srgb,var(--bg-far,#2f7d4f) 92%,#6fbf62))',backgroundSize:'30px 24px,30px 24px,30px 24px,30px 24px,100% 100%',clipPath:bankClipR,zIndex:1};
     // ---- bank decor: trees, bushes and rocks on the fjord banks ----
     const bankDecor=[];
     if(isFjordF){
-      const tree=(side,x,topPct,sz,shade)=>bankDecor.push({style:{position:'absolute',[side]:x+'px',top:topPct+'%',width:sz+'px',height:(sz*1.15)+'px',
-        background:'radial-gradient(60% 45% at 50% 26%,'+(shade?'#2c6b3f':'#357a49')+' 62%,transparent 63%),radial-gradient(74% 48% at 50% 55%,'+(shade?'#265f38':'#2f7042')+' 62%,transparent 63%),radial-gradient(88% 50% at 50% 86%,'+(shade?'#1f5230':'#28613a')+' 62%,transparent 63%)',
-        filter:'drop-shadow(0 2px 2px rgba(0,20,10,.35))',zIndex:1,pointerEvents:'none'}});
+      const tree=(side,x,topPct,sz,shade)=>bankDecor.push({style:{position:'absolute',[side]:x+'px',top:topPct+'%',width:sz+'px',height:sz+'px',
+        borderRadius:'48% 52% 50% 50%/52% 48% 52% 48%',
+        background:'radial-gradient(circle at 34% 30%,'+(shade?'#4a9155':'#58a862')+','+(shade?'#28613a':'#2f7042')+' 72%)',
+        boxShadow:'0 2px 3px rgba(0,25,10,.4),inset 0 -4px 6px rgba(0,30,10,.35)',zIndex:1,pointerEvents:'none'}});
       const rock=(side,x,topPct,w)=>bankDecor.push({style:{position:'absolute',[side]:x+'px',top:topPct+'%',width:w+'px',height:(w*0.62)+'px',borderRadius:'46% 54% 50% 50%/60% 58% 42% 40%',
         background:'linear-gradient(145deg,#b9c4c9,#8b979d 55%,#6e7a80)',boxShadow:'0 2px 3px rgba(0,20,10,.3)',zIndex:1,pointerEvents:'none'}});
       const bush=(side,x,topPct,w)=>bankDecor.push({style:{position:'absolute',[side]:x+'px',top:topPct+'%',width:w+'px',height:(w*0.7)+'px',borderRadius:'50%',
         background:'radial-gradient(circle at 34% 30%,#4d9a58,#337346 70%)',boxShadow:'inset 0 -3px 5px rgba(0,30,10,.4)',zIndex:1,pointerEvents:'none'}});
-      tree('left',8,24,26,0); tree('left',30,33,20,1); rock('left',14,44,20); tree('left',6,55,30,0); bush('left',34,63,16); tree('left',22,74,22,1); rock('left',10,88,24);
-      tree('right',10,21,24,1); bush('right',34,30,15); tree('right',24,40,28,0); rock('right',8,52,22); tree('right',6,64,24,1); tree('right',30,80,20,0); rock('right',18,92,18);
+      const berry=(side,x,topPct,sz)=>bankDecor.push({style:{position:'absolute',[side]:x+'px',top:topPct+'%',width:sz+'px',height:sz+'px',borderRadius:'50%',
+        background:'radial-gradient(2.5px 2.5px at 30% 34%,#e0362b 60%,transparent 61%),radial-gradient(2.5px 2.5px at 64% 22%,#e0362b 60%,transparent 61%),radial-gradient(2.5px 2.5px at 52% 62%,#e0362b 60%,transparent 61%),radial-gradient(circle at 36% 30%,#4d9a58,#2f7042 72%)',
+        boxShadow:'0 2px 3px rgba(0,25,10,.4),inset 0 -3px 5px rgba(0,30,10,.35)',zIndex:1,pointerEvents:'none'}});
+      tree('left',8,24,32,0); berry('left',32,32,18); rock('left',14,44,20); tree('left',6,55,36,0); bush('left',34,63,16); berry('left',20,74,20); rock('left',10,88,24);
+      berry('right',12,21,20); bush('right',34,30,15); tree('right',24,40,34,0); rock('right',8,52,22); tree('right',6,64,30,1); berry('right',30,80,18); rock('right',18,92,18);
+      // islets with foam rings out in the water
+      [[30,36,36],[62,58,28]].forEach(([lp,tp,w],i)=>bankDecor.push({style:{position:'absolute',left:lp+'%',top:tp+'%',width:w+'px',height:(w*0.72)+'px',borderRadius:'46% 54% 52% 48%/58% 54% 46% 42%',
+        background:'radial-gradient(70% 60% at 46% 30%,#58a862,#2f7042 68%,transparent 69%),linear-gradient(#7a6a52,#584a36)',boxShadow:'0 0 0 2.5px rgba(255,255,255,.55),0 3px 5px rgba(0,20,40,.3)',zIndex:1,pointerEvents:'none',animation:'bob '+(4.6+i)+'s ease-in-out infinite'}}));
     }
+    // large, soft darker patches drifting in the water (depth feel)
+    const seaPatchStyle={position:'absolute',left:0,right:0,top:'18%',bottom:0,zIndex:0,pointerEvents:'none',
+      background:'radial-gradient(140px 90px at 24% 30%,rgba(0,25,55,.14),transparent 70%),radial-gradient(180px 110px at 72% 52%,rgba(0,25,55,.12),transparent 70%),radial-gradient(150px 95px at 40% 78%,rgba(0,25,55,.13),transparent 70%)'};
     // ---- per-floor sea & sky tint (her kat farklı görünsün) ----
     const seaTintStyle={position:'absolute',left:0,right:0,bottom:0,top:'18%',zIndex:2,pointerEvents:'none',background: isOpenSeaF?'linear-gradient(180deg,rgba(40,185,150,.20),rgba(18,120,135,.12))' : isIceF?'linear-gradient(180deg,rgba(186,220,242,.34),rgba(120,162,196,.20))' : isCoastF?'linear-gradient(180deg,rgba(255,200,120,.14),transparent 60%)' : 'transparent'};
     const skyTintStyle={position:'absolute',top:0,left:0,right:0,height:'18%',zIndex:1,pointerEvents:'none',background: isOpenSeaF?'linear-gradient(rgba(255,246,214,.45),transparent)' : isIceF?'linear-gradient(rgba(206,228,245,.65),rgba(206,228,245,0))' : isCoastF?'linear-gradient(rgba(255,206,142,.5),transparent)' : 'transparent'};
@@ -2693,6 +2766,10 @@ class Component extends DCLogic {
       playerName, playerTotal:playerTotal.toLocaleString(), playerRank, playerRankColor,
       nameErr:s.nameErr, nameRef:this.nameRef, onNameKey:this.onNameKey, submitName:this.submitName,
       authErr:s.authErr, hasAuthErr:!!s.authErr, authBusy:s.authBusy, passRef:this.passRef, loginNameRef:this.loginNameRef, loginPassRef:this.loginPassRef,
+      isCreateTab:(s.authTab||'create')==='create', isLoginTab:s.authTab==='login',
+      setTabCreate:()=>this.setAuthTab('create'), setTabLogin:()=>this.setAuthTab('login'),
+      tabCreateStyle:{flex:1,height:'46px',border:'none',borderRadius:'12px',cursor:'pointer',fontFamily:"var(--display,'Anton')",fontSize:'15px',letterSpacing:'1.5px',background:(s.authTab||'create')==='create'?'var(--gold,#ffcb05)':'rgba(255,255,255,.07)',color:(s.authTab||'create')==='create'?'#0b0f1a':'rgba(255,255,255,.75)'},
+      tabLoginStyle:{flex:1,height:'46px',border:'none',borderRadius:'12px',cursor:'pointer',fontFamily:"var(--display,'Anton')",fontSize:'15px',letterSpacing:'1.5px',background:s.authTab==='login'?'var(--gold,#ffcb05)':'rgba(255,255,255,.07)',color:s.authTab==='login'?'#0b0f1a':'rgba(255,255,255,.75)'},
       loginAccount:this.loginAccount, logoutAccount:this.logoutAccount,
       sessionName:(window.RoLeaderboard&&window.RoLeaderboard.getSessionUser&&(window.RoLeaderboard.getSessionUser()||{}).username)||'', hasSession:!!(window.RoLeaderboard&&window.RoLeaderboard.getSessionUser&&window.RoLeaderboard.getSessionUser()),
       createLabel:s.authBusy?'CREATING…':'CREATE & PLAY ▸', loginLabel:s.authBusy?'LOGGING IN…':'LOG IN ▸',
@@ -2715,7 +2792,7 @@ class Component extends DCLogic {
       rostrumPlatStyle, rostrumDeskLStyle, rostrumDeskRStyle, rostrumDeskCStyle, rostrumCorniceStyle, lionEmblemStyle,
       lecternStyle, lecternLightStyle, presBodyStyle, presHeadStyle, presHairStyle, presArmStyle, gavelStyle, rostrumFigs,
       mps, voteBanner, voteBannerStyle,
-      isFjord:isFjordF, isOpenSea:isOpenSeaF, isStorm:isStormF, isIce:isIceF, isCoast:isCoastF, showSun, showSeaTint, seaTintStyle, skyTintStyle, iceFloes, bankDecor,
+      isFjord:isFjordF, isOpenSea:isOpenSeaF, isStorm:isStormF, isIce:isIceF, isCoast:isCoastF, showSun, showSeaTint, seaTintStyle, skyTintStyle, iceFloes, bankDecor, leftGrassStyle, rightGrassStyle, seaPatchStyle,
       skyStyle, seaBaseStyle, seaWaveStyle, seaWaveStyle2, seaGlintStyle, leftCliffStyle, rightCliffStyle,
       wakeStyle, bowFoamStyle, hullShadowStyle, strakes, railStyle, keelStyle, benches, oars, shields, rowers,
       dragonNeckStyle, dragonHeadStyle, dragonEyeStyle, dragonSnoutStyle, dragonCrestStyle, sternStyle,
@@ -2727,7 +2804,7 @@ class Component extends DCLogic {
       mallBgStyle, floorTilesStyle, skylightStyle, ceilingBandStyle, shops, galleryRails, shoppers, decor, escFrameStyle, escStepsWrapStyle, escStepsStyle, skirtLStyle, skirtRStyle, handrailLStyle, handrailRStyle, combTopStyle, combBotStyle, landingTopStyle, landingBotStyle, newelLStyle, newelRStyle, upLampStyle, floorSignStyle, escFans,
       vfillStyle, vshipStyle, shieldsArr,
       combo:s.combo, maxCombo:s.maxCombo, perfects:s.perfects, strokes:s.strokes,
-      zoneStyle, perfectStyle, cursorStyle, pops:s.pops,
+      zoneStyle, perfectStyle, cursorStyle, popLayerRef:this.popLayerRef,
       muteIcon:s.muted?'🔇':'🔊',
       statCardStyle,
       sealife:s.sealife, eventShow:!!ev, eventToastStyle, eventText:ev?ev.text:'', eventSub:ev?ev.sub:'',
