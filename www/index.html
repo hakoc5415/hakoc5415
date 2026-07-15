@@ -436,6 +436,7 @@
         <sc-for list="{{ stars }}" as="st" hint-placeholder-count="0"><div style="{{ st.style }}"></div></sc-for>
         <div style="{{ moonStyle }}"></div>
         <!-- facade -->
+        <div style="position:absolute;inset:0;transform:scale(.84) translateY(1.5%);transform-origin:50% 34%;z-index:2">
         <div style="{{ palaceBaseStyle }}"></div>
         <div style="{{ risalitStyle }}"></div>
         <div style="{{ band1Style }}"></div>
@@ -511,6 +512,7 @@
         <div style="{{ balconyRailStyle }}"></div>
         <sc-if value="{{ showZzz }}" hint-placeholder-val="{{ true }}"><div style="{{ zzzStyle }}">Z z Z</div></sc-if>
         <sc-if value="{{ kingBanner }}" hint-placeholder-val="{{ false }}"><div style="{{ kingBannerStyle }}">KING ON THE BALCONY! 👑</div></sc-if>
+        </div>
         <!-- plaza -->
         <div style="{{ plazaStyle }}"></div>
         <div style="{{ plazaLinesStyle }}"></div>
@@ -2115,7 +2117,7 @@ class Component extends DCLogic {
     const escFrameStyle={position:'absolute',inset:0,clipPath:escClip,background:'linear-gradient(90deg,#39434e,#66737f 50%,#39434e)',zIndex:2,boxShadow:'inset 0 0 30px rgba(0,0,0,.45),0 10px 22px rgba(0,0,0,.22)'};
     const stepDur=(1.5-0.22*Math.min(sceneTier,3)).toFixed(2);
     // step deck: a real perspective plane inside the clipped well — steps genuinely shrink and slow with distance
-    const stepEdges='repeating-linear-gradient(180deg,rgba(15,21,27,.42) 0 2px,#d5dde4 2px 7px,#c0cad4 7px 19px,#96a4b1 19px 24px,rgba(15,21,27,.3) 24px 26px)';
+    const stepEdges='repeating-linear-gradient(180deg,rgba(15,21,27,.45) 0 2px,#e8c14a 2px 4px,#d5dde4 4px 8px,#c0cad4 8px 19px,#8fa0ad 19px 23px,rgba(15,21,27,.35) 23px 26px)';
     const stepCleats='repeating-linear-gradient(90deg,rgba(255,255,255,.16) 0 2px,rgba(20,28,36,.12) 2px 4px)';
     const stepMetal='linear-gradient(90deg,#6f7d8e,#b3c3d3 48%,#6f7d8e)';
     const escStepsWrapStyle={position:'absolute',inset:0,clipPath:stepClip,zIndex:2,boxShadow:'inset 0 0 22px rgba(0,0,0,.34)',overflow:'hidden'};
@@ -2208,8 +2210,8 @@ class Component extends DCLogic {
     if(isStage3){ const SS=[[12,9],[22,17],[33,7],[45,14],[57,6],[67,15],[82,11],[88,6],[16,23],[40,21],[63,23],[84,20],[28,12],[52,18]];
       SS.forEach((p,i)=>stars.push({style:{position:'absolute',left:p[0]+'%',top:p[1]+'%',width:(2+(i%3))+'px',height:(2+(i%3))+'px',borderRadius:'50%',background:'#fff',opacity:(0.9*(1-dawn)).toFixed(2),boxShadow:'0 0 4px #fff',animation:'bob '+(2+i*0.25).toFixed(2)+'s ease-in-out infinite'}})); }
     // plaza ground (Slottsplassen — cobbled square)
-    const plazaStyle={position:'absolute',left:0,right:0,bottom:0,height:'42%',background:'linear-gradient(180deg,#6a5d49 0%,#4b4031 55%,#332b20 100%)',zIndex:2,boxShadow:'inset 0 8px 16px rgba(0,0,0,.4)'};
-    const plazaLinesStyle={position:'absolute',left:0,right:0,bottom:0,height:'42%',backgroundImage:'repeating-linear-gradient(90deg,rgba(0,0,0,.16) 0 1px,transparent 1px 34px),repeating-linear-gradient(180deg,rgba(0,0,0,.12) 0 1px,transparent 1px 26px)',zIndex:2,opacity:.55};
+    const plazaStyle={position:'absolute',left:0,right:0,bottom:0,height:'50%',background:'linear-gradient(180deg,#6a5d49 0%,#4b4031 55%,#332b20 100%)',zIndex:2,boxShadow:'inset 0 8px 16px rgba(0,0,0,.4)'};
+    const plazaLinesStyle={position:'absolute',left:0,right:0,bottom:0,height:'50%',backgroundImage:'repeating-linear-gradient(90deg,rgba(0,0,0,.16) 0 1px,transparent 1px 34px),repeating-linear-gradient(180deg,rgba(0,0,0,.12) 0 1px,transparent 1px 26px)',zIndex:2,opacity:.55};
 
     // ===== Slottet facade — pale-yellow neoclassical, 3 storeys, 2 wings, central colonnade =====
     const cream='linear-gradient(180deg,#f3e2a8,#ecd589 55%,#e3c66f)';
@@ -2366,7 +2368,7 @@ class Component extends DCLogic {
       const hairC=['#3a2a1c','#6b4a2a','#d8b878','#241811','#8a5a2b','#caa15a'];
       const rowsCfg = isStage5
         ? [{b:35.5,sc:0.42,n:17},{b:29,sc:0.5,n:15},{b:22.5,sc:0.6,n:13},{b:15.5,sc:0.73,n:12},{b:7.5,sc:0.88,n:10},{b:-2,sc:1.06,n:9}]
-        : [{b:31,sc:0.5,n:14},{b:24,sc:0.6,n:12},{b:16.5,sc:0.72,n:10},{b:8.5,sc:0.86,n:8},{b:0.5,sc:1.0,n:7}];
+        : [{b:40,sc:0.40,n:22},{b:34.5,sc:0.46,n:20},{b:29,sc:0.53,n:18},{b:23,sc:0.62,n:16},{b:16.5,sc:0.74,n:14},{b:9,sc:0.87,n:12},{b:0.5,sc:1.0,n:10}];
       let idx=0;
       rowsCfg.forEach((row,ri)=>{ const b=row.b, sc=row.sc, n=row.n; const off=(ri%2)?(46/n):0;
         for(let i=0;i<n;i++){ const leftPct=(isStage5?1:4)+i*((isStage5?98:92)/(n-1))+(off*((i%2)?0.5:-0.5)); const z=10+ri*5+i;
@@ -2554,17 +2556,18 @@ class Component extends DCLogic {
     let mps=isStage4?((this._mpKey===standCount4&&this._mpVal)?this._mpVal:null):[];
     if(mps===null){ mps=[];
       const rowsCfg=[
-        {y:404,X:120,bul:18,n:12,sc:0.52},
-        {y:502,X:150,bul:24,n:14,sc:0.66},
-        {y:604,X:178,bul:30,n:17,sc:0.82},
-        {y:712,X:200,bul:38,n:20,sc:1.0}
+        {y:368,X:96, bul:16,n:13,sc:0.46},
+        {y:446,X:130,bul:22,n:16,sc:0.58},
+        {y:528,X:160,bul:28,n:19,sc:0.72},
+        {y:616,X:186,bul:34,n:22,sc:0.87},
+        {y:710,X:206,bul:40,n:24,sc:1.0}
       ];
       const suitCols=['#1c2c4c','#2a2a32','#3a2030','#22324a','#4a4a52','#5a2030','#243018','#6a6a72'];
       const tieCols=['#ba0c2f','#ffce2b','#00205b','#e9ecf2','#1a7a3a','#9a2240'];
       const hairC4=['#2a1c12','#5a3d22','#caa15a','#171717','#7a5a3a','#b8b8b8','#e0d2b4','#3a2a1c'];
       let idx=0;
       rowsCfg.forEach((row,r)=>{
-        const standing = r >= (4-standCount4);
+        const standing = r >= (5-standCount4);
         const sc=row.sc, baseZ=20+r*16, spacingPx=(2*row.X)/(row.n-1), dW=spacingPx*1.3;
         for(let i=0;i<row.n;i++){
           const t=row.n===1?0:(i/(row.n-1)*2-1);
@@ -2573,6 +2576,8 @@ class Component extends DCLogic {
           const shW=30*sc, shH=20*sc, hd=15*sc;
           const headTop=yLine-(shH+hd*0.7)-rise, bodyTop=yLine-shH-rise+2;
           const suit=suitCols[idx%suitCols.length], tie=tieCols[idx%tieCols.length], hc=hairC4[(idx*3+r)%hairC4.length];
+          const skins4=['#f3d2ab','#e7bd92','#d3a071','#b9834f','#96683a','#f7e0bd'];
+          const sk4=skins4[(idx*5+r)%skins4.length]; const beard4=((idx+r)%5===0); const bald4=((idx*7+r)%9===0);
           const aw=5.5*sc, aL=26*sc, armBgUp='linear-gradient(to top,'+suit+' 0 58%,#e7bd92 58% 100%)';
           mps.push({
             chair:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(headTop-7*sc),width:(shW*1.18).toFixed(1)+'px',height:(shH+hd+rise+12*sc).toFixed(1)+'px',transform:'translateX(-50%)',background:'linear-gradient(180deg,#a8121f,#6e0c16)',border:'1.5px solid #d8b440',borderRadius:(shW*0.42).toFixed(1)+'px '+(shW*0.42).toFixed(1)+'px 4px 4px',boxShadow:'0 1px 3px rgba(0,0,0,.4)',zIndex:baseZ},
@@ -2584,8 +2589,10 @@ class Component extends DCLogic {
             armR: {position:'absolute',left:'calc('+leftPct.toFixed(2)+'% + '+(shW*0.30).toFixed(1)+'px)',top:yp(bodyTop-aL*0.62),width:aw.toFixed(1)+'px',height:aL.toFixed(1)+'px',background:armBgUp,borderRadius:aw.toFixed(1)+'px',transformOrigin:'50% 100%',transform:'rotate(20deg)',boxShadow:'0 1px 2px rgba(0,0,0,.3)',opacity:standing?1:0,zIndex:baseZ+3},
             deskSeg:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(yLine-3),width:dW.toFixed(1)+'px',height:(15*sc).toFixed(1)+'px',transform:'translateX(-50%)',background:'linear-gradient(180deg,#dcc191,#b8975c 45%,#8f6f3e)',borderRadius:'2px 2px 1px 1px',borderTop:'1px solid rgba(255,247,214,.6)',boxShadow:'0 2px 3px rgba(0,0,0,.5),inset 0 2px 0 rgba(255,247,214,.3)',zIndex:baseZ+6},
             papers:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(yLine-1),width:(10*sc).toFixed(1)+'px',height:(7*sc).toFixed(1)+'px',transform:'translateX(-50%)',background:'linear-gradient(180deg,#dce8f4,#aec4dd)',borderRadius:'1px',boxShadow:'0 1px 1px rgba(0,0,0,.3)',zIndex:baseZ+7},
-            hair:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(headTop-hd*0.26),width:(hd*1.08).toFixed(1)+'px',height:(hd*0.68).toFixed(1)+'px',transform:'translateX(-50%)',background:'radial-gradient(circle at 50% 82%,'+hc+',color-mix(in srgb,'+hc+' 62%,#000))',borderRadius:'50% 50% 36% 36%',zIndex:baseZ+8},
-            head:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(headTop),width:hd.toFixed(1)+'px',height:hd.toFixed(1)+'px',transform:'translateX(-50%)',background:'radial-gradient(circle at 50% 38%,#f3d2ab,#d8a878)',borderRadius:'50%',boxShadow:'0 1px 2px rgba(0,0,0,.4),inset 0 -3px 3px rgba(0,0,0,.18)',zIndex:baseZ+9}
+            hair:bald4?{display:'none'}:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(headTop-hd*0.26),width:(hd*1.08).toFixed(1)+'px',height:(hd*0.68).toFixed(1)+'px',transform:'translateX(-50%)',background:'radial-gradient(circle at 50% 82%,'+hc+',color-mix(in srgb,'+hc+' 62%,#000))',borderRadius:'50% 50% 36% 36%',boxShadow:'inset 0 -2px 2px rgba(0,0,0,.3)',zIndex:baseZ+6},
+            head:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(headTop),width:hd.toFixed(1)+'px',height:hd.toFixed(1)+'px',transform:'translateX(-50%)',
+              background:'radial-gradient('+(hd*0.10).toFixed(1)+'px '+(hd*0.10).toFixed(1)+'px at 35% 50%,#241610 60%,transparent 61%),radial-gradient('+(hd*0.10).toFixed(1)+'px '+(hd*0.10).toFixed(1)+'px at 65% 50%,#241610 60%,transparent 61%)'+(beard4?',radial-gradient(70% 42% at 50% 94%,color-mix(in srgb,'+hc+' 84%,#000) 56%,transparent 58%)':'')+',radial-gradient(circle at 44% 34%,color-mix(in srgb,'+sk4+' 82%,#fff 18%),'+sk4+' 60%,color-mix(in srgb,'+sk4+' 72%,#000))',
+              borderRadius:'50%',boxShadow:'0 1px 2px rgba(0,0,0,.4),inset 0 -3px 3px rgba(0,0,0,.16)',zIndex:baseZ+7}
           });
           idx++;
         }
