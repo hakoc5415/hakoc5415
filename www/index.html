@@ -141,6 +141,10 @@
   @keyframes roSweep{from{transform:translateY(0)}to{transform:translateY(calc(46vh - 12px))}}
   @keyframes bob{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-4px) rotate(1deg)}}
   @keyframes waveDown{from{background-position:0 0}to{background-position:0 64px}}
+  @keyframes waveT64{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,64px,0)}}
+  @keyframes waveT40{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,40px,0)}}
+  @keyframes glintT{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,190px,0)}}
+  @keyframes rainT{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50px,260px,0)}}
   @keyframes foamPulse{0%,100%{opacity:.45;transform:translateX(-50%) scaleY(1)}50%{opacity:.8;transform:translateX(-50%) scaleY(1.08)}}
   @keyframes flagFlap{0%,100%{transform:skewX(-8deg) scaleX(.96)}50%{transform:skewX(9deg) scaleX(1.04)}}
   @keyframes scarfWave{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-3px) rotate(4deg)}}
@@ -153,6 +157,9 @@
   @keyframes cloudDrift{from{transform:translateX(40px)}to{transform:translateX(-150px)}}
   @keyframes rainMove{from{background-position:0 0}to{background-position:-50px 260px}}
   @keyframes popKf{0%{transform:translate(-50%,0) scale(.4);opacity:0}22%{opacity:1}100%{transform:translate(-50%,-90px) scale(1.4);opacity:0}}
+  @keyframes burstPop{0%{transform:translate(-50%,0) scale(.3);opacity:0}18%{transform:translate(-50%,0) scale(1.18);opacity:1}30%{transform:translate(-50%,0) scale(1)}78%{opacity:1}100%{transform:translate(-50%,-26px) scale(1.02);opacity:0}}
+  @keyframes raysKf{0%{transform:translate(-50%,50%) scale(.4) rotate(0deg);opacity:0}20%{opacity:.9}100%{transform:translate(-50%,50%) scale(1.5) rotate(24deg);opacity:0}}
+  @keyframes confettiFall{0%{transform:translateY(-6px) rotate(0deg);opacity:1}100%{transform:translateY(46px) rotate(200deg);opacity:0}}
   @keyframes btnPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
   @keyframes seaDrift{from{transform:translateY(-50px)}to{transform:translateY(380px)}}
   @keyframes seaEmerge{0%{transform:translateY(0) scale(.5);opacity:0}16%{transform:translateY(46px) scale(1);opacity:.92}86%{opacity:.92}100%{transform:translateY(360px) scale(1);opacity:.35}}
@@ -234,13 +241,14 @@
       <sc-if value="{{ isFjord }}" hint-placeholder-val="{{ true }}">
         <div style="{{ leftCliffStyle }}"></div>
         <div style="{{ rightCliffStyle }}"></div>
+        <sc-for list="{{ bankDecor }}" as="bd" hint-placeholder-count="0"><div style="{{ bd.style }}"></div></sc-for>
       </sc-if>
 
       <!-- storm overlay -->
       <sc-if value="{{ isStorm }}" hint-placeholder-val="{{ true }}">
         <div style="position:absolute;inset:0;background:linear-gradient(#1c2230bb,#10141ebb);z-index:2"></div>
         <div style="position:absolute;top:0;left:-10%;width:130%;height:30%;background:radial-gradient(60px 26px at 22% 40%,#2a3245,transparent 70%),radial-gradient(70px 30px at 52% 28%,#222a3b,transparent 70%),radial-gradient(60px 26px at 82% 45%,#2a3245,transparent 70%);animation:cloudDrift 9s linear infinite;z-index:2"></div>
-        <div style="position:absolute;inset:0;opacity:.5;background-image:repeating-linear-gradient(8deg,transparent 0 9px,rgba(200,225,255,.5) 9px 10px);background-size:50px 260px;animation:rainMove .5s linear infinite;z-index:3"></div>
+        <div style="position:absolute;top:-260px;left:0;right:-50px;bottom:0;opacity:.5;background-image:repeating-linear-gradient(8deg,transparent 0 9px,rgba(200,225,255,.5) 9px 10px);background-size:50px 260px;animation:rainT .5s linear infinite;z-index:3;will-change:transform;pointer-events:none"></div>
       </sc-if>
 
       <!-- ============ NORWEGIAN SUPPORTERS' LONGSHIP (top-down) ============ -->
@@ -778,7 +786,7 @@
         <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,0,0,.12)"></div>
         <div ref="{{ zoneRef }}" style="{{ zoneStyle }}"></div>
         <div ref="{{ perfectRef }}" style="{{ perfectStyle }}"></div>
-        <div ref="{{ cursorRef }}" style="{{ cursorStyle }}"></div>
+        <div ref="{{ cursorRef }}" style="{{ cursorStyle }}"><div style="position:absolute;left:2px;top:50%;transform:translateY(-50%);width:17px;height:17px;border-radius:50%;background:radial-gradient(circle at 34% 30%,#ff6a5e,#e0362b 70%);border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.45)"></div><div style="position:absolute;left:21px;top:50%;transform:translateY(-50%);width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #fff;opacity:.95"></div></div>
       </div>
     </div>
     </sc-if>
@@ -873,7 +881,10 @@
       </div>
       <div style="margin-top:26px;display:flex;flex-direction:column;gap:12px">
         <input ref="{{ nameRef }}" sc-camel-on-key-down="{{ onNameKey }}" maxlength="16" placeholder="YOUR NAME" autocomplete="off" style="height:58px;border-radius:14px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;font-family:var(--display,'Anton');font-size:24px;letter-spacing:2px;text-align:center;outline:none">
+        <input ref="{{ passRef }}" type="password" maxlength="40" placeholder="PASSWORD (MIN 6)" autocomplete="new-password" style="height:52px;border-radius:14px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#fff;font-family:'Archivo',sans-serif;font-weight:700;font-size:17px;letter-spacing:2px;text-align:center;outline:none">
+        <div style="text-align:center;font-size:10.5px;color:rgba(255,255,255,.45);margin-top:-4px">Your name + password lets you log back into this account on any device.</div>
         <sc-if value="{{ nameErr }}" hint-placeholder-val="{{ false }}"><div style="text-align:center;font-size:12px;color:#ff7a7a">Please enter a name to continue.</div></sc-if>
+        <sc-if value="{{ hasAuthErr }}" hint-placeholder-val="{{ false }}"><div style="text-align:center;font-size:12px;color:#ff7a7a">{{ authErr }}</div></sc-if>
         <div style="font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.5);text-align:center;margin-top:6px">SELECT YOUR COUNTRY</div>
         <div style="display:flex;flex-direction:column;gap:6px;max-height:230px;overflow-y:auto;padding:4px;border-radius:12px;background:rgba(0,0,0,.25)">
           <sc-for list="{{ countryList }}" as="c" hint-placeholder-count="6">
@@ -884,8 +895,22 @@
             </button>
           </sc-for>
         </div>
-        <button sc-camel-on-click="{{ submitName }}" style="height:62px;border:none;border-radius:14px;background:var(--accent,#ba0c2f);color:#fff;font-family:var(--display,'Anton');font-size:22px;letter-spacing:2px;cursor:pointer;box-shadow:0 5px 0 var(--accent2,#00205b)">CREATE &amp; PLAY ▸</button>
+        <button sc-camel-on-click="{{ submitName }}" style="height:62px;border:none;border-radius:14px;background:var(--accent,#ba0c2f);color:#fff;font-family:var(--display,'Anton');font-size:22px;letter-spacing:2px;cursor:pointer;box-shadow:0 5px 0 var(--accent2,#00205b)">{{ createLabel }}</button>
       </div>
+      <div style="margin-top:24px">
+        <div style="text-align:center;font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.45);margin-bottom:10px">— OR LOG IN TO YOUR ACCOUNT —</div>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <input ref="{{ loginNameRef }}" maxlength="16" placeholder="USERNAME" autocomplete="off" style="height:48px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:#fff;font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;letter-spacing:1.5px;text-align:center;outline:none">
+          <input ref="{{ loginPassRef }}" type="password" maxlength="40" placeholder="PASSWORD" autocomplete="current-password" style="height:48px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.05);color:#fff;font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;letter-spacing:1.5px;text-align:center;outline:none">
+          <button sc-camel-on-click="{{ loginAccount }}" style="height:52px;border:2px solid rgba(255,255,255,.4);border-radius:12px;background:rgba(255,255,255,.1);color:#fff;font-family:var(--display,'Anton');font-size:17px;letter-spacing:2px;cursor:pointer">{{ loginLabel }}</button>
+        </div>
+      </div>
+      <sc-if value="{{ hasSession }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:18px;display:flex;align-items:center;justify-content:center;gap:12px;padding:10px 14px;border-radius:12px;background:rgba(255,203,5,.08);border:1px solid rgba(255,203,5,.25)">
+        <span style="font-size:12px;color:#ffcb05">Signed in as <b>{{ sessionName }}</b></span>
+        <button sc-camel-on-click="{{ logoutAccount }}" style="border:none;border-radius:9px;background:rgba(186,12,47,.25);color:#ff9aa8;font-size:11.5px;letter-spacing:1px;padding:8px 12px;cursor:pointer">LOG OUT</button>
+      </div>
+      </sc-if>
       <sc-if value="{{ hasProfiles }}" hint-placeholder-val="{{ false }}">
       <div style="margin-top:28px">
         <div style="text-align:center;font-size:11px;letter-spacing:3px;color:rgba(255,255,255,.45);margin-bottom:12px">— OR CONTINUE AS —</div>
@@ -938,8 +963,18 @@
         </sc-if>
         <sc-for list="{{ boardRows }}" as="r" hint-placeholder-count="1">
           <div style="{{ r.rowStyle }}">
+            <sc-for list="{{ r.confetti }}" as="cf" hint-placeholder-count="0"><div style="{{ cf.style }}"></div></sc-for>
             <div style="display:flex;align-items:center;gap:11px">
-              <div style="font-family:var(--display,'Anton');font-size:20px;color:var(--gold,#ffcb05);min-width:30px;text-align:center">{{ r.medal }}</div>
+              <sc-if value="{{ r.badge.isMedal }}" hint-placeholder-val="{{ false }}">
+                <div style="position:relative;min-width:34px;height:40px;display:flex;justify-content:center">
+                  <div style="{{ r.badge.ribbonStyle }}"></div>
+                  <div style="{{ r.badge.circleStyle }}">{{ r.badge.rankTxt }}</div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ r.notMedal }}" hint-placeholder-val="{{ false }}">
+                <div style="font-family:var(--display,'Anton');font-size:17px;color:rgba(255,255,255,.75);min-width:34px;text-align:center">{{ r.badge.rankTxt }}</div>
+              </sc-if>
+              <div style="{{ r.av.avStyle }}">{{ r.av.initial }}</div>
               <span style="width:27px;height:20px;min-width:27px;border-radius:3px;box-shadow:0 1px 3px rgba(0,0,0,.5);display:inline-block;background:url({{ r.flag }}) center/cover no-repeat"></span>
               <div style="flex:1;min-width:0">
                 <div style="font-family:var(--display,'Anton');font-size:17px;color:#fff;letter-spacing:.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</div>
@@ -1159,7 +1194,7 @@ class Component extends DCLogic {
       zoneLeft:40, zoneWidth:28, speedDur:1.7, tier:0,
       sealife:[], event:null, bigScreen:false, round:0, norGoals:0, oppGoals:0, roCount:0, matchGoals:0, roundTrans:null, balls:[],
       pops:[], result:null, best,
-      profiles, currentId, lastScore:null, nameErr:false, boardCat:'total', boardScope:'world', newCountry:'NO', showTutorial:!seenTut
+      profiles, currentId, lastScore:null, nameErr:false, authErr:'', authBusy:false, boardCat:'total', boardScope:'world', newCountry:'NO', showTutorial:!seenTut
     };
     this.stageRef=React.createRef(); this.shipRef=React.createRef(); this.oarsRef=React.createRef();
     this.trackRef=React.createRef(); this.zoneRef=React.createRef(); this.perfectRef=React.createRef();
@@ -1169,7 +1204,7 @@ class Component extends DCLogic {
     this.st6TimeRef=React.createRef(); this.st6BarRef=React.createRef(); this.roWaveRef=React.createRef(); this.st6CrowdRef=React.createRef(); this._st6Ms=null;
     this.roMsBarRef=React.createRef(); this.roMsNumRef=React.createRef(); this._roMs=5000;
     this.redBarRef=React.createRef(); this.redNumRef=React.createRef(); this._redMs=5000;
-    this.nameRef=React.createRef();
+    this.nameRef=React.createRef(); this.passRef=React.createRef(); this.loginNameRef=React.createRef(); this.loginPassRef=React.createRef();
     this._pid=0; this._sid=0; this._eid=0;
   }
   componentDidMount(){
@@ -1347,8 +1382,22 @@ class Component extends DCLogic {
     });
     root.querySelectorAll('.mpFig').forEach(f=>{ f.animate([{transform:'translateY(0)'},{transform:'translateY(-5px)',offset:.4},{transform:'translateY(0)'}],{duration:520,easing:'ease-out',composite:'add'}); });
   }
-  addPop(text,kind){ const id=++this._pid; const left=42+Math.random()*16; const color=kind==='perfect'?'var(--gold,#ffcb05)':kind==='miss'?'#ff5252':'#fff';
-    const style={position:'absolute',left:left+'%',bottom:'46%',transform:'translate(-50%,0)',fontFamily:"var(--display,'Anton')",fontSize:kind==='perfect'?'46px':'36px',color,WebkitTextStroke:'2px rgba(0,0,0,.35)',pointerEvents:'none',whiteSpace:'nowrap',animation:'popKf .8s forwards',zIndex:7};
+  addPop(text,kind){
+    if(kind==='perfect'){
+      // Video-style celebration: golden sunburst + big PERFECT! banner.
+      const rid=++this._pid, tid=++this._pid;
+      const rays={position:'absolute',left:'50%',bottom:'30%',width:'240px',height:'240px',transform:'translate(-50%,50%)',pointerEvents:'none',zIndex:6,
+        background:'repeating-conic-gradient(from 8deg,rgba(255,210,62,.75) 0deg 9deg,transparent 9deg 30deg)',
+        clipPath:'circle(50% at 50% 50%)',maskImage:'radial-gradient(circle,rgba(0,0,0,.9) 30%,transparent 70%)',WebkitMaskImage:'radial-gradient(circle,rgba(0,0,0,.9) 30%,transparent 70%)',
+        animation:'raysKf .9s ease-out forwards'};
+      const txt={position:'absolute',left:'50%',bottom:'38%',transform:'translate(-50%,0)',fontFamily:"var(--display,'Anton')",fontSize:(String(text||'').length>10?'40px':'54px'),letterSpacing:'2px',color:'#ffd23e',
+        WebkitTextStroke:'2.5px #fff',textShadow:'0 4px 0 #a06400,0 8px 18px rgba(0,0,0,.45)',pointerEvents:'none',whiteSpace:'nowrap',animation:'burstPop .8s forwards',zIndex:7};
+      this.setState(s=>({pops:[...s.pops,{id:rid,text:'',style:rays},{id:tid,text:(text||'PERFECT!'),style:txt}]}));
+      setTimeout(()=>this.setState(s=>({pops:s.pops.filter(p=>p.id!==rid&&p.id!==tid)})),920);
+      return;
+    }
+    const id=++this._pid; const left=42+Math.random()*16; const color=kind==='miss'?'#ff5252':'#fff';
+    const style={position:'absolute',left:left+'%',bottom:'46%',transform:'translate(-50%,0)',fontFamily:"var(--display,'Anton')",fontSize:'36px',color,WebkitTextStroke:'2px rgba(0,0,0,.35)',pointerEvents:'none',whiteSpace:'nowrap',animation:'popKf .8s forwards',zIndex:7};
     this.setState(s=>({pops:[...s.pops,{id,text,style}]}));
     setTimeout(()=>this.setState(s=>({pops:s.pops.filter(p=>p.id!==id)})),820);
   }
@@ -1425,12 +1474,54 @@ class Component extends DCLogic {
   }
   createAccount=(name)=>{
     name=(name||'').trim().replace(/\s+/g,' ').slice(0,16);
-    if(!name){ this.setState({nameErr:true}); return; }
-    const id='p'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36);
-    const country=this.COUNTRIES.find(c=>c.code===this.state.newCountry)||this.COUNTRIES[0];
-    const prof={id,name,country,scores:{},total:0,bestCombo:0,bestTime:null,createdAt:Date.now()};
-    this.setState(s=>{ const profiles=[...s.profiles,prof]; this._persistProfiles(profiles); try{localStorage.setItem('ro_currentId',id);}catch(e){} return {profiles,currentId:id,screen:'menu',nameErr:false}; });
-    if(window.RoLeaderboard) window.RoLeaderboard.setProfile({id,name,countryCode:country.code});
+    if(!name){ this.setState({nameErr:true,authErr:''}); return; }
+    const pass=(this.passRef.current&&this.passRef.current.value)||'';
+    const lb=window.RoLeaderboard;
+    const finish=(id)=>{
+      const country=this.COUNTRIES.find(c=>c.code===this.state.newCountry)||this.COUNTRIES[0];
+      const prof={id,name,country,scores:{},total:0,bestCombo:0,bestTime:null,createdAt:Date.now()};
+      this.setState(s=>{ const profiles=[...s.profiles.filter(p=>p.id!==id),prof]; this._persistProfiles(profiles); try{localStorage.setItem('ro_currentId',id);}catch(e){} return {profiles,currentId:id,screen:'menu',nameErr:false,authErr:'',authBusy:false}; });
+      if(lb) lb.setProfile({id,name,countryCode:country.code});
+    };
+    if(!lb || !lb.register){ finish('p'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36)); return; }
+    if(pass.length<6){ this.setState({authErr:'Password must be at least 6 characters.',nameErr:false}); return; }
+    this.setState({authBusy:true,authErr:'',nameErr:false});
+    lb.register(name,pass).then(res=>{
+      if(res.ok){ finish('fb_'+res.uid); }
+      else if(res.code && /OPERATION_NOT_ALLOWED|PASSWORD_LOGIN_DISABLED/.test(res.code)){
+        // Server not upgraded yet — fall back to a device-local account so the
+        // player is never blocked from playing.
+        finish('p'+Date.now().toString(36)+Math.floor(Math.random()*46656).toString(36));
+      }
+      else this.setState({authErr:res.error||'Could not create the account.',authBusy:false});
+    }).catch(()=>this.setState({authErr:'Could not reach the server — check your connection.',authBusy:false}));
+  };
+  loginAccount=()=>{
+    const lb=window.RoLeaderboard;
+    const uname=(this.loginNameRef.current&&this.loginNameRef.current.value||'').trim();
+    const pass=(this.loginPassRef.current&&this.loginPassRef.current.value)||'';
+    if(!lb || !lb.login){ this.setState({authErr:'Log in needs an internet connection.'}); return; }
+    if(!uname){ this.setState({authErr:'Enter your username.'}); return; }
+    if(!pass){ this.setState({authErr:'Enter your password.'}); return; }
+    this.setState({authBusy:true,authErr:''});
+    lb.login(uname,pass).then(res=>{
+      if(!res.ok){ this.setState({authErr:res.error||'Wrong username or password.',authBusy:false}); return; }
+      const id='fb_'+res.uid;
+      const cloud=res.profile;
+      const country=this.COUNTRIES.find(c=>c.code===(cloud&&cloud.countryCode))||this.COUNTRIES.find(c=>c.code===this.state.newCountry)||this.COUNTRIES[0];
+      const name=(cloud&&cloud.name)||uname.slice(0,16);
+      const scores={}; if(cloud&&cloud.scores){ for(const k in cloud.scores){ const n=+cloud.scores[k]; if(n>0) scores[+k]=n; } }
+      const prof={id,name,country,scores,total:Object.values(scores).reduce((a,b)=>a+b,0),
+        bestCombo:(cloud&&cloud.bestCombo)||0,bestTime:(cloud&&cloud.bestTime!=null)?cloud.bestTime:null,createdAt:Date.now()};
+      this.setState(s=>{ const profiles=[...s.profiles.filter(p=>p.id!==id),prof]; this._persistProfiles(profiles); try{localStorage.setItem('ro_currentId',id);}catch(e){} return {profiles,currentId:id,screen:'menu',authErr:'',authBusy:false,nameErr:false}; });
+      lb.setProfile({id,name,countryCode:country.code});
+    }).catch(()=>this.setState({authErr:'Could not reach the server — check your connection.',authBusy:false}));
+  };
+  logoutAccount=()=>{
+    const lb=window.RoLeaderboard;
+    if(lb&&lb.logout) lb.logout();
+    try{localStorage.removeItem('ro_currentId');}catch(e){}
+    this.setState({currentId:null,screen:'account',authErr:'',nameErr:false});
   };
   selectAccount=(id)=>{
     try{localStorage.setItem('ro_currentId',id);}catch(e){}
@@ -1717,12 +1808,25 @@ class Component extends DCLogic {
     // ---- scene styles ----
     const skyStyle={position:'absolute',top:0,left:0,right:0,height:'18%',background:'var(--bg-sky,linear-gradient(#a7d8ff,#dff1ff 72%))'};
     const seaBaseStyle={position:'absolute',left:0,right:0,bottom:0,top:'18%',background:'radial-gradient(120% 55% at 50% 102%,rgba(0,10,28,.38),transparent 62%),linear-gradient(180deg,color-mix(in srgb,var(--sea,#1f6fb0) 72%,#fff 10%),var(--sea,#1f6fb0) 42%,var(--sea2,#0c3b6b))'};
-    const seaGlintStyle={position:'absolute',left:0,right:0,bottom:0,top:'18%',zIndex:0,pointerEvents:'none',opacity:sFloor===3?.25:.6,backgroundImage:'radial-gradient(3px 2px at 22% 18%,rgba(255,255,255,.5),transparent 70%),radial-gradient(2px 1.5px at 64% 32%,rgba(255,255,255,.4),transparent 70%),radial-gradient(3px 2px at 44% 58%,rgba(255,255,255,.35),transparent 70%),radial-gradient(2px 1.5px at 82% 70%,rgba(255,255,255,.4),transparent 70%),radial-gradient(2.5px 2px at 12% 82%,rgba(255,255,255,.35),transparent 70%)',backgroundSize:'220px 190px',animation:'waveDown 3.4s linear infinite'};
+    const seaGlintStyle={position:'absolute',left:0,right:0,bottom:'-190px',top:'calc(18% - 190px)',zIndex:0,pointerEvents:'none',opacity:sFloor===3?.25:.6,backgroundImage:'radial-gradient(3px 2px at 22% 18%,rgba(255,255,255,.5),transparent 70%),radial-gradient(2px 1.5px at 64% 32%,rgba(255,255,255,.4),transparent 70%),radial-gradient(3px 2px at 44% 58%,rgba(255,255,255,.35),transparent 70%),radial-gradient(2px 1.5px at 82% 70%,rgba(255,255,255,.4),transparent 70%),radial-gradient(2.5px 2px at 12% 82%,rgba(255,255,255,.35),transparent 70%)',backgroundSize:'220px 190px',animation:'glintT 3.4s linear infinite',willChange:'transform'};
     const waveDur=sFloor===3?'1.0s':sFloor===4?'1.6s':'2.4s', waveDur2=sFloor===3?'1.6s':sFloor===4?'2.4s':'3.4s';
-    const seaWaveStyle={position:'absolute',left:0,right:0,bottom:0,top:'18%',backgroundImage:'repeating-linear-gradient(180deg,transparent 0 28px,rgba(255,255,255,.07) 28px 32px,transparent 32px 64px)',backgroundSize:'100% 64px',animation:'waveDown '+waveDur+' linear infinite'};
-    const seaWaveStyle2={position:'absolute',left:0,right:0,bottom:0,top:'40%',backgroundImage:'repeating-linear-gradient(180deg,transparent 0 18px,rgba(255,255,255,.05) 18px 20px,transparent 20px 40px)',backgroundSize:'100% 40px',animation:'waveDown '+waveDur2+' linear infinite'};
-    const leftCliffStyle={position:'absolute',left:0,top:'16%',bottom:0,width:'62px',background:'linear-gradient(90deg,color-mix(in srgb,var(--bg-far,#2f7d4f) 60%,#000),var(--bg-far,#2f7d4f))',clipPath:'polygon(0 0,100% 0,72% 7%,94% 14%,76% 22%,92% 31%,74% 40%,94% 50%,76% 60%,92% 69%,74% 79%,94% 89%,78% 100%,0 100%)',zIndex:1,boxShadow:'inset -8px 0 14px rgba(0,0,0,.25)'};
-    const rightCliffStyle={position:'absolute',right:0,top:'16%',bottom:0,width:'62px',background:'linear-gradient(270deg,color-mix(in srgb,var(--bg-far,#2f7d4f) 60%,#000),var(--bg-far,#2f7d4f))',clipPath:'polygon(100% 0,0 0,28% 7%,6% 14%,24% 22%,8% 31%,26% 40%,6% 50%,24% 60%,8% 69%,26% 79%,6% 89%,22% 100%,100% 100%)',zIndex:1,boxShadow:'inset 8px 0 14px rgba(0,0,0,.25)'};
+    const seaWaveStyle={position:'absolute',left:0,right:0,bottom:'-64px',top:'calc(18% - 64px)',backgroundImage:'repeating-linear-gradient(180deg,transparent 0 28px,rgba(255,255,255,.07) 28px 32px,transparent 32px 64px)',backgroundSize:'100% 64px',animation:'waveT64 '+waveDur+' linear infinite',willChange:'transform',pointerEvents:'none'};
+    const seaWaveStyle2={position:'absolute',left:0,right:0,bottom:'-40px',top:'calc(40% - 40px)',backgroundImage:'repeating-linear-gradient(180deg,transparent 0 18px,rgba(255,255,255,.05) 18px 20px,transparent 20px 40px)',backgroundSize:'100% 40px',animation:'waveT40 '+waveDur2+' linear infinite',willChange:'transform',pointerEvents:'none'};
+    const leftCliffStyle={position:'absolute',left:0,top:'16%',bottom:0,width:'78px',background:'linear-gradient(90deg,color-mix(in srgb,var(--bg-far,#2f7d4f) 55%,#0a2e18),color-mix(in srgb,var(--bg-far,#2f7d4f) 88%,#7dc46b) 55%,var(--bg-far,#2f7d4f))',clipPath:'polygon(0 0,100% 0,72% 7%,94% 14%,76% 22%,92% 31%,74% 40%,94% 50%,76% 60%,92% 69%,74% 79%,94% 89%,78% 100%,0 100%)',zIndex:1,filter:'drop-shadow(4px 0 0 rgba(255,255,255,.8))'};
+    const rightCliffStyle={position:'absolute',right:0,top:'16%',bottom:0,width:'78px',background:'linear-gradient(270deg,color-mix(in srgb,var(--bg-far,#2f7d4f) 55%,#0a2e18),color-mix(in srgb,var(--bg-far,#2f7d4f) 88%,#7dc46b) 55%,var(--bg-far,#2f7d4f))',clipPath:'polygon(100% 0,0 0,28% 7%,6% 14%,24% 22%,8% 31%,26% 40%,6% 50%,24% 60%,8% 69%,26% 79%,6% 89%,22% 100%,100% 100%)',zIndex:1,filter:'drop-shadow(-4px 0 0 rgba(255,255,255,.8))'};
+    // ---- bank decor: trees, bushes and rocks on the fjord banks ----
+    const bankDecor=[];
+    if(isFjordF){
+      const tree=(side,x,topPct,sz,shade)=>bankDecor.push({style:{position:'absolute',[side]:x+'px',top:topPct+'%',width:sz+'px',height:(sz*1.15)+'px',
+        background:'radial-gradient(60% 45% at 50% 26%,'+(shade?'#2c6b3f':'#357a49')+' 62%,transparent 63%),radial-gradient(74% 48% at 50% 55%,'+(shade?'#265f38':'#2f7042')+' 62%,transparent 63%),radial-gradient(88% 50% at 50% 86%,'+(shade?'#1f5230':'#28613a')+' 62%,transparent 63%)',
+        filter:'drop-shadow(0 2px 2px rgba(0,20,10,.35))',zIndex:1,pointerEvents:'none'}});
+      const rock=(side,x,topPct,w)=>bankDecor.push({style:{position:'absolute',[side]:x+'px',top:topPct+'%',width:w+'px',height:(w*0.62)+'px',borderRadius:'46% 54% 50% 50%/60% 58% 42% 40%',
+        background:'linear-gradient(145deg,#b9c4c9,#8b979d 55%,#6e7a80)',boxShadow:'0 2px 3px rgba(0,20,10,.3)',zIndex:1,pointerEvents:'none'}});
+      const bush=(side,x,topPct,w)=>bankDecor.push({style:{position:'absolute',[side]:x+'px',top:topPct+'%',width:w+'px',height:(w*0.7)+'px',borderRadius:'50%',
+        background:'radial-gradient(circle at 34% 30%,#4d9a58,#337346 70%)',boxShadow:'inset 0 -3px 5px rgba(0,30,10,.4)',zIndex:1,pointerEvents:'none'}});
+      tree('left',8,24,26,0); tree('left',30,33,20,1); rock('left',14,44,20); tree('left',6,55,30,0); bush('left',34,63,16); tree('left',22,74,22,1); rock('left',10,88,24);
+      tree('right',10,21,24,1); bush('right',34,30,15); tree('right',24,40,28,0); rock('right',8,52,22); tree('right',6,64,24,1); tree('right',30,80,20,0); rock('right',18,92,18);
+    }
     // ---- per-floor sea & sky tint (her kat farklı görünsün) ----
     const seaTintStyle={position:'absolute',left:0,right:0,bottom:0,top:'18%',zIndex:2,pointerEvents:'none',background: isOpenSeaF?'linear-gradient(180deg,rgba(40,185,150,.20),rgba(18,120,135,.12))' : isIceF?'linear-gradient(180deg,rgba(186,220,242,.34),rgba(120,162,196,.20))' : isCoastF?'linear-gradient(180deg,rgba(255,200,120,.14),transparent 60%)' : 'transparent'};
     const skyTintStyle={position:'absolute',top:0,left:0,right:0,height:'18%',zIndex:1,pointerEvents:'none',background: isOpenSeaF?'linear-gradient(rgba(255,246,214,.45),transparent)' : isIceF?'linear-gradient(rgba(206,228,245,.65),rgba(206,228,245,0))' : isCoastF?'linear-gradient(rgba(255,206,142,.5),transparent)' : 'transparent'};
@@ -2444,7 +2548,19 @@ class Component extends DCLogic {
     }));
     const stageAbbr=['S1','S2','S3','S4','S5','S6'];
     const medalOf=(i)=>i===0?'🥇':i===1?'🥈':i===2?'🥉':('#'+(i+1));
-    const rowStyleOf=(isCur)=>({display:'flex',flexDirection:'column',gap:'9px',padding:'13px 14px',borderRadius:'14px',border:'1.5px solid '+(isCur?'var(--gold,#ffcb05)':'rgba(255,255,255,.12)'),background:isCur?'rgba(255,203,5,.12)':'rgba(255,255,255,.05)'});
+    const MEDAL_COLORS=[['#ffd23e','#a06400'],['#d9e2ea','#6d7c8a'],['#e2954a','#7c4a16']];
+    const badgeOf=(i)=>{
+      if(i>2) return {isMedal:false,rankTxt:'#'+(i+1)};
+      const [c1,c2]=MEDAL_COLORS[i];
+      return {isMedal:true,rankTxt:String(i+1),
+        circleStyle:{width:'30px',height:'30px',borderRadius:'50%',background:'radial-gradient(circle at 34% 28%,#fff5 0 18%,transparent 19%),linear-gradient(160deg,'+c1+','+c2+')',border:'2px solid '+c2,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"var(--display,'Anton')",fontSize:'15px',color:'#fff',textShadow:'0 1px 2px rgba(0,0,0,.4)',boxShadow:'0 2px 4px rgba(0,0,0,.4)',position:'relative',zIndex:1},
+        ribbonStyle:{position:'absolute',top:'22px',left:'50%',transform:'translateX(-50%)',width:'18px',height:'13px',background:'linear-gradient(#c62828,#8e1b1b)',clipPath:'polygon(0 0,100% 0,100% 100%,50% 72%,0 100%)',zIndex:0}};
+    };
+    const AV_COLORS=['#3f6fb5','#b54d3f','#3fa06b','#8a5fb5','#b58f3f','#3f9fb5','#b53f7e','#5f7c8a'];
+    const avatarOf=(name)=>{ const n=String(name||'?'); let h=0; for(let i=0;i<n.length;i++) h=(h*31+n.charCodeAt(i))>>>0;
+      return {initial:n.trim().charAt(0).toUpperCase()||'?', avStyle:{width:'34px',height:'34px',minWidth:'34px',borderRadius:'50%',background:'linear-gradient(160deg,color-mix(in srgb,'+AV_COLORS[h%8]+' 70%,#fff 14%),'+AV_COLORS[h%8]+')',border:'2px solid rgba(255,255,255,.35)',display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"var(--display,'Anton')",fontSize:'16px',color:'#fff',textShadow:'0 1px 2px rgba(0,0,0,.4)'}}; };
+    const CONFETTI=['#ffd23e','#ff5d52','#4da3ff','#59d98c','#fff'].map((c,i)=>({style:{position:'absolute',top:'-2px',left:(8+i*19)+'%',width:(i%2?'5px':'7px'),height:(i%2?'9px':'6px'),background:c,borderRadius:'2px',animation:'confettiFall '+(1.5+(i%3)*0.5)+'s ease-in '+(i*0.25)+'s infinite',pointerEvents:'none',zIndex:0}}));
+    const rowStyleOf=(isCur)=>({display:'flex',flexDirection:'column',gap:'9px',padding:'13px 14px',borderRadius:'16px',border:'1.5px solid '+(isCur?'var(--gold,#ffcb05)':'rgba(255,255,255,.12)'),background:isCur?'rgba(255,203,5,.12)':'linear-gradient(180deg,rgba(255,255,255,.07),rgba(255,255,255,.035))',boxShadow:'0 3px 8px rgba(0,0,0,.25)',position:'relative',overflow:'hidden',flexShrink:0});
     const boardCat=s.boardCat||'total';
     const boardCats=[['total','TOTAL'],['combo','COMBO'],['country','COUNTRY']];
     const catTabs=boardCats.map(([id,label])=>({ id, label, active:boardCat===id, onClick:()=>this.setBoardCat(id),
@@ -2466,14 +2582,14 @@ class Component extends DCLogic {
       entrants.forEach(p=>{ const c=this.countryOf(p); const code=c.code; if(!map[code]) map[code]={country:c,total:0,count:0}; map[code].total+=this._totalOf(p); map[code].count+=1; });
       const arr=Object.keys(map).map(k=>map[k]).sort((a,b)=>b.total-a.total);
       const myCode=playerCountry.code;
-      boardRows=arr.map((e,i)=>({ id:e.country.code, rank:i+1, medal:medalOf(i), flag:e.country.flag, name:e.country.name,
+      boardRows=arr.map((e,i)=>({ id:e.country.code, rank:i+1, medal:medalOf(i), badge:badgeOf(i), notMedal:i>2, av:avatarOf(e.country.name), isTop:i===0, confetti:(i===0?CONFETTI:[]), flag:e.country.flag, name:e.country.name,
         sub:e.count+(e.count===1?' player':' players'), statVal:e.total.toLocaleString(), statLabel:'TOTAL PTS', hasCells:false, cells:[],
         isCur:e.country.code===myCode, rowStyle:rowStyleOf(e.country.code===myCode) }));
       const mi=arr.findIndex(e=>e.country.code===myCode); myRankPos=mi<0?'—':'#'+(mi+1);
       boardHint='Countries ranked by their players’ combined points';
     } else if(boardCat==='combo'){
       const arr=entrants.slice().sort((a,b)=>(b.bestCombo||0)-(a.bestCombo||0));
-      boardRows=arr.map((p,i)=>({ id:p.id, rank:i+1, medal:medalOf(i), flag:this.countryOf(p).flag, name:p.name,
+      boardRows=arr.map((p,i)=>({ id:p.id, rank:i+1, medal:medalOf(i), badge:badgeOf(i), notMedal:i>2, av:avatarOf(p.name), isTop:i===0, confetti:(i===0?CONFETTI:[]), flag:this.countryOf(p).flag, name:p.name,
         sub:this.countryOf(p).name, statVal:'×'+(p.bestCombo||0), statLabel:'MAX COMBO', hasCells:false, cells:[],
         isCur:p.id===s.currentId, rowStyle:rowStyleOf(p.id===s.currentId) }));
       const mi=arr.findIndex(p=>p.id===s.currentId); myRankPos=mi<0?'—':'#'+(mi+1);
@@ -2482,7 +2598,7 @@ class Component extends DCLogic {
       const withT=entrants.filter(p=>p.bestTime!=null).sort((a,b)=>a.bestTime-b.bestTime);
       const without=entrants.filter(p=>p.bestTime==null);
       const arr=withT.concat(without);
-      boardRows=arr.map((p,i)=>({ id:p.id, rank:i+1, medal:(p.bestTime!=null?medalOf(i):'—'), flag:this.countryOf(p).flag, name:p.name,
+      boardRows=arr.map((p,i)=>({ id:p.id, rank:i+1, medal:(p.bestTime!=null?medalOf(i):'—'), badge:badgeOf(p.bestTime!=null?i:9), notMedal:!(p.bestTime!=null&&i<3), av:avatarOf(p.name), isTop:false, confetti:[], flag:this.countryOf(p).flag, name:p.name,
         sub:this.countryOf(p).name, statVal:this.fmtTime(p.bestTime), statLabel:'BEST TIME', hasCells:false, cells:[],
         isCur:p.id===s.currentId, rowStyle:rowStyleOf(p.id===s.currentId) }));
       const mi=arr.findIndex(p=>p.id===s.currentId); myRankPos=mi<0||cur&&cur.bestTime==null?'—':'#'+(mi+1);
@@ -2491,7 +2607,7 @@ class Component extends DCLogic {
       const arr=entrants.slice().sort((a,b)=>this._totalOf(b)-this._totalOf(a));
       boardRows=arr.map((p,i)=>{ const isCur=p.id===s.currentId;
         const cells=[1,2,3,4,5,6].map((id,j)=>({ label:stageAbbr[j], val:(p.scores&&p.scores[id])?p.scores[id].toLocaleString():'—', has:!!(p.scores&&p.scores[id]) }));
-        return { id:p.id, rank:i+1, medal:medalOf(i), flag:this.countryOf(p).flag, name:p.name,
+        return { id:p.id, rank:i+1, medal:medalOf(i), badge:badgeOf(i), notMedal:i>2, av:avatarOf(p.name), isTop:i===0, confetti:(i===0?CONFETTI:[]), flag:this.countryOf(p).flag, name:p.name,
           sub:this.countryOf(p).name, statVal:this._totalOf(p).toLocaleString(), statLabel:'TOTAL', hasCells:true, cells, isCur, rowStyle:rowStyleOf(isCur) }; });
       const mi=arr.findIndex(p=>p.id===s.currentId); myRankPos=mi<0?'—':'#'+(mi+1);
       boardHint=boardScope==='world'?'World ranking by total score':'Players ranked by total score';
@@ -2576,6 +2692,10 @@ class Component extends DCLogic {
       isAccount, isBoard, hasProfiles, profilesList, boardRows, boardEmpty, myRankPos, catTabs, scopeTabs, boardHint, countryList, playerFlag,
       playerName, playerTotal:playerTotal.toLocaleString(), playerRank, playerRankColor,
       nameErr:s.nameErr, nameRef:this.nameRef, onNameKey:this.onNameKey, submitName:this.submitName,
+      authErr:s.authErr, hasAuthErr:!!s.authErr, authBusy:s.authBusy, passRef:this.passRef, loginNameRef:this.loginNameRef, loginPassRef:this.loginPassRef,
+      loginAccount:this.loginAccount, logoutAccount:this.logoutAccount,
+      sessionName:(window.RoLeaderboard&&window.RoLeaderboard.getSessionUser&&(window.RoLeaderboard.getSessionUser()||{}).username)||'', hasSession:!!(window.RoLeaderboard&&window.RoLeaderboard.getSessionUser&&window.RoLeaderboard.getSessionUser()),
+      createLabel:s.authBusy?'CREATING…':'CREATE & PLAY ▸', loginLabel:s.authBusy?'LOGGING IN…':'LOG IN ▸',
       createAccount:this.createAccount, selectAccount:this.selectAccount, goBoard:this.goBoard, goAccount:this.goAccount, setCountry:this.setCountry, setBoardCat:this.setBoardCat,
       showTutorial:isMenu && s.showTutorial, dismissTutorial:this.dismissTutorial, openTutorial:this.openTutorial,
       showStageScore, lastScoreVal, lastTimeVal, lastTimeBonus, lastScoreSub, lastIsBest,
@@ -2595,7 +2715,7 @@ class Component extends DCLogic {
       rostrumPlatStyle, rostrumDeskLStyle, rostrumDeskRStyle, rostrumDeskCStyle, rostrumCorniceStyle, lionEmblemStyle,
       lecternStyle, lecternLightStyle, presBodyStyle, presHeadStyle, presHairStyle, presArmStyle, gavelStyle, rostrumFigs,
       mps, voteBanner, voteBannerStyle,
-      isFjord:isFjordF, isOpenSea:isOpenSeaF, isStorm:isStormF, isIce:isIceF, isCoast:isCoastF, showSun, showSeaTint, seaTintStyle, skyTintStyle, iceFloes,
+      isFjord:isFjordF, isOpenSea:isOpenSeaF, isStorm:isStormF, isIce:isIceF, isCoast:isCoastF, showSun, showSeaTint, seaTintStyle, skyTintStyle, iceFloes, bankDecor,
       skyStyle, seaBaseStyle, seaWaveStyle, seaWaveStyle2, seaGlintStyle, leftCliffStyle, rightCliffStyle,
       wakeStyle, bowFoamStyle, hullShadowStyle, strakes, railStyle, keelStyle, benches, oars, shields, rowers,
       dragonNeckStyle, dragonHeadStyle, dragonEyeStyle, dragonSnoutStyle, dragonCrestStyle, sternStyle,

@@ -120,9 +120,19 @@ class RoLeaderboardClient {
     this._configured = true;
     const cfg = config || window.RO_FIREBASE_CONFIG;
     console.log('[RoLB] init starting; config=' + (cfg ? 'present' : 'MISSING') + ' online=' + navigator.onLine);
+    // REST endpoints are used for password auth on every platform (and for all
+    // traffic on native), so keep them available regardless of mode.
+    if (cfg) {
+      this._cfg = cfg;
+      this._fsBase = 'https://firestore.googleapis.com/v1/projects/' + cfg.projectId + '/databases/(default)/documents';
+      this._fnBase = 'https://us-central1-' + cfg.projectId + '.cloudfunctions.net';
+    }
     const cap = window.Capacitor;
     const isNative = !!(cap && cap.isNativePlatform && cap.isNativePlatform()) || !!window.RO_FORCE_REST;
-    if (isNative && cfg) return this._initRest(cfg);
+    // A stored password session always wins: it must keep working after app
+    // restarts on the web build too, so REST mode is used wherever it exists.
+    const sess = readJSON(REST_AUTH_KEY, null);
+    if (cfg && ((isNative) || (sess && sess.username))) return this._initRest(cfg);
     try {
       this.app = initializeApp(cfg);
       this.auth = getAuth(this.app);
@@ -231,6 +241,7 @@ class RoLeaderboardClient {
               idToken: r.json.id_token,
               refreshToken: r.json.refresh_token || s.refreshToken,
               exp: now + (parseInt(r.json.expires_in, 10) || 3600) * 1000,
+              username: s.username, // keep the named-account marker across refreshes
             };
             writeJSON(REST_AUTH_KEY, s);
             this.uid = s.localId;
@@ -238,10 +249,13 @@ class RoLeaderboardClient {
             console.log('[RoLB] REST auth refreshed, uid=' + s.localId.slice(0, 6) + '…');
             return true;
           }
-          console.warn('[RoLB] REST token refresh got HTTP ' + r.status + ' — signing up fresh');
+          console.warn('[RoLB] REST token refresh got HTTP ' + r.status);
         } catch (e) {
           console.warn('[RoLB] REST token refresh failed: ' + e.message);
         }
+        // Never silently replace a NAMED account with a fresh anonymous user —
+        // that would strand the player's scores under a uid they can't reach.
+        if (s && s.username) return false;
       }
       const r = await fetchJSON(
         'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + this._cfg.apiKey,
@@ -269,6 +283,126 @@ class RoLeaderboardClient {
       console.warn('[RoLB] REST auth error: ' + e.message);
       return false;
     }
+  }
+
+  // ---------- username + password accounts ----------
+  // Usernames are case-insensitive and mapped to a pseudo e-mail so Firebase's
+  // ordinary email/password auth provides uniqueness, hashing and rate limits.
+  _emailForUsername(username) {
+    const slug = String(username || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (slug.length < 2) return null;
+    return { slug, email: slug + '@players.ro-viking-raid.app' };
+  }
+
+  _storePasswordSession(json, username) {
+    const sess = {
+      localId: json.localId,
+      idToken: json.idToken,
+      refreshToken: json.refreshToken,
+      exp: Date.now() + (parseInt(json.expiresIn, 10) || 3600) * 1000,
+      username, // display marker: this session is a named account, not anonymous
+    };
+    writeJSON(REST_AUTH_KEY, sess);
+    this.uid = sess.localId;
+    this._idToken = sess.idToken;
+    this.mode = 'rest'; // password sessions always speak REST, even on web
+    return sess;
+  }
+
+  /** {uid, username} for the signed-in named account, or null (anonymous/no session). */
+  getSessionUser() {
+    const s = readJSON(REST_AUTH_KEY, null);
+    return s && s.username ? { uid: s.localId, username: s.username } : null;
+  }
+
+  static _authErrorText(code) {
+    if (!code) return 'Could not reach the server — check your connection.';
+    if (/EMAIL_EXISTS/.test(code)) return 'That username is taken — log in instead?';
+    if (/EMAIL_NOT_FOUND|INVALID_LOGIN_CREDENTIALS|INVALID_PASSWORD/.test(code)) return 'Wrong username or password.';
+    if (/WEAK_PASSWORD/.test(code)) return 'Password must be at least 6 characters.';
+    if (/TOO_MANY_ATTEMPTS/.test(code)) return 'Too many attempts — try again in a minute.';
+    if (/OPERATION_NOT_ALLOWED|PASSWORD_LOGIN_DISABLED/.test(code)) return 'Accounts are being upgraded — try again soon.';
+    return 'Sign-in failed (' + code + ').';
+  }
+
+  /** Create a named account. Returns {ok, uid} or {ok:false, error}. */
+  async register(username, password) {
+    const m = this._emailForUsername(username);
+    if (!m) return { ok: false, error: 'Enter a name first (letters or numbers).' };
+    if (!password || password.length < 6) return { ok: false, error: 'Password must be at least 6 characters.' };
+    if (!this._cfg) return { ok: false, error: 'Leaderboard is offline.' };
+    try {
+      const r = await fetchJSON(
+        'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=' + this._cfg.apiKey,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: m.email, password, returnSecureToken: true }) }, 12000);
+      if (r.status === 200 && r.json.localId) {
+        this._storePasswordSession(r.json, m.slug);
+        console.log('[RoLB] registered account "' + m.slug + '", uid=' + r.json.localId.slice(0, 6) + '…');
+        this._flushQueue();
+        return { ok: true, uid: r.json.localId };
+      }
+      const code = r.json && r.json.error && r.json.error.message;
+      console.warn('[RoLB] register failed: ' + code);
+      return { ok: false, error: RoLeaderboardClient._authErrorText(code), code };
+    } catch (e) {
+      return { ok: false, error: RoLeaderboardClient._authErrorText(null) };
+    }
+  }
+
+  /** Log into an existing account and pull its leaderboard entry so the local
+   *  profile (scores, country, display name) can be restored on this device.
+   *  Returns {ok, uid, profile|null} or {ok:false, error}. */
+  async login(username, password) {
+    const m = this._emailForUsername(username);
+    if (!m) return { ok: false, error: 'Enter your username.' };
+    if (!password) return { ok: false, error: 'Enter your password.' };
+    if (!this._cfg) return { ok: false, error: 'Leaderboard is offline.' };
+    try {
+      const r = await fetchJSON(
+        'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=' + this._cfg.apiKey,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: m.email, password, returnSecureToken: true }) }, 12000);
+      if (r.status !== 200 || !r.json.localId) {
+        const code = r.json && r.json.error && r.json.error.message;
+        console.warn('[RoLB] login failed: ' + code);
+        return { ok: false, error: RoLeaderboardClient._authErrorText(code), code };
+      }
+      this._storePasswordSession(r.json, m.slug);
+      console.log('[RoLB] logged in as "' + m.slug + '", uid=' + r.json.localId.slice(0, 6) + '…');
+      // Restore the account's world-board entry (public read; may 404 if the
+      // account never submitted a score).
+      let profile = null;
+      try {
+        const d = await fetchJSON(this._fsBase + '/players/' + r.json.localId + '?key=' + this._cfg.apiKey, { method: 'GET' }, 12000);
+        if (d.status === 200 && d.json.fields) {
+          const f = decodeFsFields(d.json.fields);
+          profile = {
+            name: f.name, countryCode: f.countryCode,
+            scores: f.scores || {}, bestCombo: f.bestCombo || 0,
+            bestTime: f.bestTime != null ? f.bestTime : null,
+          };
+        }
+      } catch (e) { /* profile stays null — fresh device, no scores yet */ }
+      this._flushQueue();
+      return { ok: true, uid: r.json.localId, profile };
+    } catch (e) {
+      return { ok: false, error: RoLeaderboardClient._authErrorText(null) };
+    }
+  }
+
+  /** Sign out of the named account. Local play continues; scores stop syncing
+   *  until the player logs in (or creates) an account again. */
+  logout() {
+    try {
+      localStorage.removeItem(REST_AUTH_KEY);
+      localStorage.removeItem(PROFILE_KEY);
+      localStorage.removeItem(QUEUE_KEY);
+    } catch (e) { /* ignore */ }
+    this.uid = null;
+    this._idToken = null;
+    console.log('[RoLB] logged out');
+    notifyUpdated();
   }
 
   async _restRunQuery(structuredQuery) {
