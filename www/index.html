@@ -1709,10 +1709,10 @@ class Component extends DCLogic {
       parts.push({style:{position:'absolute',left:p(11),top:p(9),width:p(4.5),height:p(8),borderRadius:'30% 30% 60% 60%',background:'linear-gradient(0deg,#98a4ad,#eef2f5)',transformOrigin:'50% 0%',animation:'gullFlapB '+fd+' ease-in-out infinite'}});
     } else if(kind==='fish'){
       dur=6.5+Math.random()*3; w=60; h=40;
-      const n=4+Math.floor(Math.random()*3);
+      const n=3+Math.floor(Math.random()*2);
       for(let i=0;i<n;i++){ const fx=4+Math.random()*44, fy=Math.random()*32, fdel=(Math.random()*0.8).toFixed(2)+'s';
-        parts.push({style:{position:'absolute',left:p(fx-3),top:p(fy+0.6),width:p(4),height:p(2.4),background:'#0d2c3d',opacity:.55,clipPath:'polygon(100% 0,0 50%,100% 100%)',filter:'blur(.4px)'}});
-        parts.push({style:{position:'absolute',left:p(fx),top:p(fy),width:p(9),height:p(3.6),borderRadius:'50%/60% 60% 40% 40%',background:'linear-gradient(180deg,#2c5a6b,#0d2c3d)',opacity:.62,filter:'blur(.4px)',animation:'fishWiggle '+(0.9+Math.random()*0.5).toFixed(2)+'s ease-in-out '+fdel+' infinite'}});
+        parts.push({style:{position:'absolute',left:p(fx-3),top:p(fy+0.6),width:p(4),height:p(2.4),background:'#0d2c3d',opacity:.4,clipPath:'polygon(100% 0,0 50%,100% 100%)'}});
+        parts.push({style:{position:'absolute',left:p(fx),top:p(fy),width:p(9),height:p(3.6),borderRadius:'50%/60% 60% 40% 40%',background:'radial-gradient(ellipse at 50% 50%,#2c5a6b 40%,#0d2c3d 78%,transparent 100%)',opacity:.6,animation:'fishWiggle '+(0.9+Math.random()*0.5).toFixed(2)+'s ease-in-out '+fdel+' infinite'}});
       }
     } else if(kind==='whale'){
       dur=9+Math.random()*3; w=90; h=68;
@@ -1721,13 +1721,13 @@ class Component extends DCLogic {
       parts.push({style:{position:'absolute',left:p(44),top:p(2),width:p(2.4),height:p(44),borderRadius:'2px',background:'linear-gradient(180deg,rgba(190,220,235,.4),rgba(190,220,235,.08))'}});
       parts.push({style:{position:'absolute',left:p(24),top:p(50),width:p(17),height:p(13),borderRadius:'70% 20% 55% 65%',background:'#22394a',transform:'rotate(34deg)',boxShadow:'inset 0 2px 3px rgba(255,255,255,.1)'}});
       parts.push({style:{position:'absolute',left:p(49),top:p(50),width:p(17),height:p(13),borderRadius:'20% 70% 65% 55%',background:'#22394a',transform:'rotate(-34deg)',boxShadow:'inset 0 2px 3px rgba(255,255,255,.1)'}});
-      parts.push({style:{position:'absolute',left:p(30),top:p(-4),width:p(30),height:p(10),borderRadius:'50%',background:'radial-gradient(ellipse,rgba(255,255,255,.5),transparent 70%)',filter:'blur(1px)'}});
+      parts.push({style:{position:'absolute',left:p(30),top:p(-4),width:p(30),height:p(10),borderRadius:'50%',background:'radial-gradient(ellipse,rgba(255,255,255,.45),rgba(255,255,255,.12) 55%,transparent 72%)'}});
       parts.push({style:{position:'absolute',left:p(37),top:p(-12),width:p(16),height:p(16),borderRadius:'50%',background:'radial-gradient(circle,rgba(255,255,255,.95),rgba(255,255,255,0) 68%)',animation:'whaleBlow 2.7s ease-out infinite'}});
     } else { // berg — drifting growler with submerged halo
       dur=7.5+Math.random()*3.5; w=56; h=44;
       const polys=['polygon(24% 0,62% 6%,100% 34%,88% 78%,52% 100%,14% 86%,0 44%)','polygon(10% 18%,48% 0,86% 12%,100% 52%,70% 100%,22% 92%,0 56%)','polygon(30% 0,74% 8%,100% 42%,80% 88%,38% 100%,4% 74%,8% 26%)'];
       const poly=polys[Math.floor(Math.random()*polys.length)];
-      parts.push({style:{position:'absolute',left:'-18%',top:'-16%',width:'136%',height:'136%',borderRadius:'50%',background:'radial-gradient(ellipse,rgba(165,225,245,.42),rgba(130,195,225,.16) 56%,transparent 76%)',filter:'blur(1px)'}});
+      parts.push({style:{position:'absolute',left:'-18%',top:'-16%',width:'136%',height:'136%',borderRadius:'50%',background:'radial-gradient(ellipse,rgba(165,225,245,.42),rgba(130,195,225,.16) 56%,transparent 76%)'}});
       parts.push({style:{position:'absolute',inset:0,clipPath:poly,background:'repeating-linear-gradient(118deg,rgba(120,170,200,.18) 0 3px,transparent 3px 9px),linear-gradient(155deg,#ffffff,#eaf4fb 38%,#c3dcec 72%,#9fc3da)',boxShadow:'inset -4px -6px 9px rgba(90,140,175,.55),inset 3px 4px 6px rgba(255,255,255,.8)',animation:'floeSway '+(5+Math.random()*3).toFixed(1)+'s ease-in-out infinite'}});
       parts.push({style:{position:'absolute',left:'26%',top:'18%',width:'22%',height:'26%',clipPath:'polygon(20% 0,80% 12%,100% 70%,40% 100%,0 52%)',background:'linear-gradient(150deg,#ffffff,#dceaf4)',boxShadow:'0 1px 2px rgba(90,140,175,.4)'}});
     }
@@ -1754,6 +1754,7 @@ class Component extends DCLogic {
       if(this.state.stageId===1) this._prime('stroke',this._strokeBuild);
       if(this.state.stageId>=2) this._prime('fans',this._fansBuild);
       this.pumpArms(false);
+      if(this.state.stageId<=2){ this.spawnSeaLife(); this.spawnSeaLife(); }
       this.addPop('PERFECT!','perfect'); this.addPop('RO!','good'); this.roShout();
     }catch(e){}
     clearTimeout(this._wuT2);
