@@ -177,6 +177,19 @@
   @keyframes stepScroll{from{background-position:0 0}to{background-position:0 30px}}
   @keyframes stepUp{from{background-position:0 0}to{background-position:0 -26px}}
   @keyframes handRoll{from{background-position:0 0}to{background-position:0 -40px}}
+  .roP .roAL{transform:translateY(-12px) rotate(-34deg)!important}
+  .roP .roAR{transform:translateY(-12px) rotate(34deg)!important}
+  .roP .roHL{transform:translate(-7px,-15px)!important}
+  .roP .roHR{transform:translate(7px,-15px)!important}
+  .roP .mpArm{opacity:1!important}
+  .roP .mpL{transform:translateY(-9px) rotate(-26deg)!important}
+  .roP .mpR{transform:translateY(-9px) rotate(26deg)!important}
+  .roP .st6arm.roAL{transform:translateY(-14px) rotate(-46deg)!important}
+  .roP .st6arm.roAR{transform:translateY(-14px) rotate(46deg)!important}
+  .roPBig .roAL{transform:translateY(-20px) rotate(-42deg)!important}
+  .roPBig .roAR{transform:translateY(-20px) rotate(42deg)!important}
+  .roPBig .roHL{transform:translate(-10px,-24px)!important}
+  .roPBig .roHR{transform:translate(10px,-24px)!important}
   @keyframes roArmSwing{0%,100%{transform:rotate(var(--rF,-150deg)) scaleY(.74)}50%{transform:rotate(var(--rP,-24deg)) scaleY(1)}}
   @keyframes roLean{0%,100%{transform:translateX(-50%) translateY(-7px) scaleY(.95)}50%{transform:translateX(-50%) translateY(7px) scaleY(1.04)}}
   @keyframes gallWalk{0%,100%{transform:translateX(0)}50%{transform:translateX(var(--wx,12px))}}
@@ -253,7 +266,7 @@
       </sc-if>
 
       <!-- ============ NORWEGIAN SUPPORTERS' LONGSHIP (top-down) ============ -->
-      <div ref="{{ shipRef }}" style="position:absolute;left:50%;bottom:14%;transform:translateX(-50%);width:190px;height:322px;z-index:4">
+      <div ref="{{ shipRef }}" style="position:absolute;left:50%;bottom:14%;transform:translateX(-50%);width:190px;height:322px;z-index:4;will-change:transform">
         <div style="position:absolute;inset:0;animation:bob 3.8s ease-in-out infinite">
 
           <!-- bow wake + foam -->
@@ -295,7 +308,7 @@
           </sc-for>
 
           <!-- rowers (Norwegian supporters) -->
-          <div ref="{{ rowersRef }}" style="position:absolute;inset:0;z-index:5">
+          <div ref="{{ rowersRef }}" style="position:absolute;inset:0;z-index:5;will-change:transform">
           <sc-for list="{{ rowers }}" as="r" hint-placeholder-count="16">
             <div class="st1arm" style="{{ r.armA }}"></div>
             <div class="st1arm" style="{{ r.armB }}"></div>
@@ -325,8 +338,8 @@
 
           <!-- standing supporters waving flags -->
           <sc-for list="{{ standing }}" as="sf" hint-placeholder-count="2">
-            <div class="roArm" style="{{ sf.armL }}"></div>
-            <div class="roArm" style="{{ sf.armR }}"></div>
+            <div class="roArm roAL" style="{{ sf.armL }}"></div>
+            <div class="roArm roAR" style="{{ sf.armR }}"></div>
             <div style="{{ sf.body }}"></div>
             <div style="{{ sf.head }}"></div>
           </sc-for>
@@ -410,8 +423,8 @@
         <div style="{{ newelRStyle }}"></div>
         <div class="upLamp" style="{{ upLampStyle }}">▲</div>
         <div style="{{ floorSignStyle }}">{{ zoneName }}</div>
-        <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:4">
-          <div ref="{{ fansRef }}" style="position:absolute;inset:0">
+        <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:4;will-change:transform">
+          <div ref="{{ fansRef }}" style="position:absolute;inset:0;will-change:transform">
             <sc-for list="{{ escFans }}" as="f" hint-placeholder-count="6">
               <div class="efWrap" style="{{ f.wrap }}">
                 <div class="efArm" style="{{ f.armL }}"></div>
@@ -518,15 +531,15 @@
         <div style="{{ plazaStyle }}"></div>
         <div style="{{ plazaLinesStyle }}"></div>
         <!-- supporter crowd doing RO -->
-        <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:5">
-          <div ref="{{ fansRef }}" style="position:absolute;inset:0">
+        <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:5;will-change:transform">
+          <div ref="{{ fansRef }}" style="position:absolute;inset:0;will-change:transform">
             <sc-for list="{{ crowdFans }}" as="f" hint-placeholder-count="0">
-              <div class="roArm" style="{{ f.armL }}"></div>
-              <div class="roArm" style="{{ f.armR }}"></div>
+              <div class="roArm roAL" style="{{ f.armL }}"></div>
+              <div class="roArm roAR" style="{{ f.armR }}"></div>
               <div style="{{ f.shoulders }}"></div>
               <div style="{{ f.scarf }}"></div>
-              <div class="roArm" style="{{ f.handL }}"></div>
-              <div class="roArm" style="{{ f.handR }}"></div>
+              <div class="roArm roHL" style="{{ f.handL }}"></div>
+              <div class="roArm roHR" style="{{ f.handR }}"></div>
               <div style="{{ f.neck }}"></div><div style="{{ f.head }}"></div><div style="{{ f.earL }}"></div><div style="{{ f.earR }}"></div><div style="{{ f.hair }}"></div><div style="{{ f.pom }}"></div>
             </sc-for>
           </div>
@@ -583,8 +596,8 @@
         <div style="{{ lecternStyle }}"></div>
         <div style="{{ lecternLightStyle }}"></div>
         <!-- milletvekilleri (tiered semicircular seating in red-gold chairs) -->
-        <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:5">
-          <div ref="{{ fansRef }}" style="position:absolute;inset:0">
+        <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:5;will-change:transform">
+          <div ref="{{ fansRef }}" style="position:absolute;inset:0;will-change:transform">
             <sc-for list="{{ mps }}" as="m" hint-placeholder-count="0">
               <div style="{{ m.chair }}"></div>
               <div class="mpFig" style="{{ m.body }}"></div>
@@ -668,15 +681,15 @@
           </div>
         </sc-for>
         <!-- packed Norwegian supporters doing RO across the square -->
-        <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:5">
-          <div ref="{{ fansRef }}" style="position:absolute;inset:0">
+        <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:5;will-change:transform">
+          <div ref="{{ fansRef }}" style="position:absolute;inset:0;will-change:transform">
             <sc-for list="{{ crowdFans }}" as="f" hint-placeholder-count="0">
-              <div class="roArm" style="{{ f.armL }}"></div>
-              <div class="roArm" style="{{ f.armR }}"></div>
+              <div class="roArm roAL" style="{{ f.armL }}"></div>
+              <div class="roArm roAR" style="{{ f.armR }}"></div>
               <div style="{{ f.shoulders }}"></div>
               <div style="{{ f.scarf }}"></div>
-              <div class="roArm" style="{{ f.handL }}"></div>
-              <div class="roArm" style="{{ f.handR }}"></div>
+              <div class="roArm roHL" style="{{ f.handL }}"></div>
+              <div class="roArm roHR" style="{{ f.handR }}"></div>
               <div style="{{ f.neck }}"></div><div style="{{ f.head }}"></div><div style="{{ f.earL }}"></div><div style="{{ f.earR }}"></div><div style="{{ f.hair }}"></div><div style="{{ f.pom }}"></div>
             </sc-for>
           </div>
@@ -695,11 +708,11 @@
         <sc-for list="{{ st6Aisles }}" as="a" hint-placeholder-count="0"><div style="{{ a }}"></div></sc-for>
         <div style="{{ st6Roof }}"></div>
         <div style="{{ st6RoofLip }}"></div>
-        <div ref="{{ st6CrowdRef }}" style="position:absolute;inset:0;z-index:5">
+        <div ref="{{ st6CrowdRef }}" style="position:absolute;inset:0;z-index:5;will-change:transform">
           <sc-for list="{{ st6Fans }}" as="f" hint-placeholder-count="0">
             <div style="{{ f.wrap }}">
-              <div class="st6arm" style="{{ f.armL }}"></div>
-              <div class="st6arm" style="{{ f.armR }}"></div>
+              <div class="st6arm roAL" style="{{ f.armL }}"></div>
+              <div class="st6arm roAR" style="{{ f.armR }}"></div>
               <div style="{{ f.body }}"></div>
               <div style="{{ f.scarf }}"></div>
               <div style="{{ f.head }}"></div>
@@ -1278,7 +1291,7 @@ class Component extends DCLogic {
     // Live world leaderboard (see README "Leaderboard backend"): the native
     // shell injects window.RoLeaderboard (Firestore-backed). Re-render when a
     // background fetch resolves so the scoreboard picks up fresh rows.
-    this._lbUpdate=()=>this.forceUpdate();
+    this._lbUpdate=()=>{ if(this.state.screen!=='game') this.forceUpdate(); };
     window.addEventListener('ro-leaderboard-updated',this._lbUpdate);
     this._tick=setInterval(()=>{
       if(this.state.screen==='game' && this.state.stageId!==6 && this.state.tier===2 && Math.random()<0.18){ this.flash('#dfe9ff',150); this.sfx('thunder'); }
@@ -1423,18 +1436,18 @@ class Component extends DCLogic {
     const g=this.rowersRef&&this.rowersRef.current;
     if(g){ g.animate([{transform:'translateY(0)'},{transform:'translateY(5px)',offset:.16},{transform:'translateY(-7px)',offset:.52},{transform:'translateY(-3px)',offset:.72},{transform:'translateY(0)'}],{duration:900,easing:'cubic-bezier(.34,.08,.28,1)',composite:'add'}); }
     this._mirrorSweep('.st1oar',26,900,'replace');
-    this._mirrorSweep('.st1arm',9,900,'add');
     if(root){ root.querySelectorAll('.st1splash').forEach(el=>{ el.animate([{opacity:0,transform:'scale(.5)'},{opacity:.95,transform:'scale(1.3)',offset:.45},{opacity:.2,transform:'scale(.7)',offset:.75},{opacity:0,transform:'scale(.5)'}],{duration:900,easing:'ease-out'}); }); }
   }
-  pumpArms(big){ const root=this.stageRef&&this.stageRef.current; if(!root) return; const arms=root.querySelectorAll('.roArm'); const dur=big?1700:840, ty1=big?-21:-14, r1=big?-22:-13, ty2=big?16:10, r2=big?18:11; const rect=big?root.getBoundingClientRect():null; const midX=rect?rect.left+rect.width/2:0; arms.forEach(a=>{ let sg=1; if(big){ const b=a.getBoundingClientRect(); sg=(b.left+b.width/2)<midX?-1:1; } a.animate([{transform:'translateY(0) rotate(0deg)'},{transform:'translateY('+ty1+'px) rotate('+(r1*sg)+'deg)',offset:.42},{transform:'translateY('+ty2+'px) rotate('+(r2*sg)+'deg)',offset:.74},{transform:'translateY(0) rotate(0deg)'}],{duration:dur,easing:'cubic-bezier(.34,.66,.3,1)',composite:'add'}); }); }
+  pumpArms(big){ const root=this.stageRef&&this.stageRef.current; if(!root) return;
+    // One class on the stage root raises every arm via CSS (see .roP rules).
+    // WKWebView'de yuzlerce ayri animasyon her vurusta yuzlerce compositing
+    // katmani olusturuyordu — kasmanin ana kaynagi buydu.
+    root.classList.add('roP'); if(big) root.classList.add('roPBig');
+    clearTimeout(this._roPT);
+    this._roPT=setTimeout(()=>{ root.classList.remove('roP'); root.classList.remove('roPBig'); }, big?900:430); }
   comboBump(){ const c=this.comboRef.current; if(c) c.animate([{transform:'scale(1)'},{transform:'scale(1.4)'},{transform:'scale(1)'}],{duration:240,easing:'ease-out'}); }
-  mpRo(){ const root=this.stageRef&&this.stageRef.current; if(!root) return;
-    root.querySelectorAll('.mpArm').forEach(a=>{ const sg=a.classList.contains('mpL')?-1:1;
-      a.animate([{opacity:0},{opacity:1,offset:.18},{opacity:1,offset:.72},{opacity:0}],{duration:760,easing:'ease-out'});
-      a.animate([{transform:'translateY(9px) rotate(0deg)'},{transform:'translateY(-9px) rotate('+(9*sg)+'deg)',offset:.4},{transform:'translateY(-4px) rotate('+(-7*sg)+'deg)',offset:.72},{transform:'translateY(9px) rotate(0deg)'}],{duration:760,easing:'cubic-bezier(.34,.66,.3,1)',composite:'add'});
-    });
-    root.querySelectorAll('.mpFig').forEach(f=>{ f.animate([{transform:'translateY(0)'},{transform:'translateY(-5px)',offset:.4},{transform:'translateY(0)'}],{duration:520,easing:'ease-out',composite:'add'}); });
-  }
+  mpRo(){ /* arms rise via the .roP class set in pumpArms; the chamber bounce
+    comes from rowFans() on the fansRef container — no per-element animations. */ }
   _spawnPop(styleObj,text,life){
     const host=this.popLayerRef.current; if(!host) return;
     const el=document.createElement('div');
@@ -1463,14 +1476,14 @@ class Component extends DCLogic {
     this._spawnPop({position:'absolute',left:left+'%',bottom:'46%',transform:'translate(-50%,0)',fontFamily:"var(--display,'Anton')",
       fontSize:'36px',color,webkitTextStroke:'2px rgba(0,0,0,.35)',whiteSpace:'nowrap',animation:'popKf .8s forwards'},text,820);
   }
-  roShout(){ const n=4+Math.floor(Math.random()*3); for(let i=0;i<n;i++){ const left=10+Math.random()*80; const bottom=(28+Math.random()*50); const size=20+Math.random()*26; const rot=(Math.random()*34-17); const color=Math.random()<0.5?'var(--gold,#ffcb05)':'#fff';
+  roShout(){ const n=3+Math.floor(Math.random()*2); for(let i=0;i<n;i++){ const left=10+Math.random()*80; const bottom=(28+Math.random()*50); const size=20+Math.random()*26; const rot=(Math.random()*34-17); const color=Math.random()<0.5?'var(--gold,#ffcb05)':'#fff';
       this._spawnPop({position:'absolute',left:left+'%',bottom:bottom+'%',transform:'translate(-50%,0) rotate('+rot.toFixed(1)+'deg)',fontFamily:"var(--display,'Anton')",fontSize:size.toFixed(0)+'px',color,webkitTextStroke:'2px rgba(0,0,0,.35)',whiteSpace:'nowrap',animation:'popKf .8s forwards'},'RO',840);
     }
   }
 
   // ---------- difficulty ----------
   floorOf(p){ return Math.min(5,Math.floor(p/20)+1); }
-  diff(p,ro){ const floor=this.floorOf(p); const e=Math.min(1,Math.max(0,p/100)); let zoneWidth=28-15*e, speedDur=1.75-1.25*e; if(this.state&&this.state.stageId===5){ zoneWidth=21-13*e; speedDur=1.5-1.08*e; } if(this.state&&this.state.stageId===6){ const r=(ro!=null?ro:(this.state.round||0)); zoneWidth=19-4*r; speedDur=1.2-0.24*r; const t=r===0?0:r===1?1:2; return {zoneWidth,speedDur,tier:t,floor}; } let tier=floor<=1?0:floor===2?1:floor>=5?3:2; return {zoneWidth,speedDur,tier,floor}; }
+  diff(p,ro){ const floor=this.floorOf(p); const e=Math.min(1,Math.max(0,p/100)); let zoneWidth=28-15*e, speedDur=1.75-1.25*e; if(this.state&&this.state.stageId===5){ zoneWidth=21-13*e; speedDur=1.5-1.08*e; } if(this.state&&this.state.stageId===6){ const r=(ro!=null?ro:(this.state.round||0)); zoneWidth=19-4*r; speedDur=1.2-0.24*r; const t=r===0?0:r===1?1:2; return {zoneWidth,speedDur,tier:t,floor}; } speedDur=Math.round(speedDur*10)/10; let tier=floor<=1?0:floor===2?1:floor>=5?3:2; return {zoneWidth,speedDur,tier,floor}; }
   rollZone(width){ const max=96-width-4; return Math.round(4+Math.random()*max); }
 
   // ---------- flow ----------
@@ -1746,7 +1759,7 @@ class Component extends DCLogic {
     this.roShout();
     this.sfx(kind); this.buzz(kind==='perfect'?[20,30,20]:20);
     if(kind==='perfect') this.flash('var(--gold,#ffcb05)',140);
-    if(this.state.stageId===4){ this._redMs=5000; this._paintRed(); this.mpRo(); }
+    if(this.state.stageId===4){ this._redMs=5000; this._paintRed(); }
     const c=this.state.combo+1; if(c>0&&c%5===0){ this.sfx('combo'); this.addPop('×'+c+' COMBO!','perfect'); }
   }
   doMiss(){
@@ -1764,7 +1777,7 @@ class Component extends DCLogic {
     if(this.state.stageId===4){ this._redMs=5000; this._paintRed(); }
   }
   _save(dist,combo){ this.setState(s=>{ const best={dist:Math.max(s.best.dist,dist),combo:Math.max(s.best.combo,combo)}; try{localStorage.setItem('ro_best_dist',best.dist);localStorage.setItem('ro_best_combo',best.combo);}catch(e){} return {best}; }); }
-  _paintRed(){ const ms=Math.max(0,this._redMs==null?5000:this._redMs); const b=this.redBarRef&&this.redBarRef.current; const n=this.redNumRef&&this.redNumRef.current; const low=ms<2000; if(b){ b.style.width=(ms/5000*100).toFixed(1)+'%'; b.style.background=low?'linear-gradient(90deg,#ffce2b,#ba0c2f)':'linear-gradient(90deg,#7d0820,#ba0c2f)'; } if(n){ n.textContent=Math.ceil(ms/1000); n.style.color=low?'#ff5252':'var(--gold,#ffcb05)'; } }
+  _paintRed(){ const ms=Math.max(0,this._redMs==null?5000:this._redMs); const b=this.redBarRef&&this.redBarRef.current; const n=this.redNumRef&&this.redNumRef.current; const low=ms<2000; const w=(ms/5000*100).toFixed(1)+'%'; if(b&&(b.__w!==w||b.__lo!==low)){ b.__w=w; b.__lo=low; b.style.width=w; b.style.background=low?'linear-gradient(90deg,#ffce2b,#ba0c2f)':'linear-gradient(90deg,#7d0820,#ba0c2f)'; } const sec=Math.ceil(ms/1000); if(n&&(n.__s!==sec||n.__lo!==low)){ n.__s=sec; n.__lo=low; n.textContent=sec; n.style.color=low?'#ff5252':'var(--gold,#ffcb05)'; } }
   redTimeout(){ this.shake(); this.flash('#ba0c2f',240); this.sfx('miss'); this.buzz(140); this.addPop('TIME UP!','miss'); this.setState(s=>{ if(s.screen!=='game'||s.result) return null; const shields=s.shields-1; const next={shields}; if(shields<=0){ next.screen='result'; next.result='lose'; this._save(s.progress,s.maxCombo); setTimeout(()=>this.sfx('lose'),60); setTimeout(()=>this.recordLoss(),60); } return next; }); }
 
   // ---------- Times Square "BIG SCREEN" bonus window (stage 5) ----------
@@ -1811,7 +1824,7 @@ class Component extends DCLogic {
   _roundDur(){ const rounds=(this.STAGES[5]||{}).rounds||[]; const r=Math.min(this.state.round||0,Math.max(0,rounds.length-1)); return ((rounds[r]||{}).secs||45)*1000; }
   _paintSt6Timer(){ const dur=this._roundDur()||1; const ms=Math.max(0,this._st6Ms==null?dur:this._st6Ms); const b=this.st6BarRef&&this.st6BarRef.current; const n=this.st6TimeRef&&this.st6TimeRef.current; const low=ms<10000; if(b){ b.style.width=(ms/dur*100).toFixed(1)+'%'; b.style.background=low?'linear-gradient(90deg,#ffce2b,#ba0c2f)':'linear-gradient(90deg,#00205b,#ffcb05)'; } if(n){ n.textContent=Math.ceil(ms/1000)+'s'; n.style.color=low?'#ff5252':'#fff'; } const rms=Math.max(0,this._roMs==null?5000:this._roMs); const rb=this.roMsBarRef&&this.roMsBarRef.current; const rn=this.roMsNumRef&&this.roMsNumRef.current; const rlow=rms<2000; if(rb){ rb.style.width=(rms/5000*100).toFixed(1)+'%'; rb.style.background=rlow?'linear-gradient(90deg,#ffce2b,#ff2a2a)':'linear-gradient(90deg,#ba0c2f,#ff6b6b)'; } if(rn){ rn.textContent=(rms/1000).toFixed(1)+'s'; rn.style.color=rlow?'#ffce2b':'#ff9a9a'; } }
   roTimeout(){ if(this.state.screen!=='game'||this.state.result||this.state.roundTrans||this.state.intro) return; this.addPop('TOO LATE!','miss'); this.doOppGoal(); }
-  roWave(){ const el=this.roWaveRef&&this.roWaveRef.current; if(el){ el.animate([{transform:'translateX(-160px)',opacity:0},{opacity:.55,offset:.35},{transform:'translateX(480px)',opacity:0}],{duration:620,easing:'ease-out'}); } const c=this.st6CrowdRef&&this.st6CrowdRef.current; if(c){ c.animate([{transform:'scale(1)'},{transform:'scale(1.045)'},{transform:'scale(1)'}],{duration:440,easing:'ease-out'}); const arms=c.querySelectorAll('.st6arm'); arms.forEach(a=>{ a.animate([{transform:'translateY(0) rotate(0deg)'},{transform:'translateY(-14px) rotate(-13deg)',offset:.4},{transform:'translateY(10px) rotate(11deg)',offset:.72},{transform:'translateY(0) rotate(0deg)'}],{duration:840,easing:'cubic-bezier(.34,.66,.3,1)',composite:'add'}); }); } }
+  roWave(){ const el=this.roWaveRef&&this.roWaveRef.current; if(el){ el.animate([{transform:'translateX(-160px)',opacity:0},{opacity:.55,offset:.35},{transform:'translateX(480px)',opacity:0}],{duration:620,easing:'ease-out'}); } const c=this.st6CrowdRef&&this.st6CrowdRef.current; if(c){ c.animate([{transform:'scale(1)'},{transform:'scale(1.045)'},{transform:'scale(1)'}],{duration:440,easing:'ease-out'}); this.pumpArms(false); } }
   st6TimeUp(){ if(this.state.screen!=='game'||this.state.result||this.state.roundTrans) return; const rounds=(this.STAGES[5]||{}).rounds||[]; const r=this.state.round; const advanced=this.state.norGoals>this.state.oppGoals;
     if(advanced && r<rounds.length-1){ this.sfx('combo'); this.flash('var(--gold,#ffcb05)',220); this.buzz([20,40,20]); this.setState({roundTrans:{from:(rounds[r]||{}).label,to:(rounds[r+1]||{}).label,opp:(rounds[r+1]||{}).opp,flag:(rounds[r+1]||{}).flag,score:this.state.norGoals+'-'+this.state.oppGoals}}); }
     else if(advanced){ this.flash('var(--gold,#ffcb05)',260); this.setState(s=>{ this._save(100,s.maxCombo); return {screen:'result',result:'win'}; }); setTimeout(()=>{this.sfx('win');this._unlockNext();this.recordWin(6,this.state.maxCombo,this.state.perfects,this.state.strokes);},60); }
@@ -1850,7 +1863,7 @@ class Component extends DCLogic {
       ? 'Each stroke: tap while the sweeping line is inside the GOLD zone within 5 seconds. Every hit in the gold resets the timer — if it runs out you lose a shield, but the session goes on. Land the RED band for a PERFECT bonus.'
       : stage.hint;
 
-    const rootStyle=Object.assign({position:'relative',width:'min(100vw,460px)',height:'min(100vh,900px)',overflow:'hidden',borderRadius:'2px',boxShadow:'0 20px 60px rgba(0,0,0,.5)'},th);
+    const rootStyle=Object.assign({position:'relative',width:'min(100vw,460px)',height:'min(100vh,900px)',overflow:'hidden',willChange:'transform',borderRadius:'2px',boxShadow:'0 20px 60px rgba(0,0,0,.5)'},th);
 
     // ---- vertical skill bar ----
     const zoneStyle={position:'absolute',left:0,right:0,top:s.zoneLeft+'%',height:s.zoneWidth+'%',background:'linear-gradient(180deg,rgba(255,210,62,.55),rgba(255,203,5,.85) 50%,rgba(255,210,62,.55))',borderTop:'2px solid #f0b400',borderBottom:'2px solid #f0b400',boxShadow:'0 0 14px rgba(255,203,5,.55), inset 0 0 8px rgba(255,255,255,.35)'};
@@ -2586,8 +2599,8 @@ class Component extends DCLogic {
             chair:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(headTop-7*sc),width:(shW*1.18).toFixed(1)+'px',height:(shH+hd+rise+12*sc).toFixed(1)+'px',transform:'translateX(-50%)',background:'linear-gradient(180deg,#a8121f,#6e0c16)',border:'1.5px solid #d8b440',borderRadius:(shW*0.42).toFixed(1)+'px '+(shW*0.42).toFixed(1)+'px 4px 4px',boxShadow:'0 1px 3px rgba(0,0,0,.4)',zIndex:baseZ},
             body:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(bodyTop),width:shW.toFixed(1)+'px',height:(shH+rise).toFixed(1)+'px',transform:'translateX(-50%)',background:'radial-gradient(circle at 50% 26%,color-mix(in srgb,'+suit+' 78%,#fff 22%),'+suit+' 60%,color-mix(in srgb,'+suit+' 66%,#000))',borderRadius:(shW*0.5).toFixed(1)+'px '+(shW*0.5).toFixed(1)+'px '+(shW*0.22).toFixed(1)+'px '+(shW*0.22).toFixed(1)+'px',boxShadow:'0 2px 3px rgba(0,0,0,.4),inset 0 4px 5px rgba(255,255,255,.1)',zIndex:baseZ+1},
             tie:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(bodyTop+1),width:(4*sc).toFixed(1)+'px',height:(shH*0.7).toFixed(1)+'px',transform:'translateX(-50%)',background:tie,borderRadius:'1px',zIndex:baseZ+2},
-            armClsL: standing?'roArm':'mpArm mpL',
-            armClsR: standing?'roArm':'mpArm mpR',
+            armClsL: standing?'roArm roAL':'mpArm mpL',
+            armClsR: standing?'roArm roAR':'mpArm mpR',
             armL: {position:'absolute',left:'calc('+leftPct.toFixed(2)+'% - '+(shW*0.30).toFixed(1)+'px)',top:yp(bodyTop-aL*0.62),width:aw.toFixed(1)+'px',height:aL.toFixed(1)+'px',background:armBgUp,borderRadius:aw.toFixed(1)+'px',transformOrigin:'50% 100%',transform:'rotate(-20deg)',boxShadow:'0 1px 2px rgba(0,0,0,.3)',opacity:standing?1:0,zIndex:baseZ+3},
             armR: {position:'absolute',left:'calc('+leftPct.toFixed(2)+'% + '+(shW*0.30).toFixed(1)+'px)',top:yp(bodyTop-aL*0.62),width:aw.toFixed(1)+'px',height:aL.toFixed(1)+'px',background:armBgUp,borderRadius:aw.toFixed(1)+'px',transformOrigin:'50% 100%',transform:'rotate(20deg)',boxShadow:'0 1px 2px rgba(0,0,0,.3)',opacity:standing?1:0,zIndex:baseZ+3},
             deskSeg:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(yLine-3),width:dW.toFixed(1)+'px',height:(15*sc).toFixed(1)+'px',transform:'translateX(-50%)',background:'linear-gradient(180deg,#dcc191,#b8975c 45%,#8f6f3e)',borderRadius:'2px 2px 1px 1px',borderTop:'1px solid rgba(255,247,214,.6)',boxShadow:'0 2px 3px rgba(0,0,0,.5),inset 0 2px 0 rgba(255,247,214,.3)',zIndex:baseZ+6},
@@ -2761,7 +2774,8 @@ class Component extends DCLogic {
     const st6Aisles=[14,38,62,86].map(x=>({position:'absolute',left:x+'%',top:'14%',width:'2.2%',height:'56%',transform:'translateX(-50%)',background:'repeating-linear-gradient(0deg,rgba(185,200,225,.16) 0 3px,rgba(18,28,46,.55) 3px 8px)',opacity:.55,zIndex:2}));
     const jersey6=['#c8102e','#f4f6f8','#00205b','#c8102e','#e9ecf2','#12386e','#c8102e','#aa0a24','#1a4ea8','#f4f6f8','#00205b','#c8102e'];
     const hair6=['#2a1c12','#4a3222','#6b4a2a','#d8b878','#241811','#8a5a2b','#caa15a','#171717'];
-    const st6Fans=[]; let fi6=0;
+    let st6Fans=this._sfVal||null;
+    if(st6Fans===null){ st6Fans=[]; let fi6=0;
     const tiers6=[{b:66,sc:.32,n:24},{b:61,sc:.38,n:22},{b:56,sc:.45,n:20},{b:51,sc:.53,n:18},{b:45.5,sc:.62,n:16},{b:40,sc:.72,n:15},{b:34,sc:.84,n:13},{b:28,sc:.98,n:12}];
     tiers6.forEach((row,ri)=>{ const b=row.b, sc=row.sc, n=row.n;
       for(let i=0;i<n;i++){
@@ -2790,6 +2804,7 @@ class Component extends DCLogic {
         fi6++;
       }
     });
+    this._sfVal=st6Fans; }
     const flagCols=['#c8102e','#00205b','#f4f6f8','#ffcb05'];
     const st6CrowdFlags=[{l:'20%',b:'50%'},{l:'70%',b:'53%'},{l:'44%',b:'44%'},{l:'10%',b:'42%'}].map((f,i)=>({pole:{position:'absolute',left:f.l,bottom:f.b,width:'2px',height:'7%',background:'#cfd6df',zIndex:9},wrap:{position:'absolute',left:'calc('+f.l+' + 2px)',bottom:'calc('+f.b+' + 4%)',width:'26px',height:'19px',background:'linear-gradient(90deg,transparent 0 30%,#f4f6f8 30% 34%,#00205b 34% 44%,#f4f6f8 44% 48%,transparent 48% 100%),linear-gradient(0deg,transparent 0 38%,#f4f6f8 38% 44%,#00205b 44% 56%,#f4f6f8 56% 62%,transparent 62% 100%),#ba0c2f',transformOrigin:'0 50%',animation:'flagFlap '+(1.8+i*0.25)+'s ease-in-out infinite',boxShadow:'0 1px 2px rgba(0,0,0,.4)',zIndex:9}}));
     const st6Pitch={position:'absolute',left:0,right:0,bottom:0,height:'27%',backgroundColor:'#2c8a44',backgroundImage:'linear-gradient(180deg,rgba(255,255,255,.06),transparent 30%),repeating-linear-gradient(90deg,#2e9048 0 34px,#278040 34px 68px)',boxShadow:'inset 0 16px 30px rgba(0,0,0,.42)',zIndex:3};
