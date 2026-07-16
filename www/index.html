@@ -1478,7 +1478,7 @@ class Component extends DCLogic {
 
   // ---------- difficulty ----------
   floorOf(p){ return Math.min(5,Math.floor(p/20)+1); }
-  diff(p,ro){ const floor=this.floorOf(p); const e=Math.min(1,Math.max(0,p/100)); let zoneWidth=28-15*e, speedDur=1.75-1.25*e; if(this.state&&this.state.stageId===5){ zoneWidth=21-13*e; speedDur=1.5-1.08*e; } if(this.state&&this.state.stageId===6){ const r=(ro!=null?ro:(this.state.round||0)); zoneWidth=19-4*r; speedDur=1.2-0.24*r; const t=r===0?0:r===1?1:2; return {zoneWidth,speedDur,tier:t,floor}; } speedDur=Math.round(speedDur*10)/10; let tier=floor<=1?0:floor===2?1:floor>=5?3:2; return {zoneWidth,speedDur,tier,floor}; }
+  diff(p,ro){ const floor=this.floorOf(p); const e=Math.min(1,Math.max(0,p/100)); let zoneWidth=28-15*e, speedDur=1.75-1.25*e; if(this.state&&this.state.stageId===5){ zoneWidth=21-11*e; speedDur=1.5-0.9*e; } if(this.state&&this.state.stageId===6){ const r=(ro!=null?ro:(this.state.round||0)); zoneWidth=19-4*r; speedDur=1.2-0.24*r; const t=r===0?0:r===1?1:2; return {zoneWidth,speedDur,tier:t,floor}; } speedDur=Math.round(speedDur*10)/10; let tier=floor<=1?0:floor===2?1:floor>=5?3:2; return {zoneWidth,speedDur,tier,floor}; }
   rollZone(width){ const max=96-width-4; return Math.round(4+Math.random()*max); }
 
   // ---------- flow ----------
@@ -1729,9 +1729,29 @@ class Component extends DCLogic {
     if(!cur||!zone) return;
     const cx=cur.getBoundingClientRect(); const cY=cx.top+cx.height/2;
     const zr=zone.getBoundingClientRect(); const pr=perf.getBoundingClientRect();
-    let kind='miss';
-    if(cY>=pr.top&&cY<=pr.bottom) kind='perfect';
-    else if(cY>=zr.top&&cY<=zr.bottom) kind='good';
+    const test=(y)=>(y>=pr.top&&y<=pr.bottom)?'perfect':(y>=zr.top&&y<=zr.bottom)?'good':'miss';
+    let kind=test(cY);
+    // Touch-latency compensation: the tap lands ~50-130ms after the frame the
+    // player reacted to (worst on fast sweeps like Times Square). If the line
+    // was inside the zone at any point in that window, honour the hit.
+    if(kind!=='perfect'){
+      try{
+        const anim=cur.getAnimations().find(a=>a.animationName?a.animationName==='roSweep':true)||cur.getAnimations()[0];
+        if(anim&&anim.currentTime!=null){
+          const dur=Number(anim.effect.getTiming().duration)||1000;
+          const travel=Math.max(1,window.innerHeight*0.46-12);
+          const fracAt=(t)=>{ const c=(t%(2*dur))/dur; return c<=1?c:2-c; };
+          const fNow=fracAt(anim.currentTime);
+          const trackMid=cY-fNow*travel;
+          for(const back of [45,90,135]){
+            const t=anim.currentTime-back; if(t<0) break;
+            const k=test(trackMid+fracAt(t)*travel);
+            if(k==='perfect'){ kind='perfect'; break; }
+            if(k==='good'&&kind==='miss') kind='good';
+          }
+        }
+      }catch(e){}
+    }
     if(kind==='miss') this.doMiss(); else this.doHit(kind);
   };
 
@@ -1867,11 +1887,24 @@ class Component extends DCLogic {
     const rootStyle=Object.assign({position:'relative',width:'min(100vw,460px)',height:'min(100vh,900px)',overflow:'hidden',willChange:'transform',borderRadius:'2px',boxShadow:'0 20px 60px rgba(0,0,0,.5)'},th);
 
     // ---- vertical skill bar ----
-    const zoneTrans='top .32s cubic-bezier(.25,.85,.3,1),height .32s cubic-bezier(.25,.85,.3,1)';
-    const zoneStyle={position:'absolute',left:0,right:0,top:s.zoneLeft+'%',height:s.zoneWidth+'%',transition:zoneTrans,background:'linear-gradient(180deg,rgba(255,210,62,.55),rgba(255,203,5,.85) 50%,rgba(255,210,62,.55))',borderTop:'2px solid #f0b400',borderBottom:'2px solid #f0b400',boxShadow:'0 0 14px rgba(255,203,5,.55), inset 0 0 8px rgba(255,255,255,.35)'};
+    // Zone + red core are positioned with transform (not top) so the post-hit
+    // glide runs on the compositor — smooth even when the main thread is busy.
+    const _zDrift=(s.stageId===6 && (s.round||0)>=1);
+    const zoneBg='linear-gradient(180deg,rgba(255,210,62,.55),rgba(255,203,5,.85) 50%,rgba(255,210,62,.55))';
+    const perfBg='linear-gradient(180deg,#ff5a4e,#df2b23 50%,#c01a1a)';
+    const zoneSh='0 0 14px rgba(255,203,5,.55), inset 0 0 8px rgba(255,255,255,.35)';
+    const perfSh='0 0 12px rgba(224,54,43,.75), inset 0 1px 3px rgba(255,255,255,.4)';
     const pw=s.zoneWidth*0.38, pl=s.zoneLeft+(s.zoneWidth-pw)/2;
-    const perfectStyle={position:'absolute',left:0,right:0,top:pl+'%',height:pw+'%',transition:zoneTrans,background:'linear-gradient(180deg,#ff5a4e,#df2b23 50%,#c01a1a)',boxShadow:'0 0 12px rgba(224,54,43,.75), inset 0 1px 3px rgba(255,255,255,.4)'};
-    const _zDrift=(s.stageId===6 && (s.round||0)>=1); if(_zDrift){ const zd='zoneDrift '+((s.round||0)>=2?1.1:1.6)+'s ease-in-out infinite'; zoneStyle.animation=zd; perfectStyle.animation=zd; }
+    const zoneTrans='transform .34s cubic-bezier(.3,.8,.25,1)';
+    let zoneStyle, perfectStyle;
+    if(_zDrift){
+      const zd='zoneDrift '+((s.round||0)>=2?1.1:1.6)+'s ease-in-out infinite';
+      zoneStyle={position:'absolute',left:0,right:0,top:s.zoneLeft+'%',height:s.zoneWidth+'%',background:zoneBg,borderTop:'2px solid #f0b400',borderBottom:'2px solid #f0b400',boxShadow:zoneSh,animation:zd};
+      perfectStyle={position:'absolute',left:0,right:0,top:pl+'%',height:pw+'%',background:perfBg,boxShadow:perfSh,animation:zd};
+    } else {
+      zoneStyle={position:'absolute',left:0,right:0,top:0,height:s.zoneWidth+'%',transform:'translateY('+(s.zoneLeft/s.zoneWidth*100).toFixed(2)+'%)',transition:zoneTrans,willChange:'transform',background:zoneBg,borderTop:'2px solid #f0b400',borderBottom:'2px solid #f0b400',boxShadow:zoneSh};
+      perfectStyle={position:'absolute',left:0,right:0,top:0,height:pw+'%',transform:'translateY('+(pl/pw*100).toFixed(2)+'%)',transition:zoneTrans,willChange:'transform',background:perfBg,boxShadow:perfSh};
+    }
     const cursorStyle={position:'absolute',left:'-2px',right:'-2px',height:'8px',top:'0',background:'linear-gradient(180deg,#ffffff,#dfe7ee)',boxShadow:'0 2px 6px rgba(0,0,0,.55),0 0 3px rgba(0,0,0,.4)',borderRadius:'4px',zIndex:3,willChange:'transform',animation:'roSweep '+s.speedDur+'s linear infinite alternate'};
 
     // ---- hud ----
