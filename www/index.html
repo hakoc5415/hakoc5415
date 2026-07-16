@@ -740,13 +740,8 @@
         <sc-for list="{{ ballItems }}" as="ball" hint-placeholder-count="0"><div style="{{ ball.style }}"></div></sc-for>
       </sc-if>
 
-      <!-- ambient sea life -->
-      <sc-for list="{{ sealife }}" as="sl" hint-placeholder-count="0">
-        <div style="{{ sl.style }}">
-          <sc-for list="{{ sl.parts }}" as="p" hint-placeholder-count="0"><div style="{{ p.style }}"></div></sc-for>
-          {{ sl.emoji }}
-        </div>
-      </sc-for>
+      <!-- ambient sea life (imperative layer — no re-render per spawn) -->
+      <div ref="{{ seaLifeRef }}" style="position:absolute;inset:0;pointer-events:none"></div>
       <!-- cinematic light: top key light + corner vignette (static, compositor-cheap) -->
       <div style="position:absolute;inset:0;pointer-events:none;z-index:6;background:radial-gradient(120% 70% at 50% -8%,rgba(255,255,255,.10),transparent 55%),radial-gradient(140% 110% at 50% 55%,transparent 62%,rgba(2,8,18,.34) 100%)"></div>
       <!-- RO pops -->
@@ -1270,7 +1265,7 @@ class Component extends DCLogic {
     this.roMsBarRef=React.createRef(); this.roMsNumRef=React.createRef(); this._roMs=5000;
     this.redBarRef=React.createRef(); this.redNumRef=React.createRef(); this._redMs=5000;
     this.nameRef=React.createRef(); this.passRef=React.createRef(); this.loginNameRef=React.createRef(); this.loginPassRef=React.createRef();
-    this.popLayerRef=React.createRef();
+    this.popLayerRef=React.createRef(); this.seaLifeRef=React.createRef();
     this._pid=0; this._sid=0; this._eid=0;
   }
   componentDidMount(){
@@ -1306,7 +1301,7 @@ class Component extends DCLogic {
       const now=performance.now(); let dt=(now-this._last)/1000; this._last=now; if(dt>0.4) dt=0.12;
       this._spawnAcc=(this._spawnAcc||0)+dt;
       const spawnEvery=st.tier===1?2.0:st.tier===2?1.6:2.6;
-      if(this._spawnAcc>spawnEvery){ this._spawnAcc=0; if(this.state.sealife.length<3) this.spawnSeaLife(); }
+      if(this._spawnAcc>spawnEvery){ this._spawnAcc=0; const slh=this.seaLifeRef&&this.seaLifeRef.current; if(slh&&slh.childElementCount<3) this.spawnSeaLife(); }
       if(st.stageId===4 && !st.intro){ this._redMs=(this._redMs==null?5000:this._redMs)-dt*1000; if(this._redMs<=0){ this._redMs=5000; this.redTimeout(); } this._paintRed(); }
       if(st.stageId===5 && !st.intro){
         this._bsAcc=(this._bsAcc||0)+dt;
@@ -1429,7 +1424,7 @@ class Component extends DCLogic {
         {transform:'translateX(0) scaleY(.46)',offset:.82,easing:'ease-in-out'},
         {transform:'translateX(0) scaleY(.4)'}
       ],{duration:700,easing:'linear'}); }); }
-  _mirrorSweep(sel,deg,dur,comp){ const root=this.stageRef&&this.stageRef.current; if(!root) return; const rect=root.getBoundingClientRect(); const midX=rect.left+rect.width/2; root.querySelectorAll(sel).forEach(el=>{ const b=el.getBoundingClientRect(); const cx=(b.left+b.width/2)||midX; const sg=cx<midX?-1:1; el.animate([{transform:'rotate(0deg)'},{transform:'rotate('+(-deg*sg)+'deg)',offset:.14},{transform:'rotate('+(deg*sg)+'deg)',offset:.5},{transform:'rotate('+(deg*0.28*sg)+'deg)',offset:.72},{transform:'rotate(0deg)'}],{duration:dur,easing:'cubic-bezier(.34,.08,.28,1)',composite:comp||'replace'}); }); }
+  _mirrorSweep(sel,deg,dur,comp){ const root=this.stageRef&&this.stageRef.current; if(!root) return; root.querySelectorAll(sel).forEach(el=>{ const sg=parseFloat(el.style.getPropertyValue('--sg'))||1; el.animate([{transform:'rotate(0deg)'},{transform:'rotate('+(-deg*sg)+'deg)',offset:.14},{transform:'rotate('+(deg*sg)+'deg)',offset:.5},{transform:'rotate('+(deg*0.28*sg)+'deg)',offset:.72},{transform:'rotate(0deg)'}],{duration:dur,easing:'cubic-bezier(.34,.08,.28,1)',composite:comp||'replace'}); }); }
   rowStroke(){
     // one full synced stroke: reach (catch) -> drive -> settle
     const root=this.stageRef&&this.stageRef.current;
@@ -1665,7 +1660,13 @@ class Component extends DCLogic {
   spawnSeaLife(){
     if(this.state.stageId>=3) return;
     const st=this.state; const tier=st.tier; const id=++this._sid;
-    const push=(item,dur)=>{ this.setState(s=>({sealife:[...s.sealife,item]})); setTimeout(()=>this.setState(s=>({sealife:s.sealife.filter(x=>x.id!==id)})), dur*1000+200); };
+    const push=(item,dur)=>{ const host=this.seaLifeRef&&this.seaLifeRef.current; if(!host) return;
+      const el=document.createElement('div'); Object.assign(el.style,item.style);
+      (item.parts||[]).forEach(p=>{ const c=document.createElement('div'); Object.assign(c.style,p.style); el.appendChild(c); });
+      if(item.emoji) el.appendChild(document.createTextNode(item.emoji));
+      host.appendChild(el);
+      setTimeout(()=>{ try{host.removeChild(el);}catch(e){} }, dur*1000+200);
+      while(host.children.length>4) host.removeChild(host.firstChild); };
     if(st.stageId===2){
       let emoji,sky=false,dur,size;
       if(Math.random()<0.32){ emoji='🎈'; sky=true; dur=6+Math.random()*3; size=16+Math.random()*8; }
@@ -1866,9 +1867,10 @@ class Component extends DCLogic {
     const rootStyle=Object.assign({position:'relative',width:'min(100vw,460px)',height:'min(100vh,900px)',overflow:'hidden',willChange:'transform',borderRadius:'2px',boxShadow:'0 20px 60px rgba(0,0,0,.5)'},th);
 
     // ---- vertical skill bar ----
-    const zoneStyle={position:'absolute',left:0,right:0,top:s.zoneLeft+'%',height:s.zoneWidth+'%',background:'linear-gradient(180deg,rgba(255,210,62,.55),rgba(255,203,5,.85) 50%,rgba(255,210,62,.55))',borderTop:'2px solid #f0b400',borderBottom:'2px solid #f0b400',boxShadow:'0 0 14px rgba(255,203,5,.55), inset 0 0 8px rgba(255,255,255,.35)'};
+    const zoneTrans='top .32s cubic-bezier(.25,.85,.3,1),height .32s cubic-bezier(.25,.85,.3,1)';
+    const zoneStyle={position:'absolute',left:0,right:0,top:s.zoneLeft+'%',height:s.zoneWidth+'%',transition:zoneTrans,background:'linear-gradient(180deg,rgba(255,210,62,.55),rgba(255,203,5,.85) 50%,rgba(255,210,62,.55))',borderTop:'2px solid #f0b400',borderBottom:'2px solid #f0b400',boxShadow:'0 0 14px rgba(255,203,5,.55), inset 0 0 8px rgba(255,255,255,.35)'};
     const pw=s.zoneWidth*0.38, pl=s.zoneLeft+(s.zoneWidth-pw)/2;
-    const perfectStyle={position:'absolute',left:0,right:0,top:pl+'%',height:pw+'%',background:'linear-gradient(180deg,#ff5a4e,#df2b23 50%,#c01a1a)',boxShadow:'0 0 12px rgba(224,54,43,.75), inset 0 1px 3px rgba(255,255,255,.4)'};
+    const perfectStyle={position:'absolute',left:0,right:0,top:pl+'%',height:pw+'%',transition:zoneTrans,background:'linear-gradient(180deg,#ff5a4e,#df2b23 50%,#c01a1a)',boxShadow:'0 0 12px rgba(224,54,43,.75), inset 0 1px 3px rgba(255,255,255,.4)'};
     const _zDrift=(s.stageId===6 && (s.round||0)>=1); if(_zDrift){ const zd='zoneDrift '+((s.round||0)>=2?1.1:1.6)+'s ease-in-out infinite'; zoneStyle.animation=zd; perfectStyle.animation=zd; }
     const cursorStyle={position:'absolute',left:'-2px',right:'-2px',height:'8px',top:'0',background:'linear-gradient(180deg,#ffffff,#dfe7ee)',boxShadow:'0 2px 6px rgba(0,0,0,.55),0 0 3px rgba(0,0,0,.4)',borderRadius:'4px',zIndex:3,willChange:'transform',animation:'roSweep '+s.speedDur+'s linear infinite alternate'};
 
@@ -1988,16 +1990,16 @@ class Component extends DCLogic {
           detail:{position:'absolute',left:(rx-5)+'px',top:(ry-5)+'px',width:'10px',height:'5px',borderRadius:'0 0 6px 6px',background:'rgba(255,255,255,.82)',zIndex:5},
           head:{position:'absolute',left:(rx-8)+'px',top:(ry-18)+'px',width:'16px',height:'16px',borderRadius:'50%',background:'radial-gradient(circle at 38% 30%,color-mix(in srgb,'+hcol+' 68%,#fff 32%),'+hcol+' 62%,color-mix(in srgb,'+hcol+' 68%,#000))',boxShadow:'0 1px 2px rgba(0,0,0,.45),inset 0 -4px 4px rgba(0,0,0,.22)',zIndex:6},
           // grip group above the hull, same pivot + same stroke as the oar below
-          grip:{position:'absolute',left:railx+'px',top:ry+'px',width:'1px',height:'1px',transformOrigin:'0 0',zIndex:6},
+          grip:{position:'absolute',left:railx+'px',top:ry+'px',width:'1px',height:'1px',transformOrigin:'0 0',zIndex:6,willChange:'transform','--sg':String(sign)},
           handle:{position:'absolute',left:'0px',top:'-2px',width:hLen+'px',height:'4px',background:'linear-gradient(180deg,'+woodLight+','+woodDark+')',borderRadius:'2px',transformOrigin:'0 50%',transform:'rotate('+(oDeg+180).toFixed(1)+'deg)',zIndex:6},
           handA:handStyle(1),
           handB:handStyle(0.6)
         });
         oars.push({
-          wrap:{position:'absolute',left:railx+'px',top:ry+'px',width:'1px',height:'1px',transformOrigin:'0 0',zIndex:1},
+          wrap:{position:'absolute',left:railx+'px',top:ry+'px',width:'1px',height:'1px',transformOrigin:'0 0',zIndex:1,willChange:'transform','--sg':String(sign)},
           shaft:{position:'absolute',left:'0px',top:'-2.5px',width:oLen.toFixed(1)+'px',height:'5px',background:'linear-gradient(180deg,'+woodLight+','+woodDark+')',borderRadius:'3px',transformOrigin:'0 50%',transform:'rotate('+oDeg.toFixed(1)+'deg)',zIndex:1,boxShadow:'0 1px 1px rgba(0,0,0,.3)'},
           blade:{position:'absolute',left:(oDX-6).toFixed(1)+'px',top:(oDY-9).toFixed(1)+'px',width:'13px',height:'19px',borderRadius:'50%',background:'linear-gradient(180deg,'+woodMid+','+plankDark+')',transform:'rotate('+oDeg.toFixed(1)+'deg)',transformOrigin:'50% 50%',zIndex:1,boxShadow:'0 1px 2px rgba(0,0,0,.35)'},
-          splash:{position:'absolute',left:(oDX-11).toFixed(1)+'px',top:(oDY-8).toFixed(1)+'px',width:'22px',height:'15px',borderRadius:'50%',background:'radial-gradient(circle,rgba(255,255,255,.9),rgba(255,255,255,.35) 55%,transparent 72%)',opacity:0,zIndex:0}
+          splash:{position:'absolute',left:(oDX-11).toFixed(1)+'px',top:(oDY-8).toFixed(1)+'px',width:'22px',height:'15px',borderRadius:'50%',background:'radial-gradient(circle,rgba(255,255,255,.9),rgba(255,255,255,.35) 55%,transparent 72%)',opacity:0,zIndex:0,willChange:'transform,opacity'}
         });
         ri++;
       });
@@ -2862,7 +2864,7 @@ class Component extends DCLogic {
       zoneStyle, perfectStyle, cursorStyle, popLayerRef:this.popLayerRef,
       muteIcon:s.muted?'🔇':'🔊',
       statCardStyle,
-      sealife:s.sealife, eventShow:!!ev, eventToastStyle, eventText:ev?ev.text:'', eventSub:ev?ev.sub:'',
+      seaLifeRef:this.seaLifeRef, eventShow:!!ev, eventToastStyle, eventText:ev?ev.text:'', eventSub:ev?ev.sub:'',
       resultIcon, resultTitle, resultSub, hasNext, nextName:(nextStage&&!nextStage.locked)?nextStage.name:'',
       stageCards, stageName, stageSub, bestComboR:s.best.combo,
       start:this.start, ro:this.ro, goMenu:this.goMenu, enterMenu:this.enterMenu, goStages:this.goStages, quitStage:this.quitStage, playStage:this.playStage, playCurrent:()=>this.playStage(s.stageId), playNext:()=>this.playStage(s.stageId+1), toggleMute:this.toggleMute,
