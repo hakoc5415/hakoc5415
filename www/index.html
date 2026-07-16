@@ -264,7 +264,7 @@
       </sc-if>
 
       <!-- ============ NORWEGIAN SUPPORTERS' LONGSHIP (top-down) ============ -->
-      <div ref="{{ shipRef }}" style="position:absolute;left:50%;bottom:14%;transform:translateX(-50%);width:190px;height:322px;z-index:4;will-change:transform">
+      <div ref="{{ shipRef }}" style="position:absolute;left:50%;bottom:14%;transform:translateX(-50%);width:190px;height:322px;z-index:4">
         <div style="position:absolute;inset:0;animation:bob 3.8s ease-in-out infinite">
 
           <!-- bow wake + foam -->
@@ -306,7 +306,7 @@
           </sc-for>
 
           <!-- rowers (Norwegian supporters) -->
-          <div ref="{{ rowersRef }}" style="position:absolute;inset:0;z-index:5;will-change:transform">
+          <div ref="{{ rowersRef }}" style="position:absolute;inset:0;z-index:5">
           <sc-for list="{{ rowers }}" as="r" hint-placeholder-count="16">
             <div class="st1arm" style="{{ r.armA }}"></div>
             <div class="st1arm" style="{{ r.armB }}"></div>
@@ -421,8 +421,8 @@
         <div style="{{ newelRStyle }}"></div>
         <div class="upLamp" style="{{ upLampStyle }}">▲</div>
         <div style="{{ floorSignStyle }}">{{ zoneName }}</div>
-        <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:4;will-change:transform">
-          <div ref="{{ fansRef }}" style="position:absolute;inset:0;will-change:transform">
+        <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:4">
+          <div ref="{{ fansRef }}" style="position:absolute;inset:0">
             <sc-for list="{{ escFans }}" as="f" hint-placeholder-count="6">
               <div class="efWrap" style="{{ f.wrap }}">
                 <div class="efArm" style="{{ f.armL }}"></div>
@@ -529,8 +529,8 @@
         <div style="{{ plazaStyle }}"></div>
         <div style="{{ plazaLinesStyle }}"></div>
         <!-- supporter crowd doing RO -->
-        <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:5;will-change:transform">
-          <div ref="{{ fansRef }}" style="position:absolute;inset:0;will-change:transform">
+        <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:5">
+          <div ref="{{ fansRef }}" style="position:absolute;inset:0">
             <sc-for list="{{ crowdFans }}" as="f" hint-placeholder-count="0">
               <div class="roArm roAL" style="{{ f.armL }}"></div>
               <div class="roArm roAR" style="{{ f.armR }}"></div>
@@ -594,8 +594,8 @@
         <div style="{{ lecternStyle }}"></div>
         <div style="{{ lecternLightStyle }}"></div>
         <!-- milletvekilleri (tiered semicircular seating in red-gold chairs) -->
-        <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:5;will-change:transform">
-          <div ref="{{ fansRef }}" style="position:absolute;inset:0;will-change:transform">
+        <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:5">
+          <div ref="{{ fansRef }}" style="position:absolute;inset:0">
             <sc-for list="{{ mps }}" as="m" hint-placeholder-count="0">
               <div style="{{ m.chair }}"></div>
               <div class="mpFig" style="{{ m.body }}"></div>
@@ -679,8 +679,8 @@
           </div>
         </sc-for>
         <!-- packed Norwegian supporters doing RO across the square -->
-        <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:5;will-change:transform">
-          <div ref="{{ fansRef }}" style="position:absolute;inset:0;will-change:transform">
+        <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:5">
+          <div ref="{{ fansRef }}" style="position:absolute;inset:0">
             <sc-for list="{{ crowdFans }}" as="f" hint-placeholder-count="0">
               <div class="roArm roAL" style="{{ f.armL }}"></div>
               <div class="roArm roAR" style="{{ f.armR }}"></div>
@@ -706,7 +706,7 @@
         <sc-for list="{{ st6Aisles }}" as="a" hint-placeholder-count="0"><div style="{{ a }}"></div></sc-for>
         <div style="{{ st6Roof }}"></div>
         <div style="{{ st6RoofLip }}"></div>
-        <div ref="{{ st6CrowdRef }}" style="position:absolute;inset:0;z-index:5;will-change:transform">
+        <div ref="{{ st6CrowdRef }}" style="position:absolute;inset:0;z-index:5">
           <sc-for list="{{ st6Fans }}" as="f" hint-placeholder-count="0">
             <div style="{{ f.wrap }}">
               <div class="st6arm roAL" style="{{ f.armL }}"></div>
@@ -1289,6 +1289,7 @@ class Component extends DCLogic {
     this._tick=setInterval(()=>{
       if(this.state.screen==='game' && this.state.stageId!==6 && this.state.tier===2 && Math.random()<0.18){ this.flash('#dfe9ff',150); this.sfx('thunder'); }
     },900);
+    try{ const im=new Image(); im.src='assets/fjord-bg.webp'; if(im.decode) im.decode().catch(()=>{}); this._fjordImg=im; }catch(e){}
     this.loadRo();
     this._last=performance.now();
     this._loop=setInterval(()=>{
@@ -1399,19 +1400,29 @@ class Component extends DCLogic {
 
   // ---------- effects ----------
   flash(color,ms){ const el=this.flashRef.current; if(!el) return; ms=ms||220; el.style.transition='none'; el.style.background=color; el.style.opacity='0.5'; void el.offsetWidth; el.style.transition='opacity '+ms+'ms ease-out'; el.style.opacity='0'; clearTimeout(this._flashT); this._flashT=setTimeout(()=>{ el.style.transition='none'; el.style.opacity='0'; }, ms+120); }
-  shake(){ const el=this.stageRef.current; if(!el) return; el.animate([{transform:'translateX(0)'},{transform:'translateX(-9px)'},{transform:'translateX(8px)'},{transform:'translateX(-5px)'},{transform:'translateX(0)'}],{duration:280,easing:'ease-out'}); }
-  lurch(){
-    let P=this._lurchP;
-    if(!P || !P.length || !P[0].effect.target.isConnected){
-      P=this._lurchP=[];
-      const s=this.shipRef.current; if(s) P.push(s.animate([{transform:'translateY(0)'},{transform:'translateY(-12px)'},{transform:'translateY(0)'}],{duration:340,easing:'ease-out',composite:'add'}));
-      const o=this.oarsRef.current; if(o && this.state.stageId===1) P.push(o.animate([{transform:'translateY(0)'},{transform:'translateY(6px)'},{transform:'translateY(0)'}],{duration:340,easing:'ease-out'}));
-      P.forEach(a=>a.pause());
+  _shakeBuild=()=>{ const el=this.stageRef.current; if(!el) return [];
+    return [el.animate([{transform:'translateX(0)'},{transform:'translateX(-9px)'},{transform:'translateX(8px)'},{transform:'translateX(-5px)'},{transform:'translateX(0)'}],{duration:280,easing:'ease-out'})]; };
+  shake(){ this._play('shake',this._shakeBuild); }
+  _prime(key,build){
+    // Animation pools: built ONCE (paused) — during the stage intro, not at
+    // mount and not per tap — then replayed. Keeps both the stage-open moment
+    // and every stroke free of keyframe compilation and layer churn.
+    this._pools=this._pools||{};
+    let P=this._pools[key];
+    if(!P || !P.length || !P[0].effect.target || !P[0].effect.target.isConnected){
+      P=build()||[]; P.forEach(a=>a.pause()); this._pools[key]=P;
     }
-    P.forEach(a=>{ a.currentTime=0; a.play(); });
+    return P;
   }
-  rowFans(){ const el=this.fansRef.current; if(!el) return;
-    el.animate([{transform:'translateY(0) scaleY(1)'},{transform:'translateY(12px) scaleY(.92)'},{transform:'translateY(-4px) scaleY(1.05)'},{transform:'translateY(0) scaleY(1)'}],{duration:360,easing:'cubic-bezier(.3,.85,.3,1)',composite:'add'}); }
+  _play(key,build){ const P=this._prime(key,build); P.forEach(a=>{ a.currentTime=0; a.play(); }); }
+  _lurchBuild=()=>{ const P=[];
+    const s=this.shipRef.current; if(s) P.push(s.animate([{transform:'translateY(0)'},{transform:'translateY(-12px)'},{transform:'translateY(0)'}],{duration:340,easing:'ease-out',composite:'add'}));
+    const o=this.oarsRef.current; if(o && this.state.stageId===1) P.push(o.animate([{transform:'translateY(0)'},{transform:'translateY(6px)'},{transform:'translateY(0)'}],{duration:340,easing:'ease-out'}));
+    return P; };
+  lurch(){ this._play('lurch',this._lurchBuild); }
+  _fansBuild=()=>{ const el=this.fansRef.current; if(!el) return [];
+    return [el.animate([{transform:'translateY(0) scaleY(1)'},{transform:'translateY(12px) scaleY(.92)'},{transform:'translateY(-4px) scaleY(1.05)'},{transform:'translateY(0) scaleY(1)'}],{duration:360,easing:'cubic-bezier(.3,.85,.3,1)',composite:'add'})]; };
+  rowFans(){ this._play('fans',this._fansBuild); }
   escRow(){ const root=this.stageRef&&this.stageRef.current; if(!root) return;
     root.querySelectorAll('.efWrap').forEach(w=>{
       w.animate([
@@ -1432,23 +1443,14 @@ class Component extends DCLogic {
         {transform:'translateX(0) scaleY(.4)'}
       ],{duration:700,easing:'linear'}); }); }
   _mirrorSweep(sel,deg,dur,comp){ const root=this.stageRef&&this.stageRef.current; if(!root) return; root.querySelectorAll(sel).forEach(el=>{ const sg=parseFloat(el.style.getPropertyValue('--sg'))||1; el.animate([{transform:'rotate(0deg)'},{transform:'rotate('+(-deg*sg)+'deg)',offset:.14},{transform:'rotate('+(deg*sg)+'deg)',offset:.5},{transform:'rotate('+(deg*0.28*sg)+'deg)',offset:.72},{transform:'rotate(0deg)'}],{duration:dur,easing:'cubic-bezier(.34,.08,.28,1)',composite:comp||'replace'}); }); }
-  rowStroke(){
-    // One full synced stroke. All Animation objects are built ONCE (paused)
-    // and replayed on later strokes — per-tap keyframe compilation was the
-    // last per-stroke cost that made the fjord stutter on device.
-    const root=this.stageRef&&this.stageRef.current; if(!root) return;
-    let P=this._strokeP;
-    if(!P || !P.length || !P[0].effect.target.isConnected){
-      P=this._strokeP=[];
-      const g=this.rowersRef&&this.rowersRef.current;
-      if(g) P.push(g.animate([{transform:'translateY(0)'},{transform:'translateY(5px)',offset:.16},{transform:'translateY(-7px)',offset:.52},{transform:'translateY(-3px)',offset:.72},{transform:'translateY(0)'}],{duration:900,easing:'cubic-bezier(.34,.08,.28,1)',composite:'add'}));
-      root.querySelectorAll('.st1oar').forEach(el=>{ const sg=parseFloat(el.style.getPropertyValue('--sg'))||1; const deg=26;
-        P.push(el.animate([{transform:'rotate(0deg)'},{transform:'rotate('+(-deg*sg)+'deg)',offset:.14},{transform:'rotate('+(deg*sg)+'deg)',offset:.5},{transform:'rotate('+(deg*0.28*sg)+'deg)',offset:.72},{transform:'rotate(0deg)'}],{duration:900,easing:'cubic-bezier(.34,.08,.28,1)'})); });
-      root.querySelectorAll('.st1splash').forEach(el=>{ P.push(el.animate([{opacity:0,transform:'scale(.5)'},{opacity:.95,transform:'scale(1.3)',offset:.45},{opacity:.2,transform:'scale(.7)',offset:.75},{opacity:0,transform:'scale(.5)'}],{duration:900,easing:'ease-out'})); });
-      P.forEach(a=>a.pause());
-    }
-    P.forEach(a=>{ a.currentTime=0; a.play(); });
-  }
+  _strokeBuild=()=>{ const P=[]; const root=this.stageRef&&this.stageRef.current; if(!root) return P;
+    const g=this.rowersRef&&this.rowersRef.current;
+    if(g) P.push(g.animate([{transform:'translateY(0)'},{transform:'translateY(5px)',offset:.16},{transform:'translateY(-7px)',offset:.52},{transform:'translateY(-3px)',offset:.72},{transform:'translateY(0)'}],{duration:900,easing:'cubic-bezier(.34,.08,.28,1)',composite:'add'}));
+    root.querySelectorAll('.st1oar').forEach(el=>{ const sg=parseFloat(el.style.getPropertyValue('--sg'))||1; const deg=26;
+      P.push(el.animate([{transform:'rotate(0deg)'},{transform:'rotate('+(-deg*sg)+'deg)',offset:.14},{transform:'rotate('+(deg*sg)+'deg)',offset:.5},{transform:'rotate('+(deg*0.28*sg)+'deg)',offset:.72},{transform:'rotate(0deg)'}],{duration:900,easing:'cubic-bezier(.34,.08,.28,1)'})); });
+    root.querySelectorAll('.st1splash').forEach(el=>{ P.push(el.animate([{opacity:0,transform:'scale(.5)'},{opacity:.95,transform:'scale(1.3)',offset:.45},{opacity:.2,transform:'scale(.7)',offset:.75},{opacity:0,transform:'scale(.5)'}],{duration:900,easing:'ease-out'})); });
+    return P; };
+  rowStroke(){ this._play('stroke',this._strokeBuild); }
   pumpArms(big){ const root=this.stageRef&&this.stageRef.current; if(!root) return;
     // One class on the stage root raises every arm via CSS (see .roP rules).
     // WKWebView'de yuzlerce ayri animasyon her vurusta yuzlerce compositing
@@ -1498,7 +1500,7 @@ class Component extends DCLogic {
   rollZone(width){ const max=96-width-4; return Math.round(4+Math.random()*max); }
 
   // ---------- flow ----------
-  start=()=>{ this.ac(); clearTimeout(this._wuT); this._wuT=setTimeout(()=>this._warmup(),500); const d=this.diff(0,0); this._last=performance.now(); this._stageStart=performance.now(); this._spawnAcc=-3; this._redMs=5000; this._bsAcc=0; this._bsNext=6; this._st6Ms=(((this.STAGES[5]||{}).rounds[0]||{}).secs||45)*1000; this._roMs=5000; this._paintRed(); this.setState({screen:'game',progress:0,shields:5,combo:0,maxCombo:0,perfects:0,strokes:0,floor:d.floor,result:null,justUnlocked:false,zoneWidth:d.zoneWidth,speedDur:d.speedDur,tier:d.tier,zoneLeft:this.rollZone(d.zoneWidth),pops:[],sealife:[],event:null,bigScreen:false,round:0,norGoals:0,oppGoals:0,roCount:0,matchGoals:0,roundTrans:null,balls:[],intro:true}); };
+  start=()=>{ this.ac(); clearTimeout(this._wuT); this._wuT=setTimeout(()=>this._warmup(),500); const d=this.diff(0,0); this._last=performance.now(); this._stageStart=performance.now(); this._spawnAcc=-3; this._redMs=5000; this._bsAcc=0; this._bsNext=6; this._st6Ms=(((this.STAGES[5]||{}).rounds[0]||{}).secs||45)*1000; this._roMs=5000; this._paintRed(); clearTimeout(this._mntT); this._mntT=setTimeout(()=>this.setState({mounting:false}),80); this.setState({mounting:true,screen:'game',progress:0,shields:5,combo:0,maxCombo:0,perfects:0,strokes:0,floor:d.floor,result:null,justUnlocked:false,zoneWidth:d.zoneWidth,speedDur:d.speedDur,tier:d.tier,zoneLeft:this.rollZone(d.zoneWidth),pops:[],sealife:[],event:null,bigScreen:false,round:0,norGoals:0,oppGoals:0,roCount:0,matchGoals:0,roundTrans:null,balls:[],intro:true}); };
   dismissIntro=()=>{ this._redMs=5000; this._last=performance.now(); this._stageStart=performance.now(); this.setState({intro:false},()=>this._paintRed()); };
   playStage=(id)=>{ const st=this.STAGES[id-1]; if(!st||st.locked||this.state.unlocked<id) return; this.setState({stageId:id},()=>this.start()); };
   goMenu=()=>{ this.setState({screen:'menu'}); };
@@ -1747,9 +1749,10 @@ class Component extends DCLogic {
     const host=this.popLayerRef&&this.popLayerRef.current;
     if(host) host.style.opacity='0';
     try{
-      this.lurch(); this.comboBump();
-      if(this.state.stageId===1) this.rowStroke();
-      if(this.state.stageId>=2) this.rowFans();
+      this._prime('lurch',this._lurchBuild);
+      this._prime('shake',this._shakeBuild);
+      if(this.state.stageId===1) this._prime('stroke',this._strokeBuild);
+      if(this.state.stageId>=2) this._prime('fans',this._fansBuild);
       this.pumpArms(false);
       this.addPop('PERFECT!','perfect'); this.addPop('RO!','good'); this.roShout();
     }catch(e){}
@@ -1917,7 +1920,7 @@ class Component extends DCLogic {
       ? 'Each stroke: tap while the sweeping line is inside the GOLD zone within 5 seconds. Every hit in the gold resets the timer — if it runs out you lose a shield, but the session goes on. Land the RED band for a PERFECT bonus.'
       : stage.hint;
 
-    const rootStyle=Object.assign({position:'relative',width:'min(100vw,460px)',height:'min(100vh,900px)',overflow:'hidden',willChange:'transform',borderRadius:'2px',boxShadow:'0 20px 60px rgba(0,0,0,.5)'},th);
+    const rootStyle=Object.assign({position:'relative',width:'min(100vw,460px)',height:'min(100vh,900px)',overflow:'hidden',borderRadius:'2px',boxShadow:'0 20px 60px rgba(0,0,0,.5)'},th);
 
     // ---- vertical skill bar ----
     // Zone + red core are positioned with transform (not top) so the post-hit
@@ -1952,7 +1955,7 @@ class Component extends DCLogic {
 
     // ---- scene styles ----
     const skyStyle={display:'none'};
-    const seaBaseStyle={position:'absolute',left:0,right:0,top:0,bottom:0,backgroundImage:'url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzOTAgODQ0IiBwcmVzZXJ2ZUFzcGVjdFJhdGlvPSJ4TWlkWU1pZCBzbGljZSI+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9InNreSIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI2JmZTNmZiIvPjxzdG9wIG9mZnNldD0iLjYiIHN0b3AtY29sb3I9IiNkZmYyZmYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiNmMmZhZmQiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9InNlYSIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzdlYzNlOCIvPjxzdG9wIG9mZnNldD0iLjE4IiBzdG9wLWNvbG9yPSIjNGU5ZmQ0Ii8+PHN0b3Agb2Zmc2V0PSIuNTUiIHN0b3AtY29sb3I9IiMyZjc2YjYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMxYjRmOGQiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9Im10biIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzlkYjhjYyIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzZmOGJhNCIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0ibXRuMiIgeDE9IjAiIHkxPSIwIiB4Mj0iMCIgeTI9IjEiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzdkOTliMCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzU5NzQ4YyIvPjwvbGluZWFyR3JhZGllbnQ+CjxsaW5lYXJHcmFkaWVudCBpZD0iZ3Jhc3NMIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMCI+PHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjM2M3YTNmIi8+PHN0b3Agb2Zmc2V0PSIuNzIiIHN0b3AtY29sb3I9IiM1YWEwNGYiLz48c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiM2Y2IzNWEiLz48L2xpbmVhckdyYWRpZW50Pgo8bGluZWFyR3JhZGllbnQgaWQ9ImdyYXNzUiIgeDE9IjEiIHkxPSIwIiB4Mj0iMCIgeTI9IjAiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzNjN2EzZiIvPjxzdG9wIG9mZnNldD0iLjcyIiBzdG9wLWNvbG9yPSIjNWFhMDRmIi8+PHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjNmNiMzVhIi8+PC9saW5lYXJHcmFkaWVudD4KPGxpbmVhckdyYWRpZW50IGlkPSJjbGlmZiIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjAiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzhhNzQ1OCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzYzNTM0MSIvPjwvbGluZWFyR3JhZGllbnQ+CjxyYWRpYWxHcmFkaWVudCBpZD0ic3VuIiBjeD0iLjUiIGN5PSIuNSIgcj0iLjUiPjxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iI2ZmZjRjMCIgc3RvcC1vcGFjaXR5PSIuOTUiLz48c3RvcCBvZmZzZXQ9Ii41NSIgc3RvcC1jb2xvcj0iI2ZmZTU4YSIgc3RvcC1vcGFjaXR5PSIuNSIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2ZmZTU4YSIgc3RvcC1vcGFjaXR5PSIwIi8+PC9yYWRpYWxHcmFkaWVudD4KPC9kZWZzPgo8cmVjdCB3aWR0aD0iMzkwIiBoZWlnaHQ9IjE3MCIgZmlsbD0idXJsKCNza3kpIi8+CjxjaXJjbGUgY3g9IjMyMCIgY3k9IjU2IiByPSI2MCIgZmlsbD0idXJsKCNzdW4pIi8+PGNpcmNsZSBjeD0iMzIwIiBjeT0iNTYiIHI9IjIwIiBmaWxsPSIjZmZmOGRjIi8+CjxnIG9wYWNpdHk9Ii45Ij48ZWxsaXBzZSBjeD0iODAiIGN5PSI0NiIgcng9IjM0IiByeT0iMTAiIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii44NSIvPjxlbGxpcHNlIGN4PSIxMDQiIGN5PSI1MiIgcng9IjI2IiByeT0iOCIgZmlsbD0iI2ZmZiIgb3BhY2l0eT0iLjciLz48ZWxsaXBzZSBjeD0iMjE1IiBjeT0iMzAiIHJ4PSIyNCIgcnk9IjciIGZpbGw9IiNmZmYiIG9wYWNpdHk9Ii42Ii8+PC9nPgo8cGF0aCBkPSJNLTUgMTY4IEw2MCA3NCBMOTIgMTE4IEwxMjggNTggTDE3NiAxNTAgTDIwNiA5NiBMMjQ4IDE2OCBaIiBmaWxsPSJ1cmwoI210bjIpIi8+CjxwYXRoIGQ9Ik0xMTggOTIgTDEyOCA1OCBMMTQyIDg0IEwxMzMgOTAgTDEyNiA4MiBaIiBmaWxsPSIjZWVmNmZiIi8+CjxwYXRoIGQ9Ik01MiAxMDYgTDYwIDc0IEw3NCAxMDAgTDY0IDEwNCBaIiBmaWxsPSIjZWVmNmZiIi8+CjxwYXRoIGQ9Ik0xNTAgMTY4IEwyMzAgNjYgTDI2OCAxMjQgTDMwNSA4MiBMMzk1IDE2OCBaIiBmaWxsPSJ1cmwoI210bikiLz4KPHBhdGggZD0iTTIxOSA4MCBMMjMwIDY2IEwyNDQgODggTDIzMyA5NSBaIiBmaWxsPSIjZjRmYWZkIi8+CjxwYXRoIGQ9Ik0yOTUgOTQgTDMwNSA4MiBMMzE4IDEwMCBMMzA3IDEwNiBaIiBmaWxsPSIjZjRmYWZkIi8+CjxyZWN0IHk9IjE1MCIgd2lkdGg9IjM5MCIgaGVpZ2h0PSIyNiIgZmlsbD0iI2NmZTlmNiIgb3BhY2l0eT0iLjU1Ii8+CjxyZWN0IHk9IjE2MCIgd2lkdGg9IjM5MCIgaGVpZ2h0PSI2ODQiIGZpbGw9InVybCgjc2VhKSIvPgo8ZyBzdHJva2U9IiNmZmZmZmYiIHN0cm9rZS1vcGFjaXR5PSIuMTYiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSI+CjxwYXRoIGQ9Ik0xMDUgMjU4IHE0MCA4IDgwIDAgdDgwIDAiLz48cGF0aCBkPSJNOTUgNDIwIHE0NSAxMCA5MCAwIHQ5MCAwIi8+PHBhdGggZD0iTTEyMCA2MDAgcTQwIDggODAgMCB0NjAgMCIvPjxwYXRoIGQ9Ik0xMTAgNzMwIHE0NSA5IDkwIDAgdDgwIDAiLz4KPC9nPgo8ZyBmaWxsPSIjMGMyZjVlIiBvcGFjaXR5PSIuMTgiPjxlbGxpcHNlIGN4PSIxOTUiIGN5PSIzMDAiIHJ4PSIxMzAiIHJ5PSIyNiIvPjxlbGxpcHNlIGN4PSIxOTUiIGN5PSI1NjAiIHJ4PSIxNDAiIHJ5PSIzMCIvPjwvZz4KPHBhdGggZD0iTTAgMTUwIEMzNiAxNzAgMjAgMjQwIDQ0IDMwMCBDNjYgMzU2IDMwIDQyMCA1MiA0OTAgQzcyIDU1MiAyNiA2MjAgNDggNzAwIEM2MiA3NTYgMzAgODAwIDQ0IDg0NCBMMCA4NDQgWiIgZmlsbD0idXJsKCNjbGlmZikiLz4KPHBhdGggZD0iTTAgMTQwIEMzMCAxNjAgMTQgMjMyIDM2IDI5NCBDNTYgMzUwIDIyIDQxNiA0MiA0ODYgQzYwIDU0OCAxOCA2MTYgMzggNjk2IEM1MiA3NTIgMjIgODAwIDM0IDg0NCBMMCA4NDQgWiIgZmlsbD0idXJsKCNncmFzc0wpIi8+CjxwYXRoIGQ9Ik0zOTAgMTUwIEMzNTQgMTcwIDM3MiAyNDAgMzQ4IDMwMCBDMzI4IDM1NiAzNjIgNDIwIDM0MiA0OTAgQzMyNCA1NTIgMzY2IDYyMCAzNDYgNzAwIEMzMzIgNzU2IDM2MiA4MDAgMzUwIDg0NCBMMzkwIDg0NCBaIiBmaWxsPSJ1cmwoI2NsaWZmKSIvPgo8cGF0aCBkPSJNMzkwIDE0MCBDMzYwIDE2MCAzNzggMjMyIDM1NiAyOTQgQzMzOCAzNTAgMzcwIDQxNiAzNTAgNDg2IEMzMzQgNTQ4IDM3NCA2MTYgMzU0IDY5NiBDMzQyIDc1MiAzNzAgODAwIDM1OCA4NDQgTDM5MCA4NDQgWiIgZmlsbD0idXJsKCNncmFzc1IpIi8+CjxnIHN0cm9rZT0iI2ZmZmZmZiIgc3Ryb2tlLXdpZHRoPSIzLjQiIGZpbGw9Im5vbmUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iLjkiPgo8cGF0aCBkPSJNNDAgMTYyIEM1NiAyMjAgMzQgMjYyIDUwIDMxNiBDNjQgMzY2IDQwIDQyOCA1NiA0OTQgQzcwIDU1NiAzNiA2MjYgNTIgNzA0IEM2MiA3NTggNDAgODAyIDUwIDg0NCIgc3Ryb2tlLW9wYWNpdHk9Ii44NSIvPgo8cGF0aCBkPSJNMzUwIDE2MiBDMzM0IDIyMCAzNTYgMjYyIDM0MCAzMTYgQzMyNiAzNjYgMzUwIDQyOCAzMzQgNDk0IEMzMjAgNTU2IDM1NCA2MjYgMzM4IDcwNCBDMzI4IDc1OCAzNTAgODAyIDM0MCA4NDQiIHN0cm9rZS1vcGFjaXR5PSIuODUiLz4KPC9nPgo8ZyBmaWxsPSIjMmU1ZjMzIj4KPHBhdGggZD0iTTE4IDIwMCBsMTAgLTI2IGwxMCAyNiB6Ii8+PHBhdGggZD0iTTE0IDIxNiBsMTQgLTMwIGwxNCAzMCB6Ii8+CjxwYXRoIGQ9Ik04IDQwMCBsMTEgLTI4IGwxMSAyOCB6Ii8+PHBhdGggZD0iTTE2IDQxOCBsMTIgLTI2IGwxMiAyNiB6Ii8+CjxwYXRoIGQ9Ik0yMCA1ODUgbDEwIC0yNCBsMTAgMjQgeiIvPjxwYXRoIGQ9Ik0xMCA2MDQgbDEzIC0zMCBsMTMgMzAgeiIvPgo8cGF0aCBkPSJNMjIgNzYwIGwxMCAtMjUgbDEwIDI1IHoiLz4KPHBhdGggZD0iTTM1MiAyMTAgbDEwIC0yNiBsMTAgMjYgeiIvPjxwYXRoIGQ9Ik0zNDQgMjI4IGwxMyAtMjggbDEzIDI4IHoiLz4KPHBhdGggZD0iTTM1NiA0MzAgbDEwIC0yNiBsMTAgMjYgeiIvPjxwYXRoIGQ9Ik0zNDggNDQ4IGwxMiAtMjYgbDEyIDI2IHoiLz4KPHBhdGggZD0iTTM1NCA2NDAgbDEwIC0yNCBsMTAgMjQgeiIvPjxwYXRoIGQ9Ik0zNDYgNjU4IGwxMiAtMjggbDEyIDI4IHoiLz4KPC9nPgo8ZyBmaWxsPSIjM2Y4YTQ0Ij4KPHBhdGggZD0iTTI2IDE5NCBsOCAtMjAgbDggMjAgeiIvPjxwYXRoIGQ9Ik00IDQxMCBsOSAtMjIgbDkgMjIgeiIvPjxwYXRoIGQ9Ik0yOCA1OTYgbDggLTE5IGw4IDE5IHoiLz4KPHBhdGggZD0iTTM2MCAyMjIgbDggLTIwIGw4IDIwIHoiLz48cGF0aCBkPSJNMzUyIDQ0MiBsOSAtMjEgbDkgMjEgeiIvPjxwYXRoIGQ9Ik0zNjIgNjUwIGw4IC0xOSBsOCAxOSB6Ii8+CjwvZz4KPGcgZmlsbD0iI2E4YjNiYSI+PGVsbGlwc2UgY3g9IjMwIiBjeT0iMzMwIiByeD0iMTIiIHJ5PSI3Ii8+PGVsbGlwc2UgY3g9IjM1MiIgY3k9IjUyMCIgcng9IjEzIiByeT0iOCIvPjxlbGxpcHNlIGN4PSIyNCIgY3k9IjY3NiIgcng9IjEwIiByeT0iNiIvPjwvZz4KPGcgZmlsbD0iIzhmOWFhMiI+PGVsbGlwc2UgY3g9IjM0IiBjeT0iMzMzIiByeD0iNiIgcnk9IjQiLz48ZWxsaXBzZSBjeD0iMzU3IiBjeT0iNTIzIiByeD0iNiIgcnk9IjQiLz48L2c+CjxnPjxlbGxpcHNlIGN4PSIxMjAiIGN5PSIzNTIiIHJ4PSIzMCIgcnk9IjEzIiBmaWxsPSIjZGZmMGY3IiBvcGFjaXR5PSIuOSIvPjxlbGxpcHNlIGN4PSIxMjAiIGN5PSIzNDkiIHJ4PSIyNCIgcnk9IjEwIiBmaWxsPSIjNWFhMDRmIi8+PGVsbGlwc2UgY3g9IjEyMCIgY3k9IjM0NiIgcng9IjE2IiByeT0iNyIgZmlsbD0iIzZjYjM1YSIvPjxwYXRoIGQ9Ik0xMTIgMzQyIGw3IC0xNiBsNyAxNiB6IiBmaWxsPSIjMmU1ZjMzIi8+PC9nPgo8Zz48ZWxsaXBzZSBjeD0iMjgwIiBjeT0iNjIwIiByeD0iMjQiIHJ5PSIxMCIgZmlsbD0iI2RmZjBmNyIgb3BhY2l0eT0iLjkiLz48ZWxsaXBzZSBjeD0iMjgwIiBjeT0iNjE3IiByeD0iMTkiIHJ5PSI4IiBmaWxsPSIjNWFhMDRmIi8+PHBhdGggZD0iTTI3NCA2MTMgbDYgLTEzIGw2IDEzIHoiIGZpbGw9IiMyZTVmMzMiLz48L2c+CjxyYWRpYWxHcmFkaWVudCBpZD0idmlnIiBjeD0iLjUiIGN5PSIuNDIiIHI9Ii43NSI+PHN0b3Agb2Zmc2V0PSIuNjIiIHN0b3AtY29sb3I9IiMwMDAiIHN0b3Atb3BhY2l0eT0iMCIvPjxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzAyMTExZiIgc3RvcC1vcGFjaXR5PSIuMzMiLz48L3JhZGlhbEdyYWRpZW50Pgo8cmVjdCB3aWR0aD0iMzkwIiBoZWlnaHQ9Ijg0NCIgZmlsbD0idXJsKCN2aWcpIi8+Cjwvc3ZnPg==")',backgroundSize:'cover',backgroundPosition:'center'};
+    const seaBaseStyle={position:'absolute',left:0,right:0,top:0,bottom:0,backgroundImage:'url("assets/fjord-bg.webp")',backgroundSize:'cover',backgroundPosition:'center'};
     const seaGlintStyle={display:'none',opacity:sFloor===3?.25:.6,backgroundImage:'radial-gradient(3px 2px at 22% 18%,rgba(255,255,255,.5),transparent 70%),radial-gradient(2px 1.5px at 64% 32%,rgba(255,255,255,.4),transparent 70%),radial-gradient(3px 2px at 44% 58%,rgba(255,255,255,.35),transparent 70%),radial-gradient(2px 1.5px at 82% 70%,rgba(255,255,255,.4),transparent 70%),radial-gradient(2.5px 2px at 12% 82%,rgba(255,255,255,.35),transparent 70%)',backgroundSize:'220px 190px',animation:'glintT 3.4s linear infinite',willChange:'transform'};
     const waveDur=sFloor===3?'1.0s':sFloor===4?'1.6s':'2.4s', waveDur2=sFloor===3?'1.6s':sFloor===4?'2.4s':'3.4s';
     const seaWaveStyle={position:'absolute',left:0,right:0,bottom:'-64px',top:'calc(18% - 64px)',backgroundImage:'radial-gradient(3px 2px at 22% 30%,rgba(255,255,255,.5),transparent 70%),radial-gradient(2px 1.5px at 64% 75%,rgba(255,255,255,.4),transparent 70%),radial-gradient(2.5px 2px at 44% 55%,rgba(255,255,255,.35),transparent 70%),repeating-linear-gradient(180deg,transparent 0 28px,rgba(255,255,255,.07) 28px 32px,transparent 32px 64px),repeating-linear-gradient(180deg,transparent 0 18px,rgba(255,255,255,.045) 18px 20px,transparent 20px 32px)',backgroundSize:'220px 64px,220px 64px,220px 64px,100% 64px,100% 32px',animation:'waveT64 '+waveDur+' linear infinite',willChange:'transform',pointerEvents:'none'};
@@ -2056,16 +2059,16 @@ class Component extends DCLogic {
           detail:{position:'absolute',left:(rx-5)+'px',top:(ry-5)+'px',width:'10px',height:'5px',borderRadius:'0 0 6px 6px',background:'rgba(255,255,255,.82)',zIndex:5},
           head:{position:'absolute',left:(rx-8)+'px',top:(ry-18)+'px',width:'16px',height:'16px',borderRadius:'50%',background:'radial-gradient(circle at 38% 30%,color-mix(in srgb,'+hcol+' 68%,#fff 32%),'+hcol+' 62%,color-mix(in srgb,'+hcol+' 68%,#000))',boxShadow:'0 1px 2px rgba(0,0,0,.45),inset 0 -4px 4px rgba(0,0,0,.22)',zIndex:6},
           // grip group above the hull, same pivot + same stroke as the oar below
-          grip:{position:'absolute',left:railx+'px',top:ry+'px',width:'1px',height:'1px',transformOrigin:'0 0',zIndex:6,willChange:'transform','--sg':String(sign)},
+          grip:{position:'absolute',left:railx+'px',top:ry+'px',width:'1px',height:'1px',transformOrigin:'0 0',zIndex:6,'--sg':String(sign)},
           handle:{position:'absolute',left:'0px',top:'-2px',width:hLen+'px',height:'4px',background:'linear-gradient(180deg,'+woodLight+','+woodDark+')',borderRadius:'2px',transformOrigin:'0 50%',transform:'rotate('+(oDeg+180).toFixed(1)+'deg)',zIndex:6},
           handA:handStyle(1),
           handB:handStyle(0.6)
         });
         oars.push({
-          wrap:{position:'absolute',left:railx+'px',top:ry+'px',width:'1px',height:'1px',transformOrigin:'0 0',zIndex:1,willChange:'transform','--sg':String(sign)},
+          wrap:{position:'absolute',left:railx+'px',top:ry+'px',width:'1px',height:'1px',transformOrigin:'0 0',zIndex:1,'--sg':String(sign)},
           shaft:{position:'absolute',left:'0px',top:'-2.5px',width:oLen.toFixed(1)+'px',height:'5px',background:'linear-gradient(180deg,'+woodLight+','+woodDark+')',borderRadius:'3px',transformOrigin:'0 50%',transform:'rotate('+oDeg.toFixed(1)+'deg)',zIndex:1,boxShadow:'0 1px 1px rgba(0,0,0,.3)'},
           blade:{position:'absolute',left:(oDX-6).toFixed(1)+'px',top:(oDY-9).toFixed(1)+'px',width:'13px',height:'19px',borderRadius:'50%',background:'linear-gradient(180deg,'+woodMid+','+plankDark+')',transform:'rotate('+oDeg.toFixed(1)+'deg)',transformOrigin:'50% 50%',zIndex:1,boxShadow:'0 1px 2px rgba(0,0,0,.35)'},
-          splash:{position:'absolute',left:(oDX-11).toFixed(1)+'px',top:(oDY-8).toFixed(1)+'px',width:'22px',height:'15px',borderRadius:'50%',background:'radial-gradient(circle,rgba(255,255,255,.9),rgba(255,255,255,.35) 55%,transparent 72%)',opacity:0,zIndex:0,willChange:'transform,opacity'}
+          splash:{position:'absolute',left:(oDX-11).toFixed(1)+'px',top:(oDY-8).toFixed(1)+'px',width:'22px',height:'15px',borderRadius:'50%',background:'radial-gradient(circle,rgba(255,255,255,.9),rgba(255,255,255,.35) 55%,transparent 72%)',opacity:0,zIndex:0}
         });
         ri++;
       });
@@ -2899,7 +2902,7 @@ class Component extends DCLogic {
       createAccount:this.createAccount, selectAccount:this.selectAccount, goBoard:this.goBoard, goAccount:this.goAccount, setCountry:this.setCountry, setBoardCat:this.setBoardCat,
       showTutorial:isMenu && s.showTutorial, dismissTutorial:this.dismissTutorial, openTutorial:this.openTutorial,
       showStageScore, lastScoreVal, lastTimeVal, lastTimeBonus, lastScoreSub, lastIsBest,
-      rootStyle, showScene:!isStages && !isSplash && !isAccount && !isBoard, isGame, isMenu, isResult, isStages, isSplash, isStage1, isStage2, isStage3,
+      rootStyle, showScene:!isStages && !isSplash && !isAccount && !isBoard && !s.mounting, isGame, isMenu, isResult, isStages, isSplash, isStage1, isStage2, isStage3,
       isStage5, tsSkyStyle, tsHazeStyle, tsBuildings, tsWallLStyle, tsWallRStyle, tsBoards, tsFlags, tsRoBoardStyle, tsFlagBoardStyle, tsWcBoardStyle, tsNorgeBoardStyle, tsStripBoardStyle, tsTowerStyle, tsTowerScreenStyle, tsStreetStyle, tsStreetLinesStyle, tsCabs, tsLive, tsLiveBannerStyle, tsCurbStyle, tsCrosswalkStyle, tsStepsStyle, tsFarCrowdStyle, tsTickerStyle, tsTickerTextStyle, tsLamps,
       palaceSkyStyle, beamL, beamR, moonStyle, stars, palacePaintStyle, plazaStyle, plazaLinesStyle,
       palaceBaseStyle, band1Style, band2Style, baseRustStyle, corniceStyle, balustradeStyle, risalitStyle, atticStyle, atticCorniceStyle,
