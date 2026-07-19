@@ -2635,6 +2635,29 @@ class Component extends DCLogic {
                 boxShadow:'0 1px 2px rgba(0,0,0,.4),inset 0 -3px 4px rgba(0,0,0,.3)',zIndex:z+3},
             pom:(hairKind===4)?{position:'absolute',left:leftPct.toFixed(2)+'%',bottom:'calc('+b.toFixed(1)+'% + '+(shH*0.6+hd*1.02).toFixed(1)+'px)',width:(hd*0.3).toFixed(1)+'px',height:(hd*0.3).toFixed(1)+'px',transform:'translateX(-50%)',borderRadius:'50%',background:'radial-gradient(circle at 38% 32%,#fff,#d9dee6)',zIndex:z+3}:{display:'none'}
           });
+          if(isStage9){
+            // Valhalla: turn this fan into an einherjar viking
+            const f=crowdFans[crowdFans.length-1];
+            const helm=((idx*7+ri)%6)<4;
+            const beard=((idx*3+ri)%5)!==0;
+            const bc=['#c9a15a','#a55a2a','#5a3d22','#8a5a30','#b3762e'][(idx*5+ri)%5];
+            const vikCloth=['#7a1622','#5a3a22','#455260','#6e5436','#8a2230','#4a3a28','#912631','#33404c'][idx%8];
+            f.shoulders.background='radial-gradient(circle at 50% 22%,color-mix(in srgb,'+vikCloth+' 74%,#fff 26%),'+vikCloth+' 58%,color-mix(in srgb,'+vikCloth+' 62%,#000))';
+            const vArm='linear-gradient(180deg,'+vikCloth+',color-mix(in srgb,'+vikCloth+' 55%,#000))';
+            f.armL.background=vArm; f.armR.background=vArm;
+            f.scarf.background='repeating-linear-gradient(90deg,#cbb9a0 0 '+(3*sc).toFixed(1)+'px,#9b8768 '+(3*sc).toFixed(1)+'px '+(6*sc).toFixed(1)+'px)';
+            f.scarf.height=(7*sc).toFixed(1)+'px'; f.scarf.borderRadius=(3*sc).toFixed(1)+'px';
+            if(beard){ f.head.background='radial-gradient(72% 46% at 50% 94%,color-mix(in srgb,'+bc+' 86%,#000) 56%,transparent 58%),'+f.head.background; }
+            if(helm){
+              f.hair={position:'absolute',left:leftPct.toFixed(2)+'%',bottom:'calc('+b.toFixed(1)+'% + '+(shH*0.6+hd*0.42).toFixed(1)+'px)',width:(hd*1.12).toFixed(1)+'px',height:(hd*0.62).toFixed(1)+'px',transform:'translateX(-50%)',borderRadius:(hd*0.56).toFixed(1)+'px '+(hd*0.56).toFixed(1)+'px '+(hd*0.16).toFixed(1)+'px '+(hd*0.16).toFixed(1)+'px',background:'linear-gradient(90deg,#6e7a86,#c3ced8 48%,#6e7a86)',boxShadow:'inset 0 -2px 3px rgba(0,0,0,.4),0 1px 2px rgba(0,0,0,.4),inset 0 2px 2px rgba(255,255,255,.35)',zIndex:z+3};
+              f.earL={position:'absolute',left:'calc('+leftPct.toFixed(2)+'% - '+(hd*0.74).toFixed(1)+'px)',bottom:'calc('+b.toFixed(1)+'% + '+(shH*0.6+hd*0.66).toFixed(1)+'px)',width:(hd*0.3).toFixed(1)+'px',height:(hd*0.64).toFixed(1)+'px',borderRadius:'60% 60% 30% 30%',background:'linear-gradient(180deg,#f2e8d0,#bfae90)',transform:'rotate(-26deg)',transformOrigin:'50% 100%',boxShadow:'inset -1px 0 1px rgba(0,0,0,.25)',zIndex:z+3};
+              f.earR={position:'absolute',left:'calc('+leftPct.toFixed(2)+'% + '+(hd*0.44).toFixed(1)+'px)',bottom:'calc('+b.toFixed(1)+'% + '+(shH*0.6+hd*0.66).toFixed(1)+'px)',width:(hd*0.3).toFixed(1)+'px',height:(hd*0.64).toFixed(1)+'px',borderRadius:'60% 60% 30% 30%',background:'linear-gradient(180deg,#f2e8d0,#bfae90)',transform:'rotate(26deg)',transformOrigin:'50% 100%',boxShadow:'inset 1px 0 1px rgba(0,0,0,.25)',zIndex:z+3};
+              f.pom={display:'none'};
+            }
+            if(idx%3===0){
+              f.pom={position:'absolute',left:'calc('+leftPct.toFixed(2)+'% + '+(shW*0.40+al*0.36-4.5*sc).toFixed(1)+'px)',bottom:'calc('+b.toFixed(1)+'% + '+(shH*0.55+al*0.9+hr*0.8).toFixed(1)+'px)',width:(9*sc).toFixed(1)+'px',height:(14*sc).toFixed(1)+'px',background:'linear-gradient(180deg,#9aa5b1 0 30%,#5f9eaa 30% 32%,#6b4a2a 32%)',clipPath:'polygon(0 0,100% 0,100% 30%,62% 30%,62% 100%,38% 100%,38% 30%,0 30%)',transform:'rotate(12deg)',boxShadow:'0 1px 2px rgba(0,0,0,.4)',zIndex:z+3};
+            }
+          }
           idx++;
         }
       });
