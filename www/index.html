@@ -144,6 +144,7 @@
   @keyframes waveT64{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,64px,0)}}
   @keyframes waveT40{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,40px,0)}}
   @keyframes glintT{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,190px,0)}}
+  @keyframes aurSway{from{transform:translate3d(-34px,0,0) skewX(-5deg)}to{transform:translate3d(34px,0,0) skewX(5deg)}}
   @keyframes confDrift{from{transform:translate3d(0,0,0)}to{transform:translate3d(-24px,240px,0)}}
   @keyframes rainT{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50px,260px,0)}}
   @keyframes beamSway{from{transform:rotate(18deg)}to{transform:rotate(34deg)}}
@@ -739,6 +740,26 @@
         <sc-for list="{{ ballItems }}" as="ball" hint-placeholder-count="0"><div style="{{ ball.style }}"></div></sc-for>
       </sc-if>
 
+      <!-- ===== Stage 8: NORTHERN LIGHTS — POLARA promo ===== -->
+      <sc-if value="{{ isStage8 }}" hint-placeholder-val="{{ false }}">
+        <div style="{{ polBgStyle }}"></div>
+        <div style="{{ polAur1 }}"></div>
+        <div style="{{ polAur2 }}"></div>
+        <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:5">
+          <div style="{{ polCard }}">
+            <div style="{{ polIcon }}">
+              <div style="{{ polBar1 }}"></div><div style="{{ polBar2 }}"></div><div style="{{ polBar3 }}"></div>
+            </div>
+            <div style="{{ polTitle }}">POLARA</div>
+            <div style="{{ polSub }}">RIDE THE NORTHERN LIGHTS</div>
+            <div style="{{ polTag }}">KUZEY IŞIĞI SENSİN.</div>
+            <sc-for list="{{ polFeats }}" as="pf" hint-placeholder-count="0"><div style="{{ polFeatStyle }}">✦ {{ pf }}</div></sc-for>
+            <div><div style="{{ polSoon }}">ÇOK YAKINDA · COMING SOON</div></div>
+            <div style="{{ polBrand }}">NORIENT INNOVATION AND DEVELOPMENT</div>
+          </div>
+        </div>
+      </sc-if>
+
       <!-- ===== Stage 7: VICTORY PARADE — Karl Johans gate, Oslo ===== -->
       <sc-if value="{{ isStage7 }}" hint-placeholder-val="{{ false }}">
         <div style="{{ paradeBgStyle }}"></div>
@@ -806,10 +827,10 @@
             <div style="{{ sh.style }}"></div>
           </sc-for>
         </div>
-        <div style="text-align:right;line-height:1;font-family:var(--display,'Anton');color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6)">
+<sc-if value="{{ showCombo }}" hint-placeholder-val="{{ true }}">        <div style="text-align:right;line-height:1;font-family:var(--display,'Anton');color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6)">
           <div ref="{{ comboRef }}" style="font-size:30px;color:var(--gold,#ffcb05);text-shadow:0 0 12px rgba(255,203,5,.55),0 2px 0 rgba(120,80,0,.8)">×{{ combo }}</div>
           <div style="font-size:9px;letter-spacing:2px;opacity:.85">COMBO</div>
-        </div>
+        </div></sc-if>
       </div>
     </div>
     </sc-if>
@@ -841,10 +862,10 @@
           <button sc-camel-on-click="{{ toggleMute }}" style="width:44px;height:44px;border:1px solid rgba(255,255,255,.22);border-radius:13px;background:linear-gradient(180deg,rgba(20,32,52,.72),rgba(8,14,26,.78));color:#fff;font-size:16px;cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.14)">{{ muteIcon }}</button>
           <button sc-camel-on-click="{{ quitStage }}" title="Back to stages" style="height:44px;padding:0 14px;border:1px solid rgba(255,255,255,.22);border-radius:13px;background:linear-gradient(180deg,rgba(20,32,52,.72),rgba(8,14,26,.78));color:#fff;font-size:12px;font-family:var(--display,'Anton');letter-spacing:1px;cursor:pointer;display:flex;align-items:center;gap:5px;box-shadow:0 3px 8px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.14)">← EXIT</button>
         </div>
-        <div style="text-align:right;line-height:1;font-family:var(--display,'Anton');color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6)">
+<sc-if value="{{ showCombo }}" hint-placeholder-val="{{ true }}">        <div style="text-align:right;line-height:1;font-family:var(--display,'Anton');color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.6)">
           <div ref="{{ comboRef }}" style="font-size:26px;color:var(--gold,#ffcb05);text-shadow:0 0 12px rgba(255,203,5,.55),0 2px 0 rgba(120,80,0,.8)">×{{ combo }}</div>
           <div style="font-size:8px;letter-spacing:2px;opacity:.85">COMBO</div>
-        </div>
+        </div></sc-if>
       </div>
       <div style="max-width:360px;margin:9px auto 0">
         <div style="display:flex;justify-content:space-between;align-items:baseline;font-family:var(--display,'Anton');font-size:9px;letter-spacing:1px;color:#fff;opacity:.9;margin-bottom:3px"><span>TIME</span><span style="opacity:.8">RO FOR GOAL {{ roCount }}/3</span><span ref="{{ st6TimeRef }}" style="font-size:15px">{{ roundSecs }}</span></div>
@@ -862,7 +883,7 @@
     </sc-if>
 
     <!-- ===================== VERTICAL SKILL BAR (side) ===================== -->
-    <sc-if value="{{ isGame }}" hint-placeholder-val="{{ true }}">
+    <sc-if value="{{ showMeter }}" hint-placeholder-val="{{ true }}">
     <div style="position:absolute;right:14px;top:max(27vh, calc(19vh + env(safe-area-inset-top)));height:46vh;width:52px;z-index:6">
       <div ref="{{ trackRef }}" style="position:relative;height:100%;background:linear-gradient(180deg,rgba(255,255,255,.20),rgba(255,255,255,.10) 50%,rgba(255,255,255,.16));border:2px solid rgba(255,255,255,.55);border-radius:26px;overflow:hidden;box-shadow:0 8px 20px rgba(0,10,30,.30),inset 0 1px 3px rgba(255,255,255,.45)">
         <div style="position:absolute;left:0;right:0;top:0;bottom:0;background-image:repeating-linear-gradient(180deg,transparent 0 calc(10% - 1px),rgba(255,255,255,.22) calc(10% - 1px) 10%);pointer-events:none"></div>
@@ -1256,7 +1277,8 @@ class Component extends DCLogic {
     {id:4,name:'STORTINGET',sub:'Oslo · Parliament',icon:'🏛️',action:'RO!',hint:'Do RO in the chamber — hit the RED (PERFECT) within 5s, or lose a shield!',from:'0 VOTES',to:'169 VOTES',zones:['SILENT SESSION','FIRST SUPPORT','BENCHES ROARING','STANDING OVATION','UNANIMOUS'],factor:1.69,statLabel:'AYE VOTES',unit:'votes',winIcon:'🏛️',winTitle:'PASSED UNANIMOUSLY!',winSub:'Stortinget backed Norway — 169 MPs on their feet!',loseIcon:'🪑',loseTitle:'SESSION COLLAPSED',loseSub:'Not enough support gathered — try again!',floorMsg:['','','FIRST SUPPORT 📣|Front benches stood up','BENCHES ROARING 🎶|MPs joined the tempo','STANDING OVATION 👏|The majority is up','PRESIDENT AT THE ROSTRUM 🔨|Final push — unanimous!'],wind:['PRESIDENT BANGED THE GAVEL! 🔨','Support rose · +votes']},
     {id:5,name:'TIMES SQUARE',sub:'New York · USA',icon:'🗽',action:'RO!',hint:'The gold zone is tighter and the sweep is faster here. Keep the RO chant rolling — when the jumbotron puts you ON THE BIG SCREEN, every hit scores ×2, but miss and the camera cuts away!',from:'EMPTY SQUARE',to:'FULL SQUARE',zones:['FIRST FANS','GATHERING','THE CHANT','SQUARE ROARS','TIMES SQUARE RO!'],factor:500,statLabel:'FANS',unit:'fans',winIcon:'🗽',winTitle:'TIMES SQUARE IS OURS!',winSub:'New York turned red, white & blue — RO!',loseIcon:'📻',loseTitle:'THE CHANT FELL APART',loseSub:'The crowd drifted away — try again!',floorMsg:['','','GATHERING 🚩|More fans pour into the square','THE CHANT 🎶|The billboards lit up','SQUARE ROARS 🔊|7th Avenue shut down','THE WHOLE SQUARE! 🗽|Final push — make New York RO!'],wind:['THE SCREENS LIT UP! 📺','The square joined in · +fans']},
     {id:6,name:'STADIUM RO',sub:'Road to the Cup',icon:'⚽',action:'RO!',hint:'Tap RO! while the sweeping line is in the gold zone — every 3 hits score 1 GOAL! Miss and the opponent scores, costing a shield. Lead when time runs out to advance. Quarter 45s · Semi 60s · Final 90s. Also hit RO before the 5s RO bar below empties, or the opponent scores! Score resets each round; your shields carry over.',from:'QUARTER',to:'CUP',zones:['WARM-UP','FIRST GOAL','PRESSURE','FRENZY','THE CUP'],factor:1,statLabel:'TOTAL GOALS',unit:'goals',winIcon:'🏆',winTitle:'THE CUP IS YOURS!',winSub:'Norway won the final — the stands roared with RO!',loseIcon:'🥅',loseTitle:'ELIMINATED',loseSub:'Time ran out or the opponent took the lead — try again!',floorMsg:[],wind:['STANDS ON THEIR FEET! 📣','The wave began'],rounds:[{label:'QUARTER-FINAL',opp:'ARGENTINA',oppShort:'ARG',flag:'assets/flags/ar.png',secs:45},{label:'SEMI-FINAL',opp:'SPAIN',oppShort:'ESP',flag:'assets/flags/es.png',secs:60},{label:'FINAL',opp:'FRANCE',oppShort:'FRA',flag:'assets/flags/fr.png',secs:90}]},
-    {id:7,name:'VICTORY PARADE',sub:'Oslo · Karl Johans gate',icon:'🚌',action:'RO!',hint:'The champions are on the open-top bus and 100,000 fans line Karl Johans gate! Hardest stage: the gold zone DRIFTS up and down, the sweep is the fastest yet — and keep the chant alive by hitting the zone within 5s, or lose a shield!',from:'SENTRUM',to:'SLOTTET',zones:['JERNBANETORGET','KARL JOHAN','UNIVERSITETET','GRAND HOTEL','SLOTTSPARKEN'],factor:12,statLabel:'PARADE',unit:'m',winIcon:'🎉',winTitle:'HOME AT THE PALACE!',winSub:'100,000 fans sang RO all the way to Slottet!',loseIcon:'🚌',loseTitle:'THE PARADE STALLED',loseSub:'The chant faded and the bus stopped — try again!',floorMsg:['','','KARL JOHANS GATE 🚩|The street is packed — watch the drifting zone!','UNIVERSITETET 🎓|The chant speeds up','GRAND HOTEL 🏨|Confetti rain — keep the tempo','SLOTTSPARKEN 🌳|Final stretch — the King awaits!'],wind:['CONFETTI CANNONS! 🎉','The whole street chants · +meters']}
+    {id:7,name:'VICTORY PARADE',sub:'Oslo · Karl Johans gate',icon:'🚌',action:'RO!',hint:'The champions are on the open-top bus and 100,000 fans line Karl Johans gate! Hardest stage: the gold zone DRIFTS up and down, the sweep is the fastest yet — and keep the chant alive by hitting the zone within 5s, or lose a shield!',from:'SENTRUM',to:'SLOTTET',zones:['JERNBANETORGET','KARL JOHAN','UNIVERSITETET','GRAND HOTEL','SLOTTSPARKEN'],factor:12,statLabel:'PARADE',unit:'m',winIcon:'🎉',winTitle:'HOME AT THE PALACE!',winSub:'100,000 fans sang RO all the way to Slottet!',loseIcon:'🚌',loseTitle:'THE PARADE STALLED',loseSub:'The chant faded and the bus stopped — try again!',floorMsg:['','','KARL JOHANS GATE 🚩|The street is packed — watch the drifting zone!','UNIVERSITETET 🎓|The chant speeds up','GRAND HOTEL 🏨|Confetti rain — keep the tempo','SLOTTSPARKEN 🌳|Final stretch — the King awaits!'],wind:['CONFETTI CANNONS! 🎉','The whole street chants · +meters']},
+    {id:8,name:'NORTHERN LIGHTS',sub:'POLARA · a NORIENT game',icon:'🌌',action:'RO!',hint:'KUZEY IŞIĞI SENSİN. POLARA — tek parmakla oynanan hipnotik kuzey ışıkları oyunu. Basılı tut, ışık şeridin gökyüzüne yükselsin; bırak, süzülerek alçalsın. Işık halkalarından geç, Coşku Modu ile her şeyi ikiye katla; meteorlardan ve karanlık bulutlardan kaç. ✦ kredileriyle Işık Mağazası, 15 başarım madalyası, 16 rütbe ve dünya sıralaması… NORIENT’in yeni oyunu ÇOK YAKINDA! Selamlamak için bir kez RO!',from:'NORIENT',to:'POLARA',zones:['POLARA','POLARA','POLARA','POLARA','POLARA'],factor:1,statLabel:'POLARA',unit:'✦',winIcon:'🌌',winTitle:'POLARA GÖKYÜZÜNDE!',winSub:'Kuzey ışığı sensin — çok yakında. Işığını söndürme! ✦',loseIcon:'🌌',loseTitle:'GECE BİTTİ',loseSub:'',floorMsg:[],wind:['POLARA ✦','Çok yakında'],promo:true}
   ];
   COUNTRIES=[
     ['NO','Norway'],['US','United States'],['TR','Türkiye'],['GB','England'],['ES','Spain'],['DE','Germany'],['FR','France'],['BR','Brazil'],
@@ -1330,7 +1352,7 @@ class Component extends DCLogic {
     this._tick=setInterval(()=>{
       if(this.state.screen==='game' && this.state.stageId!==6 && this.state.tier===2 && Math.random()<0.18){ this.flash('#dfe9ff',150); this.sfx('thunder'); }
     },900);
-    try{ const im=new Image(); im.src='assets/fjord-bg.webp'; if(im.decode) im.decode().catch(()=>{}); this._fjordImg=im; const im2=new Image(); im2.src='assets/parade-bg.webp'; if(im2.decode) im2.decode().catch(()=>{}); this._paradeImg=im2; }catch(e){}
+    try{ const im=new Image(); im.src='assets/fjord-bg.webp'; if(im.decode) im.decode().catch(()=>{}); this._fjordImg=im; const im2=new Image(); im2.src='assets/parade-bg.webp'; if(im2.decode) im2.decode().catch(()=>{}); this._paradeImg=im2; const im3=new Image(); im3.src='assets/polara-bg.webp'; if(im3.decode) im3.decode().catch(()=>{}); this._polImg=im3; }catch(e){}
     this.loadRo();
     this._last=performance.now();
     this._loop=setInterval(()=>{
@@ -1373,7 +1395,8 @@ class Component extends DCLogic {
     4:{bpm:96,bass:[29,29,34,34,31,31,36,36],wave:'sawtooth',bvol:.03,mel:[[65,1],[65,.5],[67,.5],[69,1],[70,1],[72,2],[69,1],[65,1],[74,1],[72,.5],[70,.5],[69,1],[67,1],[65,2],[60,1],[65,1]],mvol:.035,mwave:'sawtooth',drum:'march'},
     5:{bpm:128,bass:[33,45,33,45,31,43,36,48],wave:'sawtooth',bvol:.032,mel:[[69,.5],[0,.5],[76,.5],[74,.5],[72,.5],[69,.5],[0,.5],[72,.5],[74,.5],[0,.5],[77,.5],[76,.5],[74,.5],[72,.5],[74,.5],[76,.5]],mvol:.035,mwave:'square',drum:'city'},
     6:{bpm:92,bass:[28,28,28,28,26,26,31,31],wave:'triangle',bvol:.085,mel:[[64,1],[0,.5],[64,.5],[67,1],[64,1],[62,1],[60,1],[62,2],[64,1],[0,.5],[64,.5],[67,1],[69,1],[67,1],[64,3]],mvol:.045,mwave:'sawtooth',drum:'stadium',crowd:true},
-    7:{bpm:132,bass:[36,36,41,41,43,43,45,45],wave:'square',bvol:.045,mel:[[76,.5],[76,.5],[77,.5],[79,.5],[79,.5],[77,.5],[76,.5],[74,.5],[72,.5],[72,.5],[74,.5],[76,.5],[76,1],[74,.5],[74,1.5],[76,.5],[76,.5],[77,.5],[79,.5],[79,.5],[77,.5],[76,.5],[74,.5],[72,.5],[72,.5],[74,.5],[76,.5],[74,1],[72,.5],[72,1.5]],mvol:.05,mwave:'square',drum:'stadium',crowd:true}
+    7:{bpm:132,bass:[36,36,41,41,43,43,45,45],wave:'square',bvol:.045,mel:[[76,.5],[76,.5],[77,.5],[79,.5],[79,.5],[77,.5],[76,.5],[74,.5],[72,.5],[72,.5],[74,.5],[76,.5],[76,1],[74,.5],[74,1.5],[76,.5],[76,.5],[77,.5],[79,.5],[79,.5],[77,.5],[76,.5],[74,.5],[72,.5],[72,.5],[74,.5],[76,.5],[74,1],[72,.5],[72,1.5]],mvol:.05,mwave:'square',drum:'stadium',crowd:true},
+    8:{bpm:58,bass:[24,24,26,26,21,21,23,23],wave:'sine',bvol:.075,mel:[[64,2],[69,2],[71,2],[76,4],[74,2],[71,2],[69,4],[64,2],[71,2],[74,2],[79,4],[76,2],[74,2],[71,4]],mvol:.04,mwave:'sine',drum:null}
   };
   mfreq(m){ return 440*Math.pow(2,(m-69)/12); }
   _musVol(){ return Math.max(0,(this.props.muzikSes??40))/32; }
@@ -1542,7 +1565,7 @@ class Component extends DCLogic {
   rollZone(width){ const max=96-width-4; return Math.round(4+Math.random()*max); }
 
   // ---------- flow ----------
-  start=()=>{ this.ac(); clearTimeout(this._wuT); this._wuT=setTimeout(()=>this._warmup(),500); const d=this.diff(0,0); this._last=performance.now(); this._stageStart=performance.now(); this._spawnAcc=-3; this._redMs=5000; this._bsAcc=0; this._bsNext=6; this._st6Ms=(((this.STAGES[5]||{}).rounds[0]||{}).secs||45)*1000; this._roMs=5000; this._paintRed(); clearTimeout(this._mntT); this._mntT=setTimeout(()=>this.setState({mounting:false}),80); this.setState({mounting:true,screen:'game',progress:0,shields:5,combo:0,maxCombo:0,perfects:0,strokes:0,floor:d.floor,result:null,justUnlocked:false,zoneWidth:d.zoneWidth,speedDur:d.speedDur,tier:d.tier,zoneLeft:this.rollZone(d.zoneWidth),pops:[],sealife:[],event:null,bigScreen:false,round:0,norGoals:0,oppGoals:0,roCount:0,matchGoals:0,roundTrans:null,balls:[],intro:true}); };
+  start=()=>{ this.ac(); this._polWon=false; clearTimeout(this._wuT); this._wuT=setTimeout(()=>this._warmup(),500); const d=this.diff(0,0); this._last=performance.now(); this._stageStart=performance.now(); this._spawnAcc=-3; this._redMs=5000; this._bsAcc=0; this._bsNext=6; this._st6Ms=(((this.STAGES[5]||{}).rounds[0]||{}).secs||45)*1000; this._roMs=5000; this._paintRed(); clearTimeout(this._mntT); this._mntT=setTimeout(()=>this.setState({mounting:false}),80); this.setState({mounting:true,screen:'game',progress:0,shields:5,combo:0,maxCombo:0,perfects:0,strokes:0,floor:d.floor,result:null,justUnlocked:false,zoneWidth:d.zoneWidth,speedDur:d.speedDur,tier:d.tier,zoneLeft:this.rollZone(d.zoneWidth),pops:[],sealife:[],event:null,bigScreen:false,round:0,norGoals:0,oppGoals:0,roCount:0,matchGoals:0,roundTrans:null,balls:[],intro:true}); };
   dismissIntro=()=>{ this._redMs=5000; this._last=performance.now(); this._stageStart=performance.now(); this.setState({intro:false},()=>this._paintRed()); };
   playStage=(id)=>{ const st=this.STAGES[id-1]; if(!st||st.locked||this.state.unlocked<id) return; this.setState({stageId:id},()=>this.start()); };
   goMenu=()=>{ this.setState({screen:'menu'}); };
@@ -1644,7 +1667,7 @@ class Component extends DCLogic {
       // Restore stage progression from the cloud scores: a recorded score means
       // that stage was won, so the next one must be open on this device too.
       let unl=this.state.unlocked||1;
-      for(const k in scores){ const st=+k; if(st>=1&&st<=7&&scores[k]>0) unl=Math.max(unl,Math.min(7,st+1)); }
+      for(const k in scores){ const st=+k; if(st>=1&&st<=7&&scores[k]>0) unl=Math.max(unl,Math.min(8,st+1)); }
       try{localStorage.setItem('ro_unlocked2',String(unl));}catch(e){}
       this.setState(s=>{ const profiles=[...s.profiles.filter(p=>p.id!==id),prof]; this._persistProfiles(profiles); try{localStorage.setItem('ro_currentId',id);}catch(e){} return {profiles,currentId:id,unlocked:Math.max(s.unlocked||1,unl),screen:'menu',authErr:'',authBusy:false,nameErr:false}; });
       lb.setProfile({id,name,countryCode:country.code});
@@ -1807,8 +1830,15 @@ class Component extends DCLogic {
     clearTimeout(this._wuT2);
     this._wuT2=setTimeout(()=>{ if(host){ try{host.textContent='';}catch(e){} host.style.opacity='1'; } },1000);
   }
+  doPromoWin(){
+    if(this._polWon) return; this._polWon=true;
+    this.addPop('POLARA ✦','perfect'); this.roShout(); this.sfx('combo'); this.buzz([20,40,20]); this.flash('#8ff0c0',260);
+    this.pumpArms(false); this.lurch();
+    setTimeout(()=>{ this.sfx('win'); this.setState(sx=>{ if(sx.screen!=='game') return null; return {screen:'result',result:'win',progress:100}; },()=>this._unlockNext()); },1150);
+  }
   ro=()=>{
     if(this.state.screen!=='game'||this.state.intro||this.state.roundTrans) return;
+    if(this.state.stageId===8){ this.doPromoWin(); return; }
     const cur=this.cursorRef.current, zone=this.zoneRef.current, perf=this.perfectRef.current;
     if(!cur||!zone) return;
     const cx=cur.getBoundingClientRect(); const cY=cx.top+cx.height/2;
@@ -1949,7 +1979,7 @@ class Component extends DCLogic {
   renderVals(){
     const s=this.state; const th=this.theme(s.skin);
     const stage=this.STAGES[s.stageId-1]||this.STAGES[0];
-    const isStage1=s.stageId===1, isStage2=s.stageId===2; const isStage7=s.stageId===7;
+    const isStage1=s.stageId===1, isStage2=s.stageId===2; const isStage7=s.stageId===7; const isStage8=s.stageId===8;
     const isGame=s.screen==='game', isMenu=s.screen==='menu', isResult=s.screen==='result', isStages=s.screen==='stages', isSplash=s.screen==='splash';
     const sFloor=isGame?s.floor:isMenu?1:(isResult?(s.result==='win'?5:Math.max(1,s.floor)):1);
     const sceneTier=Math.max(0,Math.min(4,sFloor-1));
@@ -1958,8 +1988,8 @@ class Component extends DCLogic {
     const progressR=Math.round(s.progress);
     const distVal=Math.round(s.progress*stage.factor); const distUnit=stage.unit; const statLabel=stage.statLabel;
     const curFloor=isGame?s.floor:(isResult&&s.result==='win')?5:Math.max(1,s.floor);
-    const zoneName=(stage.zones||[])[curFloor-1]||''; const floorLabel=(s.stageId===3?'PHASE ':s.stageId===4?'SESSION ':'FLOOR ')+curFloor+'/5';
-    const actionLabel=stage.action; const actionHint=stage.hint;
+    const zoneName=(stage.zones||[])[curFloor-1]||''; const floorLabel=isStage8?'A NORIENT GAME':((s.stageId===3?'PHASE ':s.stageId===4?'SESSION ':'FLOOR ')+curFloor+'/5');
+    const actionLabel=stage.action; const actionHint=isStage8?'POLARA’yı selamla — bir kez RO! ✦':stage.hint;
     const barFrom=stage.from; const barTo=stage.to; const stageIcon=stage.icon;
     // per-stage start briefing
     const introStageTag='STAGE '+s.stageId+' / '+this.STAGES.length;
@@ -1993,7 +2023,7 @@ class Component extends DCLogic {
     const vshipStyle={position:'absolute',top:'-9px',left:progressR+'%',transform:'translateX(-50%)',fontSize:'15px',transition:'left .25s',filter:'drop-shadow(0 1px 2px rgba(0,0,0,.5))'};
     // ---- event toast ----
     const ev=s.event; const eventToastStyle={position:'absolute',left:'50%',top:'13%',transform:'translateX(-50%)',padding:'9px 16px',background:'rgba(13,27,42,.82)',border:'2px solid var(--gold,#ffcb05)',borderRadius:'14px',textAlign:'center',whiteSpace:'nowrap',zIndex:7,animation:'toastPop 2.2s ease-out forwards',boxShadow:'0 6px 18px rgba(0,0,0,.4)'};
-    const shieldsArr=[]; for(let i=0;i<5;i++){ const on=i<s.shields; shieldsArr.push({style:{width:'21px',height:'26px',
+    const shieldsArr=[]; if(!isStage8) for(let i=0;i<5;i++){ const on=i<s.shields; shieldsArr.push({style:{width:'21px',height:'26px',
       clipPath:'polygon(50% 0,88% 8%,100% 30%,96% 62%,50% 100%,4% 62%,0 30%,12% 8%)',
       background:on?'radial-gradient(circle at 34% 24%,#ff6b62 0 18%,transparent 19%),linear-gradient(160deg,#e2404b 0%,#c01b33 45%,#8c0f24 100%)':'linear-gradient(160deg,rgba(255,255,255,.28),rgba(255,255,255,.12))',
       boxShadow:on?'inset 0 0 0 2.5px #f2c11e, inset 0 -5px 6px rgba(0,0,0,.35), 0 3px 5px rgba(0,0,0,.4)':'inset 0 0 0 2px rgba(255,255,255,.35), 0 2px 4px rgba(0,0,0,.3)'}}); }
@@ -2538,6 +2568,23 @@ class Component extends DCLogic {
       this._cfKey=s.stageId; this._cfVal=crowdFans;
     }
 
+    // ===== Northern Lights promo scene (stage 8) — POLARA =====
+    const polBgStyle= isStage8?{position:'absolute',inset:0,backgroundImage:'url("assets/polara-bg.webp")',backgroundSize:'cover',backgroundPosition:'center'}:{display:'none'};
+    const polAur1= isStage8?{position:'absolute',left:'-30%',right:'-30%',top:'2%',height:'34%',background:'linear-gradient(180deg,rgba(177,140,240,0) 0%,rgba(125,227,176,.30) 36%,rgba(63,214,192,.12) 74%,transparent 100%)',clipPath:'polygon(0 30%,12% 10%,26% 34%,40% 6%,55% 30%,70% 4%,84% 26%,100% 8%,100% 100%,0 100%)',animation:'aurSway 9s ease-in-out infinite alternate',willChange:'transform',zIndex:1,pointerEvents:'none'}:{display:'none'};
+    const polAur2= isStage8?{position:'absolute',left:'-30%',right:'-30%',top:'12%',height:'30%',background:'linear-gradient(180deg,rgba(201,162,255,.26) 0%,rgba(125,227,176,.18) 52%,transparent 100%)',clipPath:'polygon(0 12%,14% 36%,30% 8%,46% 32%,62% 6%,78% 30%,92% 10%,100% 28%,100% 100%,0 100%)',animation:'aurSway 13s ease-in-out infinite alternate-reverse',willChange:'transform',zIndex:1,pointerEvents:'none'}:{display:'none'};
+    const polCard= isStage8?{position:'absolute',left:'50%',top:'44%',transform:'translate(-50%,-50%)',width:'82%',maxWidth:'330px',textAlign:'center',zIndex:8,padding:'22px 18px 18px',borderRadius:'22px',background:'linear-gradient(180deg,rgba(8,16,30,.72),rgba(5,11,22,.82))',border:'1px solid rgba(143,240,192,.35)',boxShadow:'0 0 34px rgba(125,227,176,.22),0 18px 50px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.08)',backdropFilter:'blur(2px)'}:{display:'none'};
+    const polIcon={position:'relative',width:'92px',height:'92px',margin:'0 auto 12px',borderRadius:'24px',background:'radial-gradient(2px 2px at 18% 22%,rgba(255,255,255,.8) 50%,transparent 60%),radial-gradient(1.6px 1.6px at 72% 14%,rgba(255,255,255,.6) 50%,transparent 60%),radial-gradient(1.6px 1.6px at 84% 66%,rgba(255,255,255,.55) 50%,transparent 60%),radial-gradient(1.4px 1.4px at 30% 78%,rgba(255,255,255,.5) 50%,transparent 60%),radial-gradient(1.4px 1.4px at 56% 42%,rgba(255,255,255,.4) 50%,transparent 60%),linear-gradient(160deg,#0c1626,#091120)',border:'2px solid #1d3a40',boxShadow:'0 0 26px rgba(125,227,176,.35),0 8px 22px rgba(0,0,0,.5)'};
+    const polBarBase={position:'absolute',bottom:'22%',width:'16%',borderRadius:'999px'};
+    const polBar1=Object.assign({},polBarBase,{left:'21%',height:'42%',background:'linear-gradient(180deg,#7de3b0,#3fb6c9)',boxShadow:'0 0 10px rgba(125,227,176,.8)'});
+    const polBar2=Object.assign({},polBarBase,{left:'43%',height:'58%',background:'linear-gradient(180deg,#c9a2ff,#7de3b0)',boxShadow:'0 0 12px rgba(201,162,255,.8)'});
+    const polBar3=Object.assign({},polBarBase,{left:'65%',height:'32%',background:'linear-gradient(180deg,#8fe8c0,#3fb6c9)',boxShadow:'0 0 10px rgba(125,227,176,.8)'});
+    const polTitle={fontFamily:"var(--display,'Anton')",fontSize:'40px',letterSpacing:'10px',color:'#eaf7ff',textShadow:'0 0 18px rgba(125,227,176,.9),0 0 42px rgba(201,162,255,.5),0 3px 0 rgba(0,0,0,.4)',lineHeight:1,marginLeft:'6px'};
+    const polSub={fontSize:'9.5px',letterSpacing:'4px',color:'#8ff0c0',opacity:.95,marginTop:'7px',fontFamily:"var(--display,'Anton')"};
+    const polTag={fontFamily:"var(--display,'Anton')",fontSize:'16px',letterSpacing:'2px',color:'var(--gold,#ffcb05)',margin:'13px 0 11px',textShadow:'0 0 12px rgba(255,203,5,.5)'};
+    const polFeatStyle={fontSize:'11.5px',color:'#dfe9f2',lineHeight:1.75,letterSpacing:'.2px'};
+    const polFeats= isStage8?['Tek parmak: basılı tut — yüksel, bırak — süzül','Işık halkalarından geç · Coşku Modu ×2','Meteor yağmuru · güneş fırtınası · buz sisi','Işık Mağazası · 15 başarım · 16 rütbe']:[];
+    const polSoon={display:'inline-block',marginTop:'13px',padding:'8px 18px',borderRadius:'999px',border:'1.5px solid rgba(143,240,192,.65)',color:'#8ff0c0',fontFamily:"var(--display,'Anton')",fontSize:'13px',letterSpacing:'3px',background:'rgba(125,227,176,.10)',boxShadow:'0 0 16px rgba(125,227,176,.35)',animation:'zonePulse 2.2s ease-in-out infinite'};
+    const polBrand={marginTop:'12px',fontSize:'8.5px',letterSpacing:'2.5px',color:'#9fb0c2',opacity:.85};
     // ===== Victory Parade scene (stage 7) — Karl Johans gate =====
     const paradeBgStyle= isStage7?{position:'absolute',inset:0,backgroundImage:'url("assets/parade-bg.webp")',backgroundSize:'cover',backgroundPosition:'center'}:{display:'none'};
     const paradeStreetStyle= isStage7?{position:'absolute',left:0,right:0,bottom:0,height:'56%',zIndex:2,clipPath:'polygon(16% 0,84% 0,116% 100%,-16% 100%)',background:'radial-gradient(3px 3px at 10% 20%,rgba(240,220,200,.5) 40%,transparent 60%),radial-gradient(3px 3px at 42% 66%,rgba(230,120,120,.4) 40%,transparent 60%),radial-gradient(3px 3px at 76% 34%,rgba(240,236,242,.4) 40%,transparent 60%),radial-gradient(3px 3px at 58% 12%,rgba(220,90,90,.42) 40%,transparent 60%),radial-gradient(3px 3px at 26% 88%,rgba(70,90,150,.5) 40%,transparent 60%),radial-gradient(3px 3px at 90% 78%,rgba(240,220,200,.4) 40%,transparent 60%),linear-gradient(180deg,#57303a 0%,#4a2731 40%,#3a1e28 100%)',backgroundSize:'26px 26px,26px 26px,26px 26px,26px 26px,26px 26px,26px 26px,100% 100%'}:{display:'none'};
@@ -3011,6 +3058,7 @@ class Component extends DCLogic {
       resultIcon, resultTitle, resultSub, hasNext, nextName:(nextStage&&!nextStage.locked)?nextStage.name:'',
       stageCards, stageName, stageSub, bestComboR:s.best.combo,
       isStage7, paradeBgStyle, paradeStreetStyle, paradeConfettiStyle, busWrap, busShadow, busRail, busBody, busBand, busWheelL, busWheelR, busWin, busPlayers, busTrophyStyle,
+      isStage8, showMeter:isGame&&!isStage8, showCombo:!isStage8, polBgStyle, polAur1, polAur2, polCard, polIcon, polBar1, polBar2, polBar3, polTitle, polSub, polTag, polFeats, polFeatStyle, polSoon, polBrand,
       showRedTimer:(s.stageId===4||s.stageId===7), redLbl1:(s.stageId===7?'KEEP THE':'HIT THE'), redLbl2:(s.stageId===7?'CHANT':'RED'),
       start:this.start, ro:this.ro, goMenu:this.goMenu, enterMenu:this.enterMenu, goStages:this.goStages, quitStage:this.quitStage, playStage:this.playStage, playCurrent:()=>this.playStage(s.stageId), playNext:()=>this.playStage(s.stageId+1), toggleMute:this.toggleMute,
       stageRef:this.stageRef, shipRef:this.shipRef, oarsRef:this.oarsRef, fansRef:this.fansRef, rowersRef:this.rowersRef, trackRef:this.trackRef,
