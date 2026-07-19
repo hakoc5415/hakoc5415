@@ -60,7 +60,8 @@ function notifyUpdated() {
   } catch (e) { /* ignore */ }
 }
 function totalOf(scores) {
-  return [1, 2, 3, 4, 5, 6].reduce((a, id) => a + ((scores && scores[id]) || 0), 0);
+  // Sum every stage's best (7 = Victory Parade, 9 = Valhalla endless included).
+  return Object.values(scores || {}).reduce((a, v) => a + ((+v) || 0), 0);
 }
 
 // ---------- REST transport (native WebViews) ----------

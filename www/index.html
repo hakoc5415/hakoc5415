@@ -1594,7 +1594,7 @@ class Component extends DCLogic {
 
   // ---------- accounts & ranking ----------
   _persistProfiles(profiles){ try{localStorage.setItem('ro_profiles',JSON.stringify(profiles));}catch(e){} }
-  _totalOf(p){ return [1,2,3,4,5,6].reduce((a,id)=>a+(p.scores&&p.scores[id]||0),0); }
+  _totalOf(p){ return Object.values((p&&p.scores)||{}).reduce((a,v)=>a+((+v)||0),0); }
   rankTier(total){
     if(total>=16000) return {name:'JARL',color:'#ffcb05'};
     if(total>=11000) return {name:'CHIEFTAIN',color:'#ff9d2f'};
