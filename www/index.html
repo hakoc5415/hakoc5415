@@ -752,9 +752,9 @@
             </div>
             <div style="{{ polTitle }}">POLARA</div>
             <div style="{{ polSub }}">RIDE THE NORTHERN LIGHTS</div>
-            <div style="{{ polTag }}">KUZEY IŞIĞI SENSİN.</div>
+            <div style="{{ polTag }}">YOU ARE THE NORTHERN LIGHT.</div>
             <sc-for list="{{ polFeats }}" as="pf" hint-placeholder-count="0"><div style="{{ polFeatStyle }}">✦ {{ pf }}</div></sc-for>
-            <div><div style="{{ polSoon }}">ÇOK YAKINDA · COMING SOON</div></div>
+            <div><div style="{{ polSoon }}">COMING SOON</div></div>
             <div style="{{ polBrand }}">NORIENT INNOVATION AND DEVELOPMENT</div>
           </div>
         </div>
@@ -1278,7 +1278,7 @@ class Component extends DCLogic {
     {id:5,name:'TIMES SQUARE',sub:'New York · USA',icon:'🗽',action:'RO!',hint:'The gold zone is tighter and the sweep is faster here. Keep the RO chant rolling — when the jumbotron puts you ON THE BIG SCREEN, every hit scores ×2, but miss and the camera cuts away!',from:'EMPTY SQUARE',to:'FULL SQUARE',zones:['FIRST FANS','GATHERING','THE CHANT','SQUARE ROARS','TIMES SQUARE RO!'],factor:500,statLabel:'FANS',unit:'fans',winIcon:'🗽',winTitle:'TIMES SQUARE IS OURS!',winSub:'New York turned red, white & blue — RO!',loseIcon:'📻',loseTitle:'THE CHANT FELL APART',loseSub:'The crowd drifted away — try again!',floorMsg:['','','GATHERING 🚩|More fans pour into the square','THE CHANT 🎶|The billboards lit up','SQUARE ROARS 🔊|7th Avenue shut down','THE WHOLE SQUARE! 🗽|Final push — make New York RO!'],wind:['THE SCREENS LIT UP! 📺','The square joined in · +fans']},
     {id:6,name:'STADIUM RO',sub:'Road to the Cup',icon:'⚽',action:'RO!',hint:'Tap RO! while the sweeping line is in the gold zone — every 3 hits score 1 GOAL! Miss and the opponent scores, costing a shield. Lead when time runs out to advance. Quarter 45s · Semi 60s · Final 90s. Also hit RO before the 5s RO bar below empties, or the opponent scores! Score resets each round; your shields carry over.',from:'QUARTER',to:'CUP',zones:['WARM-UP','FIRST GOAL','PRESSURE','FRENZY','THE CUP'],factor:1,statLabel:'TOTAL GOALS',unit:'goals',winIcon:'🏆',winTitle:'THE CUP IS YOURS!',winSub:'Norway won the final — the stands roared with RO!',loseIcon:'🥅',loseTitle:'ELIMINATED',loseSub:'Time ran out or the opponent took the lead — try again!',floorMsg:[],wind:['STANDS ON THEIR FEET! 📣','The wave began'],rounds:[{label:'QUARTER-FINAL',opp:'ARGENTINA',oppShort:'ARG',flag:'assets/flags/ar.png',secs:45},{label:'SEMI-FINAL',opp:'SPAIN',oppShort:'ESP',flag:'assets/flags/es.png',secs:60},{label:'FINAL',opp:'FRANCE',oppShort:'FRA',flag:'assets/flags/fr.png',secs:90}]},
     {id:7,name:'VICTORY PARADE',sub:'Oslo · Karl Johans gate',icon:'🚌',action:'RO!',hint:'The champions are on the open-top bus and 100,000 fans line Karl Johans gate! Hardest stage: the gold zone DRIFTS up and down, the sweep is the fastest yet — and keep the chant alive by hitting the zone within 5s, or lose a shield!',from:'SENTRUM',to:'SLOTTET',zones:['JERNBANETORGET','KARL JOHAN','UNIVERSITETET','GRAND HOTEL','SLOTTSPARKEN'],factor:12,statLabel:'PARADE',unit:'m',winIcon:'🎉',winTitle:'HOME AT THE PALACE!',winSub:'100,000 fans sang RO all the way to Slottet!',loseIcon:'🚌',loseTitle:'THE PARADE STALLED',loseSub:'The chant faded and the bus stopped — try again!',floorMsg:['','','KARL JOHANS GATE 🚩|The street is packed — watch the drifting zone!','UNIVERSITETET 🎓|The chant speeds up','GRAND HOTEL 🏨|Confetti rain — keep the tempo','SLOTTSPARKEN 🌳|Final stretch — the King awaits!'],wind:['CONFETTI CANNONS! 🎉','The whole street chants · +meters']},
-    {id:8,name:'NORTHERN LIGHTS',sub:'POLARA · a NORIENT game',icon:'🌌',action:'RO!',hint:'KUZEY IŞIĞI SENSİN. POLARA — tek parmakla oynanan hipnotik kuzey ışıkları oyunu. Basılı tut, ışık şeridin gökyüzüne yükselsin; bırak, süzülerek alçalsın. Işık halkalarından geç, Coşku Modu ile her şeyi ikiye katla; meteorlardan ve karanlık bulutlardan kaç. ✦ kredileriyle Işık Mağazası, 15 başarım madalyası, 16 rütbe ve dünya sıralaması… NORIENT’in yeni oyunu ÇOK YAKINDA! Selamlamak için bir kez RO!',from:'NORIENT',to:'POLARA',zones:['POLARA','POLARA','POLARA','POLARA','POLARA'],factor:1,statLabel:'POLARA',unit:'✦',winIcon:'🌌',winTitle:'POLARA GÖKYÜZÜNDE!',winSub:'Kuzey ışığı sensin — çok yakında. Işığını söndürme! ✦',loseIcon:'🌌',loseTitle:'GECE BİTTİ',loseSub:'',floorMsg:[],wind:['POLARA ✦','Çok yakında'],promo:true}
+    {id:8,name:'NORTHERN LIGHTS',sub:'POLARA · a NORIENT game',icon:'🌌',action:'RO!',hint:'YOU ARE THE NORTHERN LIGHT. POLARA is a hypnotic one-finger aurora game: hold to send your ribbon of light climbing the sky, release to let it glide back down. Fly through glowing rings, double everything in Frenzy Mode, dodge meteors and dark clouds. Spend ✦ credits in the Light Shop, chase 15 achievement medals, climb 16 ranks and the world leaderboard… NORIENT’s next game is COMING SOON! Tap RO! once to salute it.',from:'NORIENT',to:'POLARA',zones:['POLARA','POLARA','POLARA','POLARA','POLARA'],factor:1,statLabel:'POLARA',unit:'✦',winIcon:'🌌',winTitle:'POLARA LIGHTS THE SKY!',winSub:'You are the northern light — coming soon. Keep your light alive! ✦',loseIcon:'🌌',loseTitle:'NIGHT OVER',loseSub:'',floorMsg:[],wind:['POLARA ✦','Çok yakında'],promo:true}
   ];
   COUNTRIES=[
     ['NO','Norway'],['US','United States'],['TR','Türkiye'],['GB','England'],['ES','Spain'],['DE','Germany'],['FR','France'],['BR','Brazil'],
@@ -1989,7 +1989,7 @@ class Component extends DCLogic {
     const distVal=Math.round(s.progress*stage.factor); const distUnit=stage.unit; const statLabel=stage.statLabel;
     const curFloor=isGame?s.floor:(isResult&&s.result==='win')?5:Math.max(1,s.floor);
     const zoneName=(stage.zones||[])[curFloor-1]||''; const floorLabel=isStage8?'A NORIENT GAME':((s.stageId===3?'PHASE ':s.stageId===4?'SESSION ':'FLOOR ')+curFloor+'/5');
-    const actionLabel=stage.action; const actionHint=isStage8?'POLARA’yı selamla — bir kez RO! ✦':stage.hint;
+    const actionLabel=stage.action; const actionHint=isStage8?'Salute POLARA — one RO! ✦':stage.hint;
     const barFrom=stage.from; const barTo=stage.to; const stageIcon=stage.icon;
     // per-stage start briefing
     const introStageTag='STAGE '+s.stageId+' / '+this.STAGES.length;
@@ -2580,9 +2580,9 @@ class Component extends DCLogic {
     const polBar3=Object.assign({},polBarBase,{left:'65%',height:'32%',background:'linear-gradient(180deg,#8fe8c0,#3fb6c9)',boxShadow:'0 0 10px rgba(125,227,176,.8)'});
     const polTitle={fontFamily:"var(--display,'Anton')",fontSize:'40px',letterSpacing:'10px',color:'#eaf7ff',textShadow:'0 0 18px rgba(125,227,176,.9),0 0 42px rgba(201,162,255,.5),0 3px 0 rgba(0,0,0,.4)',lineHeight:1,marginLeft:'6px'};
     const polSub={fontSize:'9.5px',letterSpacing:'4px',color:'#8ff0c0',opacity:.95,marginTop:'7px',fontFamily:"var(--display,'Anton')"};
-    const polTag={fontFamily:"var(--display,'Anton')",fontSize:'16px',letterSpacing:'2px',color:'var(--gold,#ffcb05)',margin:'13px 0 11px',textShadow:'0 0 12px rgba(255,203,5,.5)'};
+    const polTag={fontFamily:"var(--display,'Anton')",fontSize:'15px',letterSpacing:'1.5px',color:'var(--gold,#ffcb05)',margin:'13px 0 11px',textShadow:'0 0 12px rgba(255,203,5,.5)'};
     const polFeatStyle={fontSize:'11.5px',color:'#dfe9f2',lineHeight:1.75,letterSpacing:'.2px'};
-    const polFeats= isStage8?['Tek parmak: basılı tut — yüksel, bırak — süzül','Işık halkalarından geç · Coşku Modu ×2','Meteor yağmuru · güneş fırtınası · buz sisi','Işık Mağazası · 15 başarım · 16 rütbe']:[];
+    const polFeats= isStage8?['One finger: hold to rise — release to glide','Fly through light rings · Frenzy Mode ×2','Meteor showers · solar storms · ice fog','Light Shop · 15 medals · 16 ranks · world board']:[];
     const polSoon={display:'inline-block',marginTop:'13px',padding:'8px 18px',borderRadius:'999px',border:'1.5px solid rgba(143,240,192,.65)',color:'#8ff0c0',fontFamily:"var(--display,'Anton')",fontSize:'13px',letterSpacing:'3px',background:'rgba(125,227,176,.10)',boxShadow:'0 0 16px rgba(125,227,176,.35)',animation:'zonePulse 2.2s ease-in-out infinite'};
     const polBrand={marginTop:'12px',fontSize:'8.5px',letterSpacing:'2.5px',color:'#9fb0c2',opacity:.85};
     // ===== Victory Parade scene (stage 7) — Karl Johans gate =====
