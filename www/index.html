@@ -144,6 +144,7 @@
   @keyframes waveT64{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,64px,0)}}
   @keyframes waveT40{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,40px,0)}}
   @keyframes glintT{from{transform:translate3d(0,0,0)}to{transform:translate3d(0,190px,0)}}
+  @keyframes confDrift{from{transform:translate3d(0,0,0)}to{transform:translate3d(-24px,240px,0)}}
   @keyframes rainT{from{transform:translate3d(0,0,0)}to{transform:translate3d(-50px,260px,0)}}
   @keyframes beamSway{from{transform:rotate(18deg)}to{transform:rotate(34deg)}}
   @keyframes foamPulse{0%,100%{opacity:.45;transform:translateX(-50%) scaleY(1)}50%{opacity:.8;transform:translateX(-50%) scaleY(1.08)}}
@@ -738,6 +739,43 @@
         <sc-for list="{{ ballItems }}" as="ball" hint-placeholder-count="0"><div style="{{ ball.style }}"></div></sc-for>
       </sc-if>
 
+      <!-- ===== Stage 7: VICTORY PARADE — Karl Johans gate, Oslo ===== -->
+      <sc-if value="{{ isStage7 }}" hint-placeholder-val="{{ false }}">
+        <div style="{{ paradeBgStyle }}"></div>
+        <div style="{{ paradeStreetStyle }}"></div>
+        <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:5">
+          <div ref="{{ fansRef }}" style="position:absolute;inset:0">
+            <sc-for list="{{ crowdFans }}" as="f" hint-placeholder-count="0">
+              <div class="roArm roAL" style="{{ f.armL }}"></div>
+              <div class="roArm roAR" style="{{ f.armR }}"></div>
+              <div style="{{ f.shoulders }}"></div>
+              <div style="{{ f.scarf }}"></div>
+              <div class="roArm roHL" style="{{ f.handL }}"></div>
+              <div class="roArm roHR" style="{{ f.handR }}"></div>
+              <div style="{{ f.neck }}"></div><div style="{{ f.head }}"></div><div style="{{ f.earL }}"></div><div style="{{ f.earR }}"></div><div style="{{ f.hair }}"></div><div style="{{ f.pom }}"></div>
+            </sc-for>
+          </div>
+          <div style="{{ busWrap }}">
+            <div style="{{ busShadow }}"></div>
+            <sc-for list="{{ busPlayers }}" as="bp" hint-placeholder-count="0">
+              <div class="roArm roAL" style="{{ bp.armL }}"></div>
+              <div class="roArm roAR" style="{{ bp.armR }}"></div>
+              <div style="{{ bp.body }}"></div>
+              <div style="{{ bp.head }}"></div>
+              <div style="{{ bp.hair }}"></div>
+            </sc-for>
+            <div style="{{ busRail }}"></div>
+            <div style="{{ busBody }}"></div>
+            <div style="{{ busBand }}">NORGE · CHAMPIONS</div>
+            <sc-for list="{{ busWin }}" as="bw" hint-placeholder-count="0"><div style="{{ bw }}"></div></sc-for>
+            <div style="{{ busWheelL }}"></div>
+            <div style="{{ busWheelR }}"></div>
+            <div style="{{ busTrophyStyle }}">🏆</div>
+          </div>
+        </div>
+        <div style="{{ paradeConfettiStyle }}"></div>
+      </sc-if>
+
       <!-- ambient sea life (imperative layer — no re-render per spawn) -->
       <div ref="{{ seaLifeRef }}" style="position:absolute;inset:0;pointer-events:none"></div>
       <!-- cinematic light: top key light + corner vignette (static, compositor-cheap) -->
@@ -847,9 +885,9 @@
     <!-- ===================== RO BUTTON ===================== -->
     <sc-if value="{{ isGame }}" hint-placeholder-val="{{ true }}">
     <div style="position:absolute;left:0;right:0;bottom:0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));background:linear-gradient(transparent,rgba(0,0,0,.55) 32%,rgba(0,0,0,.72));z-index:55">
-      <sc-if value="{{ isStage4 }}" hint-placeholder-val="{{ false }}">
+      <sc-if value="{{ showRedTimer }}" hint-placeholder-val="{{ false }}">
       <div style="display:flex;align-items:center;gap:10px;max-width:340px;margin:0 auto 10px">
-        <div style="font-family:var(--display,'Anton');font-size:10px;letter-spacing:1px;color:#fff;line-height:1.05;white-space:nowrap;text-shadow:0 1px 6px rgba(0,0,0,.9)">HIT THE<br>RED</div>
+        <div style="font-family:var(--display,'Anton');font-size:10px;letter-spacing:1px;color:#fff;line-height:1.05;white-space:nowrap;text-shadow:0 1px 6px rgba(0,0,0,.9)">{{ redLbl1 }}<br>{{ redLbl2 }}</div>
         <div style="position:relative;flex:1;height:14px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.25);border-radius:8px;overflow:hidden">
           <div ref="{{ redBarRef }}" style="position:absolute;left:0;top:0;bottom:0;width:100%;background:linear-gradient(90deg,#7d0820,#ba0c2f);box-shadow:0 0 8px rgba(186,12,47,.7)"></div>
         </div>
@@ -1215,7 +1253,8 @@ class Component extends DCLogic {
     {id:3,name:'WAKE THE KING',sub:'Oslo · Palace',icon:'👑',action:'RO!',hint:'Do RO with the fans outside the palace — wake the king from his sleep!',from:'ASLEEP',to:'AWAKE',zones:['SILENCE','FIRST CHEER','CHANT','ROAR','AWAKE'],factor:1,statLabel:'WAKE',unit:'%',winIcon:'👑',winTitle:'THE KING IS AWAKE!',winSub:'All of Oslo on its feet — RO!',loseIcon:'😴',loseTitle:'THE KING SLEEPS',loseSub:'Not loud enough — try again!',floorMsg:['','','FIRST CHEER 📣|Palace lights came on','CHANT BEGAN 🎶|The king stirred','ROAR ERUPTED 🔊|Curtains parted','KING AT THE WINDOW 👑|Final push, hit RO!'],wind:['CHANT! 🎶','The sound rose']},
     {id:4,name:'STORTINGET',sub:'Oslo · Parliament',icon:'🏛️',action:'RO!',hint:'Do RO in the chamber — hit the RED (PERFECT) within 5s, or lose a shield!',from:'0 VOTES',to:'169 VOTES',zones:['SILENT SESSION','FIRST SUPPORT','BENCHES ROARING','STANDING OVATION','UNANIMOUS'],factor:1.69,statLabel:'AYE VOTES',unit:'votes',winIcon:'🏛️',winTitle:'PASSED UNANIMOUSLY!',winSub:'Stortinget backed Norway — 169 MPs on their feet!',loseIcon:'🪑',loseTitle:'SESSION COLLAPSED',loseSub:'Not enough support gathered — try again!',floorMsg:['','','FIRST SUPPORT 📣|Front benches stood up','BENCHES ROARING 🎶|MPs joined the tempo','STANDING OVATION 👏|The majority is up','PRESIDENT AT THE ROSTRUM 🔨|Final push — unanimous!'],wind:['PRESIDENT BANGED THE GAVEL! 🔨','Support rose · +votes']},
     {id:5,name:'TIMES SQUARE',sub:'New York · USA',icon:'🗽',action:'RO!',hint:'The gold zone is tighter and the sweep is faster here. Keep the RO chant rolling — when the jumbotron puts you ON THE BIG SCREEN, every hit scores ×2, but miss and the camera cuts away!',from:'EMPTY SQUARE',to:'FULL SQUARE',zones:['FIRST FANS','GATHERING','THE CHANT','SQUARE ROARS','TIMES SQUARE RO!'],factor:500,statLabel:'FANS',unit:'fans',winIcon:'🗽',winTitle:'TIMES SQUARE IS OURS!',winSub:'New York turned red, white & blue — RO!',loseIcon:'📻',loseTitle:'THE CHANT FELL APART',loseSub:'The crowd drifted away — try again!',floorMsg:['','','GATHERING 🚩|More fans pour into the square','THE CHANT 🎶|The billboards lit up','SQUARE ROARS 🔊|7th Avenue shut down','THE WHOLE SQUARE! 🗽|Final push — make New York RO!'],wind:['THE SCREENS LIT UP! 📺','The square joined in · +fans']},
-    {id:6,name:'STADIUM RO',sub:'Road to the Cup',icon:'⚽',action:'RO!',hint:'Tap RO! while the sweeping line is in the gold zone — every 3 hits score 1 GOAL! Miss and the opponent scores, costing a shield. Lead when time runs out to advance. Quarter 45s · Semi 60s · Final 90s. Also hit RO before the 5s RO bar below empties, or the opponent scores! Score resets each round; your shields carry over.',from:'QUARTER',to:'CUP',zones:['WARM-UP','FIRST GOAL','PRESSURE','FRENZY','THE CUP'],factor:1,statLabel:'TOTAL GOALS',unit:'goals',winIcon:'🏆',winTitle:'THE CUP IS YOURS!',winSub:'Norway won the final — the stands roared with RO!',loseIcon:'🥅',loseTitle:'ELIMINATED',loseSub:'Time ran out or the opponent took the lead — try again!',floorMsg:[],wind:['STANDS ON THEIR FEET! 📣','The wave began'],rounds:[{label:'QUARTER-FINAL',opp:'ARGENTINA',oppShort:'ARG',flag:'assets/flags/ar.png',secs:45},{label:'SEMI-FINAL',opp:'SPAIN',oppShort:'ESP',flag:'assets/flags/es.png',secs:60},{label:'FINAL',opp:'FRANCE',oppShort:'FRA',flag:'assets/flags/fr.png',secs:90}]}
+    {id:6,name:'STADIUM RO',sub:'Road to the Cup',icon:'⚽',action:'RO!',hint:'Tap RO! while the sweeping line is in the gold zone — every 3 hits score 1 GOAL! Miss and the opponent scores, costing a shield. Lead when time runs out to advance. Quarter 45s · Semi 60s · Final 90s. Also hit RO before the 5s RO bar below empties, or the opponent scores! Score resets each round; your shields carry over.',from:'QUARTER',to:'CUP',zones:['WARM-UP','FIRST GOAL','PRESSURE','FRENZY','THE CUP'],factor:1,statLabel:'TOTAL GOALS',unit:'goals',winIcon:'🏆',winTitle:'THE CUP IS YOURS!',winSub:'Norway won the final — the stands roared with RO!',loseIcon:'🥅',loseTitle:'ELIMINATED',loseSub:'Time ran out or the opponent took the lead — try again!',floorMsg:[],wind:['STANDS ON THEIR FEET! 📣','The wave began'],rounds:[{label:'QUARTER-FINAL',opp:'ARGENTINA',oppShort:'ARG',flag:'assets/flags/ar.png',secs:45},{label:'SEMI-FINAL',opp:'SPAIN',oppShort:'ESP',flag:'assets/flags/es.png',secs:60},{label:'FINAL',opp:'FRANCE',oppShort:'FRA',flag:'assets/flags/fr.png',secs:90}]},
+    {id:7,name:'VICTORY PARADE',sub:'Oslo · Karl Johans gate',icon:'🚌',action:'RO!',hint:'The champions are on the open-top bus and 100,000 fans line Karl Johans gate! Hardest stage: the gold zone DRIFTS up and down, the sweep is the fastest yet — and keep the chant alive by hitting the zone within 5s, or lose a shield!',from:'SENTRUM',to:'SLOTTET',zones:['JERNBANETORGET','KARL JOHAN','UNIVERSITETET','GRAND HOTEL','SLOTTSPARKEN'],factor:12,statLabel:'PARADE',unit:'m',winIcon:'🎉',winTitle:'HOME AT THE PALACE!',winSub:'100,000 fans sang RO all the way to Slottet!',loseIcon:'🚌',loseTitle:'THE PARADE STALLED',loseSub:'The chant faded and the bus stopped — try again!',floorMsg:['','','KARL JOHANS GATE 🚩|The street is packed — watch the drifting zone!','UNIVERSITETET 🎓|The chant speeds up','GRAND HOTEL 🏨|Confetti rain — keep the tempo','SLOTTSPARKEN 🌳|Final stretch — the King awaits!'],wind:['CONFETTI CANNONS! 🎉','The whole street chants · +meters']}
   ];
   COUNTRIES=[
     ['NO','Norway'],['US','United States'],['TR','Türkiye'],['GB','England'],['ES','Spain'],['DE','Germany'],['FR','France'],['BR','Brazil'],
@@ -1289,7 +1328,7 @@ class Component extends DCLogic {
     this._tick=setInterval(()=>{
       if(this.state.screen==='game' && this.state.stageId!==6 && this.state.tier===2 && Math.random()<0.18){ this.flash('#dfe9ff',150); this.sfx('thunder'); }
     },900);
-    try{ const im=new Image(); im.src='assets/fjord-bg.webp'; if(im.decode) im.decode().catch(()=>{}); this._fjordImg=im; }catch(e){}
+    try{ const im=new Image(); im.src='assets/fjord-bg.webp'; if(im.decode) im.decode().catch(()=>{}); this._fjordImg=im; const im2=new Image(); im2.src='assets/parade-bg.webp'; if(im2.decode) im2.decode().catch(()=>{}); this._paradeImg=im2; }catch(e){}
     this.loadRo();
     this._last=performance.now();
     this._loop=setInterval(()=>{
@@ -1301,7 +1340,7 @@ class Component extends DCLogic {
       this._spawnAcc=(this._spawnAcc||0)+dt;
       const spawnEvery=st.tier===1?2.0:st.tier===2?1.6:2.6;
       if(this._spawnAcc>spawnEvery){ this._spawnAcc=0; const slh=this.seaLifeRef&&this.seaLifeRef.current; if(slh&&slh.childElementCount<3) this.spawnSeaLife(); }
-      if(st.stageId===4 && !st.intro){ this._redMs=(this._redMs==null?5000:this._redMs)-dt*1000; if(this._redMs<=0){ this._redMs=5000; this.redTimeout(); } this._paintRed(); }
+      if((st.stageId===4||st.stageId===7) && !st.intro){ this._redMs=(this._redMs==null?5000:this._redMs)-dt*1000; if(this._redMs<=0){ this._redMs=5000; this.redTimeout(); } this._paintRed(); }
       if(st.stageId===5 && !st.intro){
         this._bsAcc=(this._bsAcc||0)+dt;
         if(!st.bigScreen){ if(this._bsAcc>=(this._bsNext||6)){ this.startBigScreen(); } }
@@ -1331,7 +1370,8 @@ class Component extends DCLogic {
     3:{bpm:70,bass:[33,33,29,29,31,31,28,28],wave:'sine',bvol:.08,mel:[[69,1],[72,1],[76,2],[74,1],[72,1],[71,2],[69,1],[72,1],[76,1],[79,1],[77,2],[76,2]],mvol:.05,mwave:'sine',drum:null},
     4:{bpm:96,bass:[29,29,34,34,31,31,36,36],wave:'sawtooth',bvol:.03,mel:[[65,1],[65,.5],[67,.5],[69,1],[70,1],[72,2],[69,1],[65,1],[74,1],[72,.5],[70,.5],[69,1],[67,1],[65,2],[60,1],[65,1]],mvol:.035,mwave:'sawtooth',drum:'march'},
     5:{bpm:128,bass:[33,45,33,45,31,43,36,48],wave:'sawtooth',bvol:.032,mel:[[69,.5],[0,.5],[76,.5],[74,.5],[72,.5],[69,.5],[0,.5],[72,.5],[74,.5],[0,.5],[77,.5],[76,.5],[74,.5],[72,.5],[74,.5],[76,.5]],mvol:.035,mwave:'square',drum:'city'},
-    6:{bpm:92,bass:[28,28,28,28,26,26,31,31],wave:'triangle',bvol:.085,mel:[[64,1],[0,.5],[64,.5],[67,1],[64,1],[62,1],[60,1],[62,2],[64,1],[0,.5],[64,.5],[67,1],[69,1],[67,1],[64,3]],mvol:.045,mwave:'sawtooth',drum:'stadium',crowd:true}
+    6:{bpm:92,bass:[28,28,28,28,26,26,31,31],wave:'triangle',bvol:.085,mel:[[64,1],[0,.5],[64,.5],[67,1],[64,1],[62,1],[60,1],[62,2],[64,1],[0,.5],[64,.5],[67,1],[69,1],[67,1],[64,3]],mvol:.045,mwave:'sawtooth',drum:'stadium',crowd:true},
+    7:{bpm:132,bass:[36,36,41,41,43,43,45,45],wave:'square',bvol:.045,mel:[[76,.5],[76,.5],[77,.5],[79,.5],[79,.5],[77,.5],[76,.5],[74,.5],[72,.5],[72,.5],[74,.5],[76,.5],[76,1],[74,.5],[74,1.5],[76,.5],[76,.5],[77,.5],[79,.5],[79,.5],[77,.5],[76,.5],[74,.5],[72,.5],[72,.5],[74,.5],[76,.5],[74,1],[72,.5],[72,1.5]],mvol:.05,mwave:'square',drum:'stadium',crowd:true}
   };
   mfreq(m){ return 440*Math.pow(2,(m-69)/12); }
   _musVol(){ return Math.max(0,(this.props.muzikSes??40))/32; }
@@ -1496,7 +1536,7 @@ class Component extends DCLogic {
 
   // ---------- difficulty ----------
   floorOf(p){ return Math.min(5,Math.floor(p/20)+1); }
-  diff(p,ro){ const floor=this.floorOf(p); const e=Math.min(1,Math.max(0,p/100)); let zoneWidth=28-15*e, speedDur=1.75-1.25*e; if(this.state&&this.state.stageId===5){ zoneWidth=21-11*e; speedDur=1.5-0.9*e; } if(this.state&&this.state.stageId===6){ const r=(ro!=null?ro:(this.state.round||0)); zoneWidth=19-4*r; speedDur=1.2-0.24*r; const t=r===0?0:r===1?1:2; return {zoneWidth,speedDur,tier:t,floor}; } speedDur=Math.round(speedDur*10)/10; let tier=floor<=1?0:floor===2?1:floor>=5?3:2; return {zoneWidth,speedDur,tier,floor}; }
+  diff(p,ro){ const floor=this.floorOf(p); const e=Math.min(1,Math.max(0,p/100)); let zoneWidth=28-15*e, speedDur=1.75-1.25*e; if(this.state&&this.state.stageId===5){ zoneWidth=21-11*e; speedDur=1.5-0.9*e; } if(this.state&&this.state.stageId===6){ const r=(ro!=null?ro:(this.state.round||0)); zoneWidth=19-4*r; speedDur=1.2-0.24*r; const t=r===0?0:r===1?1:2; return {zoneWidth,speedDur,tier:t,floor}; } if(this.state&&this.state.stageId===7){ zoneWidth=13-5*e; speedDur=Math.round((1.0-0.3*e)*10)/10; const t7=floor<=1?0:floor>=5?3:1; return {zoneWidth,speedDur,tier:t7,floor}; } speedDur=Math.round(speedDur*10)/10; let tier=floor<=1?0:floor===2?1:floor>=5?3:2; return {zoneWidth,speedDur,tier,floor}; }
   rollZone(width){ const max=96-width-4; return Math.round(4+Math.random()*max); }
 
   // ---------- flow ----------
@@ -1602,7 +1642,7 @@ class Component extends DCLogic {
       // Restore stage progression from the cloud scores: a recorded score means
       // that stage was won, so the next one must be open on this device too.
       let unl=this.state.unlocked||1;
-      for(const k in scores){ const st=+k; if(st>=1&&st<=6&&scores[k]>0) unl=Math.max(unl,Math.min(6,st+1)); }
+      for(const k in scores){ const st=+k; if(st>=1&&st<=7&&scores[k]>0) unl=Math.max(unl,Math.min(7,st+1)); }
       try{localStorage.setItem('ro_unlocked2',String(unl));}catch(e){}
       this.setState(s=>{ const profiles=[...s.profiles.filter(p=>p.id!==id),prof]; this._persistProfiles(profiles); try{localStorage.setItem('ro_currentId',id);}catch(e){} return {profiles,currentId:id,unlocked:Math.max(s.unlocked||1,unl),screen:'menu',authErr:'',authBusy:false,nameErr:false}; });
       lb.setProfile({id,name,countryCode:country.code});
@@ -1822,7 +1862,7 @@ class Component extends DCLogic {
     this.roShout();
     this.sfx(kind); this.buzz(kind==='perfect'?[20,30,20]:20);
     if(kind==='perfect') this.flash('var(--gold,#ffcb05)',140);
-    if(this.state.stageId===4){ this._redMs=5000; this._paintRed(); }
+    if(this.state.stageId===4||this.state.stageId===7){ this._redMs=5000; this._paintRed(); }
     const c=this.state.combo+1; if(c>0&&c%5===0){ this.sfx('combo'); this.addPop('×'+c+' COMBO!','perfect'); }
   }
   doMiss(){
@@ -1837,7 +1877,7 @@ class Component extends DCLogic {
       if(shields<=0){ next.screen='result'; next.result='lose'; this._save(progress,s.maxCombo); setTimeout(()=>this.sfx('lose'),60); setTimeout(()=>this.recordLoss(),60); }
       return next;
     });
-    if(this.state.stageId===4){ this._redMs=5000; this._paintRed(); }
+    if(this.state.stageId===4||this.state.stageId===7){ this._redMs=5000; this._paintRed(); }
   }
   _save(dist,combo){ this.setState(s=>{ const best={dist:Math.max(s.best.dist,dist),combo:Math.max(s.best.combo,combo)}; try{localStorage.setItem('ro_best_dist',best.dist);localStorage.setItem('ro_best_combo',best.combo);}catch(e){} return {best}; }); }
   _paintRed(){ const ms=Math.max(0,this._redMs==null?5000:this._redMs); const b=this.redBarRef&&this.redBarRef.current; const n=this.redNumRef&&this.redNumRef.current; const low=ms<2000; const w=(ms/5000*100).toFixed(1)+'%'; if(b&&(b.__w!==w||b.__lo!==low)){ b.__w=w; b.__lo=low; b.style.width=w; b.style.background=low?'linear-gradient(90deg,#ffce2b,#ba0c2f)':'linear-gradient(90deg,#7d0820,#ba0c2f)'; } const sec=Math.ceil(ms/1000); if(n&&(n.__s!==sec||n.__lo!==low)){ n.__s=sec; n.__lo=low; n.textContent=sec; n.style.color=low?'#ff5252':'var(--gold,#ffcb05)'; } }
@@ -1907,7 +1947,7 @@ class Component extends DCLogic {
   renderVals(){
     const s=this.state; const th=this.theme(s.skin);
     const stage=this.STAGES[s.stageId-1]||this.STAGES[0];
-    const isStage1=s.stageId===1, isStage2=s.stageId===2;
+    const isStage1=s.stageId===1, isStage2=s.stageId===2; const isStage7=s.stageId===7;
     const isGame=s.screen==='game', isMenu=s.screen==='menu', isResult=s.screen==='result', isStages=s.screen==='stages', isSplash=s.screen==='splash';
     const sFloor=isGame?s.floor:isMenu?1:(isResult?(s.result==='win'?5:Math.max(1,s.floor)):1);
     const sceneTier=Math.max(0,Math.min(4,sFloor-1));
@@ -1931,7 +1971,7 @@ class Component extends DCLogic {
     // ---- vertical skill bar ----
     // Zone + red core are positioned with transform (not top) so the post-hit
     // glide runs on the compositor — smooth even when the main thread is busy.
-    const _zDrift=(s.stageId===6 && (s.round||0)>=1);
+    const _zDrift=(s.stageId===6 && (s.round||0)>=1) || s.stageId===7;
     const zoneBg='linear-gradient(180deg,rgba(255,210,62,.55),rgba(255,203,5,.85) 50%,rgba(255,210,62,.55))';
     const perfBg='linear-gradient(180deg,#ff5a4e,#df2b23 50%,#c01a1a)';
     const zoneSh='0 0 14px rgba(255,203,5,.55), inset 0 0 8px rgba(255,255,255,.35)';
@@ -1940,7 +1980,7 @@ class Component extends DCLogic {
     const zoneTrans='transform .34s cubic-bezier(.3,.8,.25,1)';
     let zoneStyle, perfectStyle;
     if(_zDrift){
-      const zd='zoneDrift '+((s.round||0)>=2?1.1:1.6)+'s ease-in-out infinite';
+      const zd='zoneDrift '+(s.stageId===7?((s.floor||1)>=4?1.0:1.4):((s.round||0)>=2?1.1:1.6))+'s ease-in-out infinite';
       zoneStyle={position:'absolute',left:0,right:0,top:s.zoneLeft+'%',height:s.zoneWidth+'%',background:zoneBg,borderTop:'2px solid #f0b400',borderBottom:'2px solid #f0b400',boxShadow:zoneSh,animation:zd};
       perfectStyle={position:'absolute',left:0,right:0,top:pl+'%',height:pw+'%',background:perfBg,boxShadow:perfSh,animation:zd};
     } else {
@@ -2453,16 +2493,18 @@ class Component extends DCLogic {
     const kingBannerStyle={position:'absolute',left:'50%',top:'8%',transform:'translateX(-50%)',padding:'7px 16px',background:'rgba(20,12,30,.78)',border:'2px solid var(--gold,#ffcb05)',borderRadius:'12px',color:'#fff',fontFamily:"var(--display,'Anton')",letterSpacing:'1px',zIndex:15,whiteSpace:'nowrap',boxShadow:'0 6px 18px rgba(0,0,0,.5)'};
     // ---- packed supporter crowd doing RO ----
     const isStage5=s.stageId===5;
-    let crowdFans=(isStage3||isStage5)?((this._cfKey===s.stageId&&this._cfVal)?this._cfVal:null):[];
+    let crowdFans=(isStage3||isStage5||isStage7)?((this._cfKey===s.stageId&&this._cfVal)?this._cfVal:null):[];
     if(crowdFans===null){ crowdFans=[];
       const jersey=['#ba0c2f','#ba0c2f','#00205b','#e9ecf2','#ba0c2f','#1a4a8a','#ba0c2f','#e9ecf2'];
       const hairC=['#3a2a1c','#6b4a2a','#d8b878','#241811','#8a5a2b','#caa15a'];
       const rowsCfg = isStage5
         ? [{b:35.5,sc:0.42,n:17},{b:29,sc:0.5,n:15},{b:22.5,sc:0.6,n:13},{b:15.5,sc:0.73,n:12},{b:7.5,sc:0.88,n:10},{b:-2,sc:1.06,n:9}]
+        : isStage7
+        ? [{b:49,sc:0.34,n:24},{b:44.5,sc:0.40,n:22},{b:39.5,sc:0.47,n:20},{b:34,sc:0.55,n:18},{b:28,sc:0.65,n:16},{b:21,sc:0.77,n:15},{b:13,sc:0.90,n:13},{b:3.5,sc:1.04,n:12}]
         : [{b:40,sc:0.40,n:22},{b:34.5,sc:0.46,n:20},{b:29,sc:0.53,n:18},{b:23,sc:0.62,n:16},{b:16.5,sc:0.74,n:14},{b:9,sc:0.87,n:12},{b:0.5,sc:1.0,n:10}];
       let idx=0;
       rowsCfg.forEach((row,ri)=>{ const b=row.b, sc=row.sc, n=row.n; const off=(ri%2)?(46/n):0;
-        for(let i=0;i<n;i++){ const leftPct=(isStage5?1:4)+i*((isStage5?98:92)/(n-1))+(off*((i%2)?0.5:-0.5)); const z=10+ri*5+i;
+        for(let i=0;i<n;i++){ const leftPct=((isStage5||isStage7)?1:4)+i*(((isStage5||isStage7)?98:92)/(n-1))+(off*((i%2)?0.5:-0.5)); const z=10+ri*5+i;
           const shW=44*sc, shH=24*sc, hd=18*sc, aw=8*sc, al=23*sc;
           const jc=jersey[idx%jersey.length]; const hc=hairC[(idx*3+ri)%hairC.length];
           const skins=['#eac394','#dcae7f','#c68f5e','#a9713f','#8a5a30','#f0d0a8'];
@@ -2497,6 +2539,33 @@ class Component extends DCLogic {
       this._cfKey=s.stageId; this._cfVal=crowdFans;
     }
 
+    // ===== Victory Parade scene (stage 7) — Karl Johans gate =====
+    const paradeBgStyle= isStage7?{position:'absolute',inset:0,backgroundImage:'url("assets/parade-bg.webp")',backgroundSize:'cover',backgroundPosition:'center'}:{display:'none'};
+    const paradeStreetStyle= isStage7?{position:'absolute',left:0,right:0,bottom:0,height:'56%',zIndex:2,clipPath:'polygon(16% 0,84% 0,116% 100%,-16% 100%)',background:'radial-gradient(3px 3px at 10% 20%,rgba(240,220,200,.5) 40%,transparent 60%),radial-gradient(3px 3px at 42% 66%,rgba(230,120,120,.4) 40%,transparent 60%),radial-gradient(3px 3px at 76% 34%,rgba(240,236,242,.4) 40%,transparent 60%),radial-gradient(3px 3px at 58% 12%,rgba(220,90,90,.42) 40%,transparent 60%),radial-gradient(3px 3px at 26% 88%,rgba(70,90,150,.5) 40%,transparent 60%),radial-gradient(3px 3px at 90% 78%,rgba(240,220,200,.4) 40%,transparent 60%),linear-gradient(180deg,#57303a 0%,#4a2731 40%,#3a1e28 100%)',backgroundSize:'26px 26px,26px 26px,26px 26px,26px 26px,26px 26px,26px 26px,100% 100%'}:{display:'none'};
+    const paradeConfettiStyle= isStage7?{position:'absolute',left:0,right:0,top:'-240px',bottom:0,zIndex:26,pointerEvents:'none',opacity:.9,backgroundImage:'radial-gradient(3px 5px at 12% 10%,#ffd23e 40%,transparent 60%),radial-gradient(3px 5px at 34% 46%,#d43a47 40%,transparent 60%),radial-gradient(2.5px 4px at 55% 22%,#e9ecf2 40%,transparent 60%),radial-gradient(3px 5px at 72% 64%,#4a6cb3 40%,transparent 60%),radial-gradient(2.5px 4px at 88% 34%,#ffd23e 40%,transparent 60%),radial-gradient(2px 4px at 22% 78%,#e9ecf2 40%,transparent 60%),radial-gradient(3px 5px at 64% 90%,#d43a47 40%,transparent 60%)',backgroundSize:'180px 240px',animation:'confDrift 3.4s linear infinite',willChange:'transform'}:{display:'none'};
+    const busWrap= isStage7?{position:'absolute',left:'20%',width:'60%',bottom:'13.5%',height:'29%',zIndex:38,animation:'bob 3s ease-in-out infinite'}:{display:'none'};
+    const busShadow={position:'absolute',left:'2%',right:'2%',bottom:'-2.5%',height:'7%',borderRadius:'50%',background:'radial-gradient(ellipse,rgba(0,0,0,.55),transparent 70%)'};
+    const busRail={position:'absolute',left:'3%',right:'3%',bottom:'52%',height:'13%',background:'repeating-linear-gradient(90deg,#e8dbc2 0 3px,transparent 3px 12px),linear-gradient(180deg,rgba(232,219,194,0) 0 78%,#e8dbc2 78%)',zIndex:4};
+    const busBody={position:'absolute',left:0,right:0,bottom:'6%',height:'48%',background:'linear-gradient(180deg,#d8324a 0%,#b01230 46%,#8c0c24 100%)',borderRadius:'16px 16px 10px 10px',boxShadow:'inset 0 4px 6px rgba(255,255,255,.28),inset 0 -8px 12px rgba(0,0,0,.35),0 6px 16px rgba(0,0,0,.45)',zIndex:5};
+    const busBand={position:'absolute',left:0,right:0,bottom:'34%',height:'11%',display:'flex',alignItems:'center',justifyContent:'center',background:'linear-gradient(180deg,#f4efe2,#dcd2ba)',color:'#8c0c24',fontFamily:"var(--display,'Anton')",fontSize:'13px',letterSpacing:'3px',zIndex:6,boxShadow:'inset 0 -2px 3px rgba(0,0,0,.18)'};
+    const busWheelL={position:'absolute',left:'14%',bottom:'0%',width:'13%',aspectRatio:'1',borderRadius:'50%',background:'radial-gradient(circle at 42% 36%,#3a3f47,#14161c 62%)',border:'3px solid #0a0b0f',zIndex:7,boxShadow:'inset 0 2px 3px rgba(255,255,255,.15)'};
+    const busWheelR=Object.assign({},busWheelL,{left:'auto',right:'14%'});
+    const busWin=[]; const busPlayers=[]; const busTrophyStyle= isStage7?{position:'absolute',left:'50%',marginLeft:'-19px',bottom:'74%',fontSize:'34px',zIndex:9,filter:'drop-shadow(0 0 12px rgba(255,210,62,.95)) drop-shadow(0 3px 4px rgba(0,0,0,.5))',animation:'bob 2.2s ease-in-out infinite'}:{display:'none'};
+    if(isStage7){
+      for(let i=0;i<4;i++){ busWin.push({position:'absolute',left:(9+i*22)+'%',bottom:'12%',width:'16%',height:'18%',borderRadius:'5px',background:'linear-gradient(150deg,#5a7089 0%,#33465e 42%,#7d94ac 50%,#2b3c52 58%,#1e2b3c 100%)',border:'2px solid rgba(244,239,226,.85)',zIndex:6}); }
+      const pxs=[10,23,36,50,64,77,90];
+      const skins7=['#f0cda3','#e0b184','#c68f5e','#a9713f','#8a5a30','#f0d0a8','#d8a86f'];
+      const hairs7=['#2a1c12','#5a3d22','#caa15a','#171717','#7a5a3a','#3a2a1c','#8a5a2b'];
+      pxs.forEach((px,i)=>{ const sk=skins7[i%skins7.length], hc=hairs7[(i*3)%hairs7.length];
+        const armBg='linear-gradient(180deg,#c8102e,#7d0820)';
+        busPlayers.push({
+          armL:{position:'absolute',left:'calc('+px+'% - 6.5%)',bottom:'72%',width:'2.6%',height:'13%',background:armBg,borderRadius:'4px',transformOrigin:'50% 100%',transform:'rotate(-24deg)',zIndex:3},
+          armR:{position:'absolute',left:'calc('+px+'% + 4%)',bottom:'72%',width:'2.6%',height:'13%',background:armBg,borderRadius:'4px',transformOrigin:'50% 100%',transform:'rotate(24deg)',zIndex:3},
+          body:{position:'absolute',left:px+'%',bottom:'58%',width:'11%',height:'17%',transform:'translateX(-50%)',background:'radial-gradient(circle at 50% 24%,#e04358,#c8102e 56%,#8c0c24)',borderRadius:'46% 46% 18% 18%',zIndex:3,boxShadow:'0 2px 3px rgba(0,0,0,.4),inset 0 3px 4px rgba(255,255,255,.2)'},
+          head:{position:'absolute',left:px+'%',bottom:'73%',width:'6.4%',aspectRatio:'1',transform:'translateX(-50%)',borderRadius:'50%',background:'radial-gradient(1px 1px at 36% 52%,#241610 60%,transparent 61%),radial-gradient(1px 1px at 64% 52%,#241610 60%,transparent 61%),radial-gradient(circle at 44% 34%,color-mix(in srgb,'+sk+' 80%,#fff 20%),'+sk+' 58%,color-mix(in srgb,'+sk+' 70%,#000))',zIndex:3,boxShadow:'0 2px 3px rgba(0,0,0,.45)'},
+          hair:{position:'absolute',left:px+'%',bottom:'78.5%',width:'6.8%',height:'4.2%',transform:'translateX(-50%)',borderRadius:'50% 50% 34% 34%',background:'radial-gradient(circle at 42% 30%,color-mix(in srgb,'+hc+' 74%,#fff 26%),'+hc+' 56%,color-mix(in srgb,'+hc+' 62%,#000))',zIndex:3}
+        }); });
+    }
     // ===== Times Square scene (stage 5) — New York'ta RO =====
     const tsLit = isStage5 ? Math.min(1, 0.45 + (sFloor-1)/4 * 0.55) : 0;     // billboards brighten with progress
     const tsGlow = (c,a)=>'0 0 '+(6+tsLit*22).toFixed(0)+'px rgba('+c+','+(a*(0.4+tsLit*0.6)).toFixed(2)+')';
@@ -2739,7 +2808,7 @@ class Component extends DCLogic {
     const profilesList=profiles.slice().sort((a,b)=>this._totalOf(b)-this._totalOf(a)).map(p=>({
       id:p.id, name:p.name, flag:this.countryOf(p).flag, total:this._totalOf(p).toLocaleString(), isCurrent:p.id===s.currentId, onSelect:()=>this.selectAccount(p.id), onDelete:()=>this.deleteAccount(p.id)
     }));
-    const stageAbbr=['S1','S2','S3','S4','S5','S6'];
+    const stageAbbr=['S1','S2','S3','S4','S5','S6','S7'];
     const medalOf=(i)=>i===0?'🥇':i===1?'🥈':i===2?'🥉':('#'+(i+1));
     const MEDAL_COLORS=[['#ffd23e','#a06400'],['#d9e2ea','#6d7c8a'],['#e2954a','#7c4a16']];
     const badgeOf=(i)=>{
@@ -2942,6 +3011,8 @@ class Component extends DCLogic {
       seaLifeRef:this.seaLifeRef, eventShow:!!ev, eventToastStyle, eventText:ev?ev.text:'', eventSub:ev?ev.sub:'',
       resultIcon, resultTitle, resultSub, hasNext, nextName:(nextStage&&!nextStage.locked)?nextStage.name:'',
       stageCards, stageName, stageSub, bestComboR:s.best.combo,
+      isStage7, paradeBgStyle, paradeStreetStyle, paradeConfettiStyle, busWrap, busShadow, busRail, busBody, busBand, busWheelL, busWheelR, busWin, busPlayers, busTrophyStyle,
+      showRedTimer:(s.stageId===4||s.stageId===7), redLbl1:(s.stageId===7?'KEEP THE':'HIT THE'), redLbl2:(s.stageId===7?'CHANT':'RED'),
       start:this.start, ro:this.ro, goMenu:this.goMenu, enterMenu:this.enterMenu, goStages:this.goStages, quitStage:this.quitStage, playStage:this.playStage, playCurrent:()=>this.playStage(s.stageId), playNext:()=>this.playStage(s.stageId+1), toggleMute:this.toggleMute,
       stageRef:this.stageRef, shipRef:this.shipRef, oarsRef:this.oarsRef, fansRef:this.fansRef, rowersRef:this.rowersRef, trackRef:this.trackRef,
       zoneRef:this.zoneRef, perfectRef:this.perfectRef, cursorRef:this.cursorRef, flashRef:this.flashRef, comboRef:this.comboRef,
