@@ -1599,7 +1599,12 @@ class Component extends DCLogic {
       const scores={}; if(cloud&&cloud.scores){ for(const k in cloud.scores){ const n=+cloud.scores[k]; if(n>0) scores[+k]=n; } }
       const prof={id,name,country,scores,total:Object.values(scores).reduce((a,b)=>a+b,0),
         bestCombo:(cloud&&cloud.bestCombo)||0,bestTime:(cloud&&cloud.bestTime!=null)?cloud.bestTime:null,createdAt:Date.now()};
-      this.setState(s=>{ const profiles=[...s.profiles.filter(p=>p.id!==id),prof]; this._persistProfiles(profiles); try{localStorage.setItem('ro_currentId',id);}catch(e){} return {profiles,currentId:id,screen:'menu',authErr:'',authBusy:false,nameErr:false}; });
+      // Restore stage progression from the cloud scores: a recorded score means
+      // that stage was won, so the next one must be open on this device too.
+      let unl=this.state.unlocked||1;
+      for(const k in scores){ const st=+k; if(st>=1&&st<=6&&scores[k]>0) unl=Math.max(unl,Math.min(6,st+1)); }
+      try{localStorage.setItem('ro_unlocked2',String(unl));}catch(e){}
+      this.setState(s=>{ const profiles=[...s.profiles.filter(p=>p.id!==id),prof]; this._persistProfiles(profiles); try{localStorage.setItem('ro_currentId',id);}catch(e){} return {profiles,currentId:id,unlocked:Math.max(s.unlocked||1,unl),screen:'menu',authErr:'',authBusy:false,nameErr:false}; });
       lb.setProfile({id,name,countryCode:country.code});
     }).catch(()=>this.setState({authErr:'Could not reach the server — check your connection.',authBusy:false}));
   };
