@@ -867,8 +867,10 @@
       <div ref="{{ trackRef }}" style="position:relative;height:100%;background:linear-gradient(180deg,rgba(255,255,255,.20),rgba(255,255,255,.10) 50%,rgba(255,255,255,.16));border:2px solid rgba(255,255,255,.55);border-radius:26px;overflow:hidden;box-shadow:0 8px 20px rgba(0,10,30,.30),inset 0 1px 3px rgba(255,255,255,.45)">
         <div style="position:absolute;left:0;right:0;top:0;bottom:0;background-image:repeating-linear-gradient(180deg,transparent 0 calc(10% - 1px),rgba(255,255,255,.22) calc(10% - 1px) 10%);pointer-events:none"></div>
         <div style="position:absolute;left:0;right:0;top:50%;height:1px;background:rgba(0,0,0,.12)"></div>
-        <div ref="{{ zoneRef }}" style="{{ zoneStyle }}"></div>
-        <div ref="{{ perfectRef }}" style="{{ perfectStyle }}"></div>
+        <div style="{{ zoneDriftWrap }}">
+          <div ref="{{ zoneRef }}" style="{{ zoneStyle }}"></div>
+          <div ref="{{ perfectRef }}" style="{{ perfectStyle }}"></div>
+        </div>
         <div ref="{{ cursorRef }}" style="{{ cursorStyle }}"><div style="position:absolute;left:2px;top:50%;transform:translateY(-50%);width:17px;height:17px;border-radius:50%;background:radial-gradient(circle at 34% 30%,#ff6a5e,#e0362b 70%);border:2.5px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.45)"></div><div style="position:absolute;left:21px;top:50%;transform:translateY(-50%);width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:7px solid #fff;opacity:.95"></div></div>
       </div>
     </div>
@@ -1450,7 +1452,7 @@ class Component extends DCLogic {
     this._pools=this._pools||{};
     let P=this._pools[key];
     if(!P || !P.length || !P[0].effect.target || !P[0].effect.target.isConnected){
-      P=build()||[]; P.forEach(a=>a.pause()); this._pools[key]=P;
+      P=build()||[]; P.forEach(a=>{ a.pause(); a.onfinish=()=>{ try{ a.pause(); a.currentTime=0; }catch(e){} }; }); this._pools[key]=P;
     }
     return P;
   }
@@ -1509,7 +1511,7 @@ class Component extends DCLogic {
     host.appendChild(el);
     setTimeout(()=>{ try{host.removeChild(el);}catch(e){} },life);
     // keep the layer bounded even under frantic tapping
-    while(host.children.length>14) host.removeChild(host.firstChild);
+    while(host.children.length>20) host.removeChild(host.firstChild);
   }
   addPop(text,kind){
     if(kind==='perfect'){
@@ -1518,19 +1520,19 @@ class Component extends DCLogic {
       this._spawnPop({position:'absolute',left:'50%',bottom:'30%',width:'240px',height:'240px',transform:'translate(-50%,50%)',
         background:'repeating-conic-gradient(from 8deg,rgba(255,210,62,.75) 0deg 9deg,transparent 9deg 30deg)',
         clipPath:'circle(50% at 50% 50%)',webkitMaskImage:'radial-gradient(circle,rgba(0,0,0,.9) 30%,transparent 70%)',
-        animation:'raysKf .9s ease-out forwards'},'',900);
+        animation:'raysKf 1.1s ease-out forwards'},'',1100);
       this._spawnPop({position:'absolute',left:'50%',bottom:'38%',transform:'translate(-50%,0)',fontFamily:"var(--display,'Anton')",
-        fontSize:(String(text||'').length>10?'40px':'54px'),letterSpacing:'2px',color:'#ffd23e',
+        fontSize:(String(text||'').length>10?'44px':'58px'),letterSpacing:'2px',color:'#ffd23e',
         webkitTextStroke:'2.5px #fff',textShadow:'0 4px 0 #a06400,0 8px 18px rgba(0,0,0,.45)',whiteSpace:'nowrap',
-        animation:'burstPop .8s forwards'},text||'PERFECT!',820);
+        animation:'burstPop 1.15s forwards'},text||'PERFECT!',1160);
       return;
     }
     const left=42+Math.random()*16; const color=kind==='miss'?'#ff5252':'#fff';
     this._spawnPop({position:'absolute',left:left+'%',bottom:'46%',transform:'translate(-50%,0)',fontFamily:"var(--display,'Anton')",
-      fontSize:'36px',color,webkitTextStroke:'2px rgba(0,0,0,.35)',whiteSpace:'nowrap',animation:'popKf .8s forwards'},text,820);
+      fontSize:'46px',color,webkitTextStroke:'2px rgba(0,0,0,.35)',whiteSpace:'nowrap',animation:'popKf 1.35s forwards'},text,1360);
   }
-  roShout(){ const n=3+Math.floor(Math.random()*2); for(let i=0;i<n;i++){ const left=10+Math.random()*80; const bottom=(28+Math.random()*50); const size=[20,27,34,41][Math.floor(Math.random()*4)]; const rot=(Math.random()*34-17); const color=Math.random()<0.5?'var(--gold,#ffcb05)':'#fff';
-      this._spawnPop({position:'absolute',left:left+'%',bottom:bottom+'%',transform:'translate(-50%,0) rotate('+rot.toFixed(1)+'deg)',fontFamily:"var(--display,'Anton')",fontSize:size.toFixed(0)+'px',color,webkitTextStroke:'2px rgba(0,0,0,.35)',whiteSpace:'nowrap',animation:'popKf .8s forwards'},'RO',840);
+  roShout(){ const n=3+Math.floor(Math.random()*2); for(let i=0;i<n;i++){ const left=10+Math.random()*80; const bottom=(28+Math.random()*50); const size=[26,34,42,50][Math.floor(Math.random()*4)]; const rot=(Math.random()*34-17); const color=Math.random()<0.5?'var(--gold,#ffcb05)':'#fff';
+      this._spawnPop({position:'absolute',left:left+'%',bottom:bottom+'%',transform:'translate(-50%,0) rotate('+rot.toFixed(1)+'deg)',fontFamily:"var(--display,'Anton')",fontSize:size.toFixed(0)+'px',color,webkitTextStroke:'2px rgba(0,0,0,.35)',whiteSpace:'nowrap',animation:'popKf 1.35s forwards'},'RO',1360);
     }
   }
 
@@ -1978,15 +1980,12 @@ class Component extends DCLogic {
     const perfSh='0 0 12px rgba(224,54,43,.75), inset 0 1px 3px rgba(255,255,255,.4)';
     const pw=s.zoneWidth*0.38, pl=s.zoneLeft+(s.zoneWidth-pw)/2;
     const zoneTrans='transform .34s cubic-bezier(.3,.8,.25,1)';
-    let zoneStyle, perfectStyle;
-    if(_zDrift){
-      const zd='zoneDrift '+(s.stageId===7?((s.floor||1)>=4?1.0:1.4):((s.round||0)>=2?1.1:1.6))+'s ease-in-out infinite';
-      zoneStyle={position:'absolute',left:0,right:0,top:s.zoneLeft+'%',height:s.zoneWidth+'%',background:zoneBg,borderTop:'2px solid #f0b400',borderBottom:'2px solid #f0b400',boxShadow:zoneSh,animation:zd};
-      perfectStyle={position:'absolute',left:0,right:0,top:pl+'%',height:pw+'%',background:perfBg,boxShadow:perfSh,animation:zd};
-    } else {
-      zoneStyle={position:'absolute',left:0,right:0,top:0,height:s.zoneWidth+'%',transform:'translateY('+(s.zoneLeft/s.zoneWidth*100).toFixed(2)+'%)',transition:zoneTrans,willChange:'transform',background:zoneBg,borderTop:'2px solid #f0b400',borderBottom:'2px solid #f0b400',boxShadow:zoneSh};
-      perfectStyle={position:'absolute',left:0,right:0,top:0,height:pw+'%',transform:'translateY('+(pl/pw*100).toFixed(2)+'%)',transition:zoneTrans,willChange:'transform',background:perfBg,boxShadow:perfSh};
-    }
+    // Drift rides a wrapper layer, so the zone keeps its compositor glide to
+    // the re-rolled spot in every stage (drift + smooth transition combined).
+    const zoneDriftWrap={position:'absolute',inset:0,pointerEvents:'none'};
+    if(_zDrift){ zoneDriftWrap.animation='zoneDrift '+(s.stageId===7?((s.floor||1)>=4?1.0:1.4):((s.round||0)>=2?1.1:1.6))+'s ease-in-out infinite'; zoneDriftWrap.willChange='transform'; }
+    const zoneStyle={position:'absolute',left:0,right:0,top:0,height:s.zoneWidth+'%',transform:'translateY('+(s.zoneLeft/s.zoneWidth*100).toFixed(2)+'%)',transition:zoneTrans,willChange:'transform',background:zoneBg,borderTop:'2px solid #f0b400',borderBottom:'2px solid #f0b400',boxShadow:zoneSh};
+    const perfectStyle={position:'absolute',left:0,right:0,top:0,height:pw+'%',transform:'translateY('+(pl/pw*100).toFixed(2)+'%)',transition:zoneTrans,willChange:'transform',background:perfBg,boxShadow:perfSh};
     const cursorStyle={position:'absolute',left:'-2px',right:'-2px',height:'8px',top:'0',background:'linear-gradient(180deg,#ffffff,#dfe7ee)',boxShadow:'0 2px 6px rgba(0,0,0,.55),0 0 3px rgba(0,0,0,.4)',borderRadius:'4px',zIndex:3,willChange:'transform',animation:'roSweep '+s.speedDur+'s linear infinite alternate'};
 
     // ---- hud ----
@@ -2500,7 +2499,7 @@ class Component extends DCLogic {
       const rowsCfg = isStage5
         ? [{b:35.5,sc:0.42,n:17},{b:29,sc:0.5,n:15},{b:22.5,sc:0.6,n:13},{b:15.5,sc:0.73,n:12},{b:7.5,sc:0.88,n:10},{b:-2,sc:1.06,n:9}]
         : isStage7
-        ? [{b:49,sc:0.34,n:24},{b:44.5,sc:0.40,n:22},{b:39.5,sc:0.47,n:20},{b:34,sc:0.55,n:18},{b:28,sc:0.65,n:16},{b:21,sc:0.77,n:15},{b:13,sc:0.90,n:13},{b:3.5,sc:1.04,n:12}]
+        ? [{b:49,sc:0.34,n:21},{b:44.5,sc:0.40,n:20},{b:39.5,sc:0.47,n:18},{b:34,sc:0.55,n:16},{b:28,sc:0.65,n:15},{b:21,sc:0.77,n:13},{b:13,sc:0.90,n:12},{b:3.5,sc:1.04,n:11}]
         : [{b:40,sc:0.40,n:22},{b:34.5,sc:0.46,n:20},{b:29,sc:0.53,n:18},{b:23,sc:0.62,n:16},{b:16.5,sc:0.74,n:14},{b:9,sc:0.87,n:12},{b:0.5,sc:1.0,n:10}];
       let idx=0;
       rowsCfg.forEach((row,ri)=>{ const b=row.b, sc=row.sc, n=row.n; const off=(ri%2)?(46/n):0;
@@ -2543,7 +2542,7 @@ class Component extends DCLogic {
     const paradeBgStyle= isStage7?{position:'absolute',inset:0,backgroundImage:'url("assets/parade-bg.webp")',backgroundSize:'cover',backgroundPosition:'center'}:{display:'none'};
     const paradeStreetStyle= isStage7?{position:'absolute',left:0,right:0,bottom:0,height:'56%',zIndex:2,clipPath:'polygon(16% 0,84% 0,116% 100%,-16% 100%)',background:'radial-gradient(3px 3px at 10% 20%,rgba(240,220,200,.5) 40%,transparent 60%),radial-gradient(3px 3px at 42% 66%,rgba(230,120,120,.4) 40%,transparent 60%),radial-gradient(3px 3px at 76% 34%,rgba(240,236,242,.4) 40%,transparent 60%),radial-gradient(3px 3px at 58% 12%,rgba(220,90,90,.42) 40%,transparent 60%),radial-gradient(3px 3px at 26% 88%,rgba(70,90,150,.5) 40%,transparent 60%),radial-gradient(3px 3px at 90% 78%,rgba(240,220,200,.4) 40%,transparent 60%),linear-gradient(180deg,#57303a 0%,#4a2731 40%,#3a1e28 100%)',backgroundSize:'26px 26px,26px 26px,26px 26px,26px 26px,26px 26px,26px 26px,100% 100%'}:{display:'none'};
     const paradeConfettiStyle= isStage7?{position:'absolute',left:0,right:0,top:'-240px',bottom:0,zIndex:26,pointerEvents:'none',opacity:.9,backgroundImage:'radial-gradient(3px 5px at 12% 10%,#ffd23e 40%,transparent 60%),radial-gradient(3px 5px at 34% 46%,#d43a47 40%,transparent 60%),radial-gradient(2.5px 4px at 55% 22%,#e9ecf2 40%,transparent 60%),radial-gradient(3px 5px at 72% 64%,#4a6cb3 40%,transparent 60%),radial-gradient(2.5px 4px at 88% 34%,#ffd23e 40%,transparent 60%),radial-gradient(2px 4px at 22% 78%,#e9ecf2 40%,transparent 60%),radial-gradient(3px 5px at 64% 90%,#d43a47 40%,transparent 60%)',backgroundSize:'180px 240px',animation:'confDrift 3.4s linear infinite',willChange:'transform'}:{display:'none'};
-    const busWrap= isStage7?{position:'absolute',left:'20%',width:'60%',bottom:'13.5%',height:'29%',zIndex:38,animation:'bob 3s ease-in-out infinite'}:{display:'none'};
+    const busWrap= isStage7?{position:'absolute',left:'20%',width:'60%',bottom:'13.5%',height:'29%',zIndex:70,animation:'bob 3s ease-in-out infinite'}:{display:'none'};
     const busShadow={position:'absolute',left:'2%',right:'2%',bottom:'-2.5%',height:'7%',borderRadius:'50%',background:'radial-gradient(ellipse,rgba(0,0,0,.55),transparent 70%)'};
     const busRail={position:'absolute',left:'3%',right:'3%',bottom:'52%',height:'13%',background:'repeating-linear-gradient(90deg,#e8dbc2 0 3px,transparent 3px 12px),linear-gradient(180deg,rgba(232,219,194,0) 0 78%,#e8dbc2 78%)',zIndex:4};
     const busBody={position:'absolute',left:0,right:0,bottom:'6%',height:'48%',background:'linear-gradient(180deg,#d8324a 0%,#b01230 46%,#8c0c24 100%)',borderRadius:'16px 16px 10px 10px',boxShadow:'inset 0 4px 6px rgba(255,255,255,.28),inset 0 -8px 12px rgba(0,0,0,.35),0 6px 16px rgba(0,0,0,.45)',zIndex:5};
@@ -3005,7 +3004,7 @@ class Component extends DCLogic {
       mallBgStyle, floorTilesStyle, skylightStyle, ceilingBandStyle, shops, galleryRails, shoppers, decor, escFrameStyle, escStepsWrapStyle, escStepsStyle, skirtLStyle, skirtRStyle, handrailLStyle, handrailRStyle, combTopStyle, combBotStyle, landingTopStyle, landingBotStyle, newelLStyle, newelRStyle, upLampStyle, floorSignStyle, escFans,
       vfillStyle, vshipStyle, shieldsArr,
       combo:s.combo, maxCombo:s.maxCombo, perfects:s.perfects, strokes:s.strokes,
-      zoneStyle, perfectStyle, cursorStyle, popLayerRef:this.popLayerRef,
+      zoneStyle, perfectStyle, zoneDriftWrap, cursorStyle, popLayerRef:this.popLayerRef,
       muteIcon:s.muted?'🔇':'🔊',
       statCardStyle,
       seaLifeRef:this.seaLifeRef, eventShow:!!ev, eventToastStyle, eventText:ev?ev.text:'', eventSub:ev?ev.sub:'',
