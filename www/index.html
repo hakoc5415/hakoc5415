@@ -3020,9 +3020,12 @@ class Component extends DCLogic {
     const lastTimeBonus=ls?Math.max(0,Math.round((100-ls.timeSec)*16)).toLocaleString():'0';
     const lastIsBest=!!(ls&&ls.isBest&&won);
     // Score sub-line: on a win, show the time bonus; on a loss, just the earned total.
-    const lastScoreSub=won
-      ? ('⏱ '+lastTimeVal+' → +'+lastTimeBonus+' pts · Total '+playerTotal.toLocaleString())
-      : ('Did not finish · Total '+playerTotal.toLocaleString());
+    const _bestNote=(ls&&!ls.isBest&&ls.prev>0)?' · Your best: '+ls.prev.toLocaleString():'';
+    const lastScoreSub=(s.stageId===9)
+      ? ('Endless run · Total '+playerTotal.toLocaleString()+_bestNote)
+      : won
+      ? ('⏱ '+lastTimeVal+' → +'+lastTimeBonus+' pts · Total '+playerTotal.toLocaleString()+_bestNote)
+      : ('Did not finish · Total '+playerTotal.toLocaleString()+_bestNote);
     const countryList=this.COUNTRIES.map(c=>({ code:c.code, flag:c.flag, name:c.name, active:s.newCountry===c.code, onSelect:()=>this.setCountry(c.code),
       style:{display:'flex',alignItems:'center',gap:'12px',width:'100%',padding:'11px 14px',borderRadius:'10px',cursor:'pointer',textAlign:'left',border:'1.5px solid '+(s.newCountry===c.code?'var(--gold,#ffcb05)':'rgba(255,255,255,.12)'),background:s.newCountry===c.code?'rgba(255,203,5,.14)':'rgba(255,255,255,.04)'} }));
 
