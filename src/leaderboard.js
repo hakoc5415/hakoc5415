@@ -38,8 +38,13 @@ const TOP_N = 100;
 
 // Mirrors the server-side caps in functions/index.js — used only for an
 // instant client-side reject so a corrupt local score never even queues.
-const STAGE_SCORE_MAX = 4000;
-const TOTAL_SCORE_MAX = 24000;
+// Stage 9 (VALHALLA) is endless, so its scores run far beyond the others'.
+const STAGE_SCORE_MAX = 5000;
+const ENDLESS_STAGE_ID = 9;
+const ENDLESS_SCORE_MAX = 1000000;
+function capForStage(stageId) {
+  return Number(stageId) === ENDLESS_STAGE_ID ? ENDLESS_SCORE_MAX : STAGE_SCORE_MAX;
+}
 
 function readJSON(key, fallback) {
   try {
@@ -463,6 +468,7 @@ class RoLeaderboardClient {
           score: job.patch && job.patch.score,
           combo: job.patch && job.patch.combo,
           timeSec: job.patch && job.patch.timeSec,
+          scores: job.patch && job.patch.scores, // bulk resync map (optional)
         },
       }),
     }, 15000);
@@ -524,9 +530,30 @@ class RoLeaderboardClient {
   submitScore(patch) {
     const profile = readJSON(PROFILE_KEY, null);
     if (!profile) return; // no local account yet — nothing to attribute the score to
-    if (patch.score != null && patch.score > STAGE_SCORE_MAX) return; // obviously corrupt, don't even queue
+    if (patch.score != null && patch.score > capForStage(patch.stageId)) return; // obviously corrupt, don't even queue
     const job = { kind: 'score', profile, patch, ts: Date.now() };
     this._enqueue(job);
+    this._flushQueue();
+  }
+
+  /** Push EVERY local stage best to the server in one write. Called once after
+   *  app start / login so entries written by older app versions (which dropped
+   *  stage 7/9) heal without needing a new personal best. Monotonic on the
+   *  server, so this can never lower anything. */
+  resyncScores(scoresMap) {
+    const profile = readJSON(PROFILE_KEY, null);
+    if (!profile || !scoresMap) return;
+    const clean = {};
+    for (const key of Object.keys(scoresMap)) {
+      const id = Number(key);
+      const v = Number(scoresMap[key]);
+      if (id >= 1 && id <= 9 && isFinite(v) && v > 0 && v <= capForStage(id)) clean[id] = Math.round(v);
+    }
+    if (!Object.keys(clean).length) return;
+    const sig = JSON.stringify(clean);
+    if (this._lastResync === sig) return; // once per app session unless bests changed
+    this._lastResync = sig;
+    this._enqueue({ kind: 'score', profile, patch: { scores: clean }, ts: Date.now() });
     this._flushQueue();
   }
 
@@ -570,6 +597,7 @@ class RoLeaderboardClient {
           score: job.patch && job.patch.score,
           combo: job.patch && job.patch.combo,
           timeSec: job.patch && job.patch.timeSec,
+          scores: job.patch && job.patch.scores, // bulk resync map (optional)
         });
       } catch (e) {
         remaining.push(job); // stays queued — offline or transient failure

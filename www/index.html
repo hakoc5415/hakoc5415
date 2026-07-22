@@ -1301,6 +1301,10 @@ class Component extends DCLogic {
     this._fpRaf=requestAnimationFrame(this._fpsA);
     this._rsz=()=>{ this._winH=Math.round(window.innerHeight||844); const f=this.fansRef&&this.fansRef.current; if(f) f.__ck=null; const h6=this.st6CrowdRef&&this.st6CrowdRef.current; if(h6) h6.__ck=null; };
     window.addEventListener('resize',this._rsz);
+    // Heal the world-board entry: push every local stage best (incl. 7/9, which
+    // older app versions never uploaded) to the server once auth is ready.
+    this._resync=()=>{ try{ const p=this.state.profiles.find(x=>x.id===this.state.currentId); if(p&&window.RoLeaderboard&&window.RoLeaderboard.resyncScores) window.RoLeaderboard.resyncScores(p.scores||{}); }catch(e){} };
+    setTimeout(this._resync,5000);
     // iOS safety net: expose a plain-JS hook so a document-level tap handler can
     // dismiss the first-launch tutorial even if the WebView's synthetic event
     // binding on the button misbehaves. See the inline fallback script in <body>.
@@ -1769,6 +1773,7 @@ class Component extends DCLogic {
       try{localStorage.setItem('ro_unlocked2',String(unl));}catch(e){}
       this.setState(s=>{ const profiles=[...s.profiles.filter(p=>p.id!==id),prof]; this._persistProfiles(profiles); try{localStorage.setItem('ro_currentId',id);}catch(e){} return {profiles,currentId:id,unlocked:Math.max(s.unlocked||1,unl),screen:'menu',authErr:'',authBusy:false,nameErr:false}; });
       lb.setProfile({id,name,countryCode:country.code});
+      if(this._resync) setTimeout(this._resync,2500);
     }).catch(()=>this.setState({authErr:'Could not reach the server — check your connection.',authBusy:false}));
   };
   setAuthTab=(t)=>{ this.setState({authTab:t,authErr:'',nameErr:false}); };

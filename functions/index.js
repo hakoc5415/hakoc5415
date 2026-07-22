@@ -9,14 +9,21 @@ const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 initializeApp();
 const db = getFirestore();
 
-// Stages score roughly 0-4,000 each; totals above ~24,000 are impossible.
-const STAGE_SCORE_MAX = 4000;
-const TOTAL_SCORE_MAX = 24000;
-const MAX_COMBO = 500; // generous upper bound — the game's timing meter can't produce more
+// Stages 1-8 score roughly 0-4,000 each. Stage 9 (VALHALLA) is ENDLESS —
+// its score is unbounded by design, so it gets its own generous cap.
+const STAGE_SCORE_MAX = 5000;
+const ENDLESS_STAGE_ID = 9;
+const ENDLESS_SCORE_MAX = 1000000;
+const TOTAL_SCORE_MAX = 8 * STAGE_SCORE_MAX + ENDLESS_SCORE_MAX;
+const MAX_COMBO = 5000; // endless Valhalla combos can run far past the old 500
 const MIN_TIME_SEC = 1;
 const MAX_TIME_SEC = 3600;
 const MIN_WRITE_INTERVAL_MS = 1500; // basic rate limit: one score write per stage clear at most
-const STAGE_IDS = [1, 2, 3, 4, 5, 6];
+const STAGE_IDS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
+function capFor(stageId) {
+  return Number(stageId) === ENDLESS_STAGE_ID ? ENDLESS_SCORE_MAX : STAGE_SCORE_MAX;
+}
 
 // Minimum-viable denylist-based moderation. Names are display-only, <=16 chars.
 const PROFANITY = ['fuck', 'shit', 'bitch', 'cunt', 'nigger', 'faggot', 'asshole'];
@@ -50,8 +57,19 @@ exports.submitScore = onCall(async (request) => {
   const timeSec = data.timeSec != null ? Number(data.timeSec) : null;
 
   const hasStageUpdate = STAGE_IDS.includes(stageId) && Number.isFinite(score) && score >= 0;
-  if (hasStageUpdate && score > STAGE_SCORE_MAX) {
-    throw new HttpsError('invalid-argument', `Score exceeds per-stage cap of ${STAGE_SCORE_MAX}.`);
+  if (hasStageUpdate && score > capFor(stageId)) {
+    throw new HttpsError('invalid-argument', `Score exceeds per-stage cap of ${capFor(stageId)}.`);
+  }
+  // Optional bulk resync: {scores: {stageId: best}} pushes every local best in
+  // ONE write (used after app updates/logins so older entries heal). Each entry
+  // is validated and merged monotonically exactly like a single-stage submit.
+  const bulk = {};
+  if (data.scores && typeof data.scores === 'object') {
+    for (const key of Object.keys(data.scores)) {
+      const id = Number(key);
+      const v = Number(data.scores[key]);
+      if (STAGE_IDS.includes(id) && Number.isFinite(v) && v > 0 && v <= capFor(id)) bulk[id] = v;
+    }
   }
   if (combo != null && (!Number.isFinite(combo) || combo < 0 || combo > MAX_COMBO)) {
     throw new HttpsError('invalid-argument', 'Combo out of range.');
@@ -77,6 +95,10 @@ exports.submitScore = onCall(async (request) => {
     if (hasStageUpdate) {
       const existing = Number(scores[stageId]) || 0;
       if (score > existing) scores[stageId] = score; // ignore non-monotonic decreases
+    }
+    for (const id of Object.keys(bulk)) {
+      const existing = Number(scores[id]) || 0;
+      if (bulk[id] > existing) scores[id] = bulk[id];
     }
 
     const newTotal = totalOf(scores);
