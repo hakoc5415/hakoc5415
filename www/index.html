@@ -194,6 +194,13 @@
   .roPBig .roAR{transform:translateY(-20px) rotate(42deg)!important}
   .roPBig .roHL{transform:translate(-10px,-24px)!important}
   .roPBig .roHR{transform:translate(10px,-24px)!important}
+  /* Crowd "plates": the whole crowd is pre-painted twice (arms down / arms up)
+     as two composited layers. A RO press flips their opacity via inline style
+     (pumpArms) — exactly 2 nodes touched, zero repaint, zero style-recalc
+     cascade (critical on Android WebView). */
+  .cwPlate{position:absolute;transform:translateZ(0);will-change:opacity;pointer-events:none;transform-origin:50% 90%}
+  .cwUp{opacity:0.001}
+  .lowfx .fxAmb{animation:none!important}
   @keyframes roArmSwing{0%,100%{transform:rotate(var(--rF,-150deg)) scaleY(.74)}50%{transform:rotate(var(--rP,-24deg)) scaleY(1)}}
   @keyframes roLean{0%,100%{transform:translateX(-50%) translateY(-7px) scaleY(.95)}50%{transform:translateX(-50%) translateY(7px) scaleY(1.04)}}
   @keyframes gallWalk{0%,100%{transform:translateX(0)}50%{transform:translateX(var(--wx,12px))}}
@@ -532,19 +539,9 @@
         <!-- plaza -->
         <div style="{{ plazaStyle }}"></div>
         <div style="{{ plazaLinesStyle }}"></div>
-        <!-- supporter crowd doing RO -->
+        <!-- supporter crowd doing RO (imperative dual-plate layer, see _mountCrowd) -->
         <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:5">
-          <div ref="{{ fansRef }}" style="position:absolute;inset:0">
-            <sc-for list="{{ crowdFans }}" as="f" hint-placeholder-count="0">
-              <div class="roArm roAL" style="{{ f.armL }}"></div>
-              <div class="roArm roAR" style="{{ f.armR }}"></div>
-              <div style="{{ f.shoulders }}"></div>
-              <div style="{{ f.scarf }}"></div>
-              <div class="roArm roHL" style="{{ f.handL }}"></div>
-              <div class="roArm roHR" style="{{ f.handR }}"></div>
-              <div style="{{ f.neck }}"></div><div style="{{ f.head }}"></div><div style="{{ f.earL }}"></div><div style="{{ f.earR }}"></div><div style="{{ f.hair }}"></div><div style="{{ f.pom }}"></div>
-            </sc-for>
-          </div>
+          <div ref="{{ fansRef }}" style="position:absolute;inset:0"></div>
         </div>
       </sc-if>
 
@@ -597,21 +594,9 @@
         <div style="{{ rostrumPlatStyle }}"></div>
         <div style="{{ lecternStyle }}"></div>
         <div style="{{ lecternLightStyle }}"></div>
-        <!-- milletvekilleri (tiered semicircular seating in red-gold chairs) -->
+        <!-- milletvekilleri (imperative dual-plate layer, see _mountCrowd) -->
         <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:5">
-          <div ref="{{ fansRef }}" style="position:absolute;inset:0">
-            <sc-for list="{{ mps }}" as="m" hint-placeholder-count="0">
-              <div style="{{ m.chair }}"></div>
-              <div class="mpFig" style="{{ m.body }}"></div>
-              <div class="mpFig" style="{{ m.tie }}"></div>
-              <div class="{{ m.armClsL }}" style="{{ m.armL }}"></div>
-              <div class="{{ m.armClsR }}" style="{{ m.armR }}"></div>
-              <div style="{{ m.deskSeg }}"></div>
-              <div style="{{ m.papers }}"></div>
-              <div class="mpFig" style="{{ m.hair }}"></div>
-              <div class="mpFig" style="{{ m.head }}"></div>
-            </sc-for>
-          </div>
+          <div ref="{{ fansRef }}" style="position:absolute;inset:0"></div>
         </div>
         <!-- chandelier (hangs in front) -->
         <div style="position:absolute;left:50%;top:14%;transform:translate(-50%,-50%);width:300px;height:220px;z-index:15;pointer-events:none;background:radial-gradient(50% 50% at 50% 50%,rgba(255,196,96,.34),rgba(255,196,96,.10) 55%,transparent 72%)"></div>
@@ -682,19 +667,9 @@
             <div style="position:absolute;left:0;right:0;top:44%;height:13%;background:#00205b"></div>
           </div>
         </sc-for>
-        <!-- packed Norwegian supporters doing RO across the square -->
+        <!-- packed Norwegian supporters doing RO (imperative dual-plate layer) -->
         <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:5">
-          <div ref="{{ fansRef }}" style="position:absolute;inset:0">
-            <sc-for list="{{ crowdFans }}" as="f" hint-placeholder-count="0">
-              <div class="roArm roAL" style="{{ f.armL }}"></div>
-              <div class="roArm roAR" style="{{ f.armR }}"></div>
-              <div style="{{ f.shoulders }}"></div>
-              <div style="{{ f.scarf }}"></div>
-              <div class="roArm roHL" style="{{ f.handL }}"></div>
-              <div class="roArm roHR" style="{{ f.handR }}"></div>
-              <div style="{{ f.neck }}"></div><div style="{{ f.head }}"></div><div style="{{ f.earL }}"></div><div style="{{ f.earR }}"></div><div style="{{ f.hair }}"></div><div style="{{ f.pom }}"></div>
-            </sc-for>
-          </div>
+          <div ref="{{ fansRef }}" style="position:absolute;inset:0"></div>
         </div>
       </sc-if>
 
@@ -710,18 +685,7 @@
         <sc-for list="{{ st6Aisles }}" as="a" hint-placeholder-count="0"><div style="{{ a }}"></div></sc-for>
         <div style="{{ st6Roof }}"></div>
         <div style="{{ st6RoofLip }}"></div>
-        <div ref="{{ st6CrowdRef }}" style="position:absolute;inset:0;z-index:5">
-          <sc-for list="{{ st6Fans }}" as="f" hint-placeholder-count="0">
-            <div style="{{ f.wrap }}">
-              <div class="st6arm roAL" style="{{ f.armL }}"></div>
-              <div class="st6arm roAR" style="{{ f.armR }}"></div>
-              <div style="{{ f.body }}"></div>
-              <div style="{{ f.scarf }}"></div>
-              <div style="{{ f.head }}"></div>
-              <div style="{{ f.hair }}"></div>
-            </div>
-          </sc-for>
-        </div>
+        <div ref="{{ st6CrowdRef }}" style="position:absolute;inset:0;z-index:5"></div>
         <sc-for list="{{ st6CrowdFlags }}" as="cf" hint-placeholder-count="0"><div style="{{ cf.pole }}"></div><div style="{{ cf.wrap }}"></div></sc-for>
         <div ref="{{ roWaveRef }}" style="{{ roWaveStyle }}"></div>
         <div style="position:absolute;top:2%;left:4%;width:200px;height:60%;z-index:1;pointer-events:none;transform:rotate(16deg);transform-origin:0 0;background:linear-gradient(168deg,rgba(240,248,255,.16),rgba(240,248,255,.04) 60%,transparent 75%);clip-path:polygon(0 0,26% 0,100% 100%,40% 100%)"></div>
@@ -746,22 +710,12 @@
       <sc-if value="{{ isStage9 }}" hint-placeholder-val="{{ false }}">
         <div style="{{ valBgStyle }}"></div>
         <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:5">
-          <div ref="{{ fansRef }}" style="position:absolute;inset:0">
-            <sc-for list="{{ crowdFans }}" as="f" hint-placeholder-count="0">
-              <div class="roArm roAL" style="{{ f.armL }}"></div>
-              <div class="roArm roAR" style="{{ f.armR }}"></div>
-              <div style="{{ f.shoulders }}"></div>
-              <div style="{{ f.scarf }}"></div>
-              <div class="roArm roHL" style="{{ f.handL }}"></div>
-              <div class="roArm roHR" style="{{ f.handR }}"></div>
-              <div style="{{ f.neck }}"></div><div style="{{ f.head }}"></div><div style="{{ f.earL }}"></div><div style="{{ f.earR }}"></div><div style="{{ f.hair }}"></div><div style="{{ f.pom }}"></div>
-            </sc-for>
-          </div>
+          <div ref="{{ fansRef }}" style="position:absolute;inset:0"></div>
         </div>
         <sc-for list="{{ valBraz }}" as="bz" hint-placeholder-count="0">
           <div style="{{ bz.glow }}"></div><div style="{{ bz.bowl }}"></div><div style="{{ bz.flame }}"></div>
         </sc-for>
-        <div style="{{ valEmbers }}"></div>
+        <div class="fxAmb" style="{{ valEmbers }}"></div>
         <div style="{{ valScoreStyle }}">
           <div style="font-size:12px;letter-spacing:4px;color:#ffce6a;opacity:.9;text-shadow:0 1px 6px rgba(0,0,0,.8)">SCORE</div>
           <div style="font-size:44px;line-height:1;color:#fff;text-shadow:0 0 18px rgba(255,180,72,.75),0 3px 0 rgba(0,0,0,.5)">{{ vScore }}</div>
@@ -771,8 +725,8 @@
       <!-- ===== Stage 8: NORTHERN LIGHTS — POLARA promo ===== -->
       <sc-if value="{{ isStage8 }}" hint-placeholder-val="{{ false }}">
         <div style="{{ polBgStyle }}"></div>
-        <div style="{{ polAur1 }}"></div>
-        <div style="{{ polAur2 }}"></div>
+        <div class="fxAmb" style="{{ polAur1 }}"></div>
+        <div class="fxAmb" style="{{ polAur2 }}"></div>
         <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:5">
           <div style="{{ polCard }}">
             <div style="{{ polIcon }}">
@@ -793,18 +747,8 @@
         <div style="{{ paradeBgStyle }}"></div>
         <div style="{{ paradeStreetStyle }}"></div>
         <div ref="{{ shipRef }}" style="position:absolute;inset:0;z-index:5">
-          <div ref="{{ fansRef }}" style="position:absolute;inset:0">
-            <sc-for list="{{ crowdFans }}" as="f" hint-placeholder-count="0">
-              <div class="roArm roAL" style="{{ f.armL }}"></div>
-              <div class="roArm roAR" style="{{ f.armR }}"></div>
-              <div style="{{ f.shoulders }}"></div>
-              <div style="{{ f.scarf }}"></div>
-              <div class="roArm roHL" style="{{ f.handL }}"></div>
-              <div class="roArm roHR" style="{{ f.handR }}"></div>
-              <div style="{{ f.neck }}"></div><div style="{{ f.head }}"></div><div style="{{ f.earL }}"></div><div style="{{ f.earR }}"></div><div style="{{ f.hair }}"></div><div style="{{ f.pom }}"></div>
-            </sc-for>
-          </div>
-          <div style="{{ busWrap }}">
+          <div ref="{{ fansRef }}" style="position:absolute;inset:0"></div>
+          <div ref="{{ busRef }}" style="{{ busWrap }}">
             <div style="{{ busShadow }}"></div>
             <sc-for list="{{ busPlayers }}" as="bp" hint-placeholder-count="0">
               <div class="roArm roAL" style="{{ bp.armL }}"></div>
@@ -822,7 +766,7 @@
             <div style="{{ busTrophyStyle }}">🏆</div>
           </div>
         </div>
-        <div style="{{ paradeConfettiStyle }}"></div>
+        <div class="fxAmb" style="{{ paradeConfettiStyle }}"></div>
       </sc-if>
 
       <!-- ambient sea life (imperative layer — no re-render per spawn) -->
@@ -940,7 +884,7 @@
       <div style="display:flex;align-items:center;gap:10px;max-width:340px;margin:0 auto 10px">
         <div style="font-family:var(--display,'Anton');font-size:10px;letter-spacing:1px;color:#fff;line-height:1.05;white-space:nowrap;text-shadow:0 1px 6px rgba(0,0,0,.9)">{{ redLbl1 }}<br>{{ redLbl2 }}</div>
         <div style="position:relative;flex:1;height:14px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.25);border-radius:8px;overflow:hidden">
-          <div ref="{{ redBarRef }}" style="position:absolute;left:0;top:0;bottom:0;width:100%;background:linear-gradient(90deg,#7d0820,#ba0c2f);box-shadow:0 0 8px rgba(186,12,47,.7)"></div>
+          <div ref="{{ redBarRef }}" style="position:absolute;left:0;top:0;bottom:0;width:100%;background:linear-gradient(90deg,#7d0820,#ba0c2f);box-shadow:0 0 8px rgba(186,12,47,.7);transform-origin:0 50%;will-change:transform"></div>
         </div>
         <div ref="{{ redNumRef }}" style="font-family:var(--display,'Anton');font-size:24px;color:var(--gold,#ffcb05);min-width:22px;text-align:center;line-height:1;text-shadow:0 1px 6px rgba(0,0,0,.9)">5</div>
       </div>
@@ -1335,7 +1279,7 @@ class Component extends DCLogic {
     this.cursorRef=React.createRef(); this.flashRef=React.createRef(); this.comboRef=React.createRef();
     this.fansRef=React.createRef(); this.rowersRef=React.createRef();
     this.norScoreRef=React.createRef(); this.oppScoreRef=React.createRef(); this.netRef=React.createRef();
-    this.st6TimeRef=React.createRef(); this.st6BarRef=React.createRef(); this.roWaveRef=React.createRef(); this.st6CrowdRef=React.createRef(); this._st6Ms=null;
+    this.st6TimeRef=React.createRef(); this.st6BarRef=React.createRef(); this.busRef=React.createRef(); this.roWaveRef=React.createRef(); this.st6CrowdRef=React.createRef(); this._st6Ms=null;
     this.roMsBarRef=React.createRef(); this.roMsNumRef=React.createRef(); this._roMs=5000;
     this.redBarRef=React.createRef(); this.redNumRef=React.createRef(); this._redMs=5000;
     this.nameRef=React.createRef(); this.passRef=React.createRef(); this.loginNameRef=React.createRef(); this.loginPassRef=React.createRef();
@@ -1345,6 +1289,18 @@ class Component extends DCLogic {
   componentDidMount(){
     this._key=(e)=>{ if(e.code==='Space'){ e.preventDefault(); if(this.state.screen==='game') this.ro(); } };
     window.addEventListener('keydown',this._key);
+    // Adaptive quality: if a device sustains janky frames during play, drop the
+    // decorative ambient animations (embers/confetti/aurora) permanently for it.
+    try{ if(localStorage.getItem('ro_fx')==='low') this._setLowfx(true); }catch(e){}
+    this._fpsA=()=>{ const t=performance.now(); const st=this.state;
+      if(!this._lowfx&&st.screen==='game'&&!st.intro&&!st.mounting&&!st.result){
+        if(this._fpT){ const gap=t-this._fpT; this._fjN=(this._fjN||0)+1; if(gap>34) this._fjS=(this._fjS||0)+1;
+          if(this._fjN>=240){ if((this._fjS||0)/this._fjN>0.2) this._setLowfx(true); this._fjN=0; this._fjS=0; } }
+      } else { this._fjN=0; this._fjS=0; }
+      this._fpT=t; if(!this._lowfx) this._fpRaf=requestAnimationFrame(this._fpsA); else this._fpRaf=null; };
+    this._fpRaf=requestAnimationFrame(this._fpsA);
+    this._rsz=()=>{ this._winH=Math.round(window.innerHeight||844); const f=this.fansRef&&this.fansRef.current; if(f) f.__ck=null; const h6=this.st6CrowdRef&&this.st6CrowdRef.current; if(h6) h6.__ck=null; };
+    window.addEventListener('resize',this._rsz);
     // iOS safety net: expose a plain-JS hook so a document-level tap handler can
     // dismiss the first-launch tutorial even if the WebView's synthetic event
     // binding on the button misbehaves. See the inline fallback script in <body>.
@@ -1363,7 +1319,7 @@ class Component extends DCLogic {
     this._lbUpdate=()=>{ if(this.state.screen!=='game') this.forceUpdate(); };
     window.addEventListener('ro-leaderboard-updated',this._lbUpdate);
     this._tick=setInterval(()=>{
-      if(this.state.screen==='game' && this.state.stageId!==6 && this.state.tier===2 && Math.random()<0.18){ this.flash('#dfe9ff',150); this.sfx('thunder'); }
+      if(this.state.screen==='game' && !this._lowfx && this.state.stageId!==6 && this.state.tier===2 && Math.random()<0.18){ this.flash('#dfe9ff',150); this.sfx('thunder'); }
     },900);
     try{ const im=new Image(); im.src='assets/fjord-bg.webp'; if(im.decode) im.decode().catch(()=>{}); this._fjordImg=im; const im2=new Image(); im2.src='assets/parade-bg.webp'; if(im2.decode) im2.decode().catch(()=>{}); this._paradeImg=im2; const im3=new Image(); im3.src='assets/polara-bg.webp'; if(im3.decode) im3.decode().catch(()=>{}); this._polImg=im3; const im4=new Image(); im4.src='assets/valhalla-bg.webp'; if(im4.decode) im4.decode().catch(()=>{}); this._valImg=im4; }catch(e){}
     this.loadRo();
@@ -1392,7 +1348,8 @@ class Component extends DCLogic {
       }
     },120);
   }
-  componentWillUnmount(){ window.removeEventListener('keydown',this._key); window.removeEventListener('ro-leaderboard-updated',this._lbUpdate); clearInterval(this._tick); clearInterval(this._loop); clearTimeout(this._evtT); this.stopMusic(); }
+  componentWillUnmount(){ window.removeEventListener('keydown',this._key); window.removeEventListener('ro-leaderboard-updated',this._lbUpdate); clearInterval(this._tick); clearInterval(this._loop); clearTimeout(this._evtT); if(this._fpRaf) cancelAnimationFrame(this._fpRaf); window.removeEventListener('resize',this._rsz); this.stopMusic(); }
+  _setLowfx(on){ this._lowfx=!!on; try{ document.body.classList.toggle('lowfx',this._lowfx); }catch(e){} try{ localStorage.setItem('ro_fx',this._lowfx?'low':''); }catch(e){} }
 
 
   // ---------- audio ----------
@@ -1478,7 +1435,11 @@ class Component extends DCLogic {
   buzz(ms){ try{ if(!this.state.muted && navigator.vibrate) navigator.vibrate(ms); }catch(e){} }
 
   // ---------- effects ----------
-  flash(color,ms){ const el=this.flashRef.current; if(!el) return; ms=ms||220; el.style.transition='none'; el.style.background=color; el.style.opacity='0.5'; void el.offsetWidth; el.style.transition='opacity '+ms+'ms ease-out'; el.style.opacity='0'; clearTimeout(this._flashT); this._flashT=setTimeout(()=>{ el.style.transition='none'; el.style.opacity='0'; }, ms+120); }
+  flash(color,ms){ const el=this.flashRef.current; if(!el) return; ms=ms||220;
+    // Solid layer stays cached; only re-fill when the color actually changes,
+    // and fade via WAAPI (compositor) instead of a transition + forced reflow.
+    if(this._flashC!==color){ this._flashC=color; el.style.background=color; }
+    try{ if(this._flashA) this._flashA.cancel(); this._flashA=el.animate([{opacity:0.5},{opacity:0}],{duration:ms,easing:'ease-out'}); }catch(e){} }
   _shakeBuild=()=>{ const el=this.stageRef.current; if(!el) return [];
     return [el.animate([{transform:'translateX(0)'},{transform:'translateX(-9px)'},{transform:'translateX(8px)'},{transform:'translateX(-5px)'},{transform:'translateX(0)'}],{duration:280,easing:'ease-out'})]; };
   shake(){ this._play('shake',this._shakeBuild); }
@@ -1500,7 +1461,9 @@ class Component extends DCLogic {
     return P; };
   lurch(){ this._play('lurch',this._lurchBuild); }
   _fansBuild=()=>{ const el=this.fansRef.current; if(!el) return [];
-    return [el.animate([{transform:'translateY(0) scaleY(1)'},{transform:'translateY(12px) scaleY(.92)'},{transform:'translateY(-4px) scaleY(1.05)'},{transform:'translateY(0) scaleY(1)'}],{duration:360,easing:'cubic-bezier(.3,.85,.3,1)',composite:'add'})]; };
+    return [el.animate([{transform:'translateY(0)'},{transform:'translateY(10px)'},{transform:'translateY(-5px)'},{transform:'translateY(0)'}],{duration:360,easing:'cubic-bezier(.3,.85,.3,1)',composite:'add'})]; };
+    // NOTE: translation-only on purpose — a scale here forces the compositor to
+    // re-raster the two crowd plates at every step (the Android jank source).
   rowFans(){ this._play('fans',this._fansBuild); }
   escRow(){ const root=this.stageRef&&this.stageRef.current; if(!root) return;
     root.querySelectorAll('.efWrap').forEach(w=>{
@@ -1530,46 +1493,164 @@ class Component extends DCLogic {
     root.querySelectorAll('.st1splash').forEach(el=>{ P.push(el.animate([{opacity:0,transform:'scale(.5)'},{opacity:.95,transform:'scale(1.3)',offset:.45},{opacity:.2,transform:'scale(.7)',offset:.75},{opacity:0,transform:'scale(.5)'}],{duration:900,easing:'ease-out'})); });
     return P; };
   rowStroke(){ this._play('stroke',this._strokeBuild); }
-  pumpArms(big){ const root=this.stageRef&&this.stageRef.current; if(!root) return;
-    // One class on the stage root raises every arm via CSS (see .roP rules).
-    // WKWebView'de yuzlerce ayri animasyon her vurusta yuzlerce compositing
-    // katmani olusturuyordu — kasmanin ana kaynagi buydu.
-    root.classList.add('roP'); if(big) root.classList.add('roPBig');
+  _pumpTargets(){
+    // Big crowds are dual-plate hosts (flip 2 inline styles, no recalc cascade);
+    // only tiny groups (ship supporters, bus players) still use the .roP class,
+    // scoped to their own small containers instead of the whole stage root.
+    const plates=[]; const legacy=[];
+    const f=this.fansRef&&this.fansRef.current; if(f&&f.querySelector('.cwUp')) plates.push(f);
+    const s6=this.st6CrowdRef&&this.st6CrowdRef.current; if(s6&&s6.querySelector('.cwUp')) plates.push(s6);
+    const id=this.state.stageId;
+    if(id<=2){ const sh=this.shipRef&&this.shipRef.current; if(sh) legacy.push(sh); }
+    if(id===7){ const bw=this.busRef&&this.busRef.current; if(bw) legacy.push(bw); }
+    return {plates,legacy};
+  }
+  pumpArms(big){
+    const t=this._pumpTargets();
+    for(const h of t.plates){ const d=h.querySelector('.cwDown'), u=h.querySelector('.cwUp');
+      if(d) d.style.opacity='0.001';
+      if(u){ u.style.opacity='1'; } }
+    for(const el of t.legacy){ el.classList.add('roP'); if(big) el.classList.add('roPBig'); }
     clearTimeout(this._roPT);
-    this._roPT=setTimeout(()=>{ root.classList.remove('roP'); root.classList.remove('roPBig'); }, big?900:430); }
+    this._roPT=setTimeout(()=>{
+      const t2=this._pumpTargets();
+      for(const h of t2.plates){ const d=h.querySelector('.cwDown'), u=h.querySelector('.cwUp');
+        if(d) d.style.opacity='1';
+        if(u){ u.style.opacity='0.001'; } }
+      for(const el of t2.legacy){ el.classList.remove('roP'); el.classList.remove('roPBig'); }
+    }, big?900:430); }
   comboBump(){ const c=this.comboRef.current; if(c) c.animate([{transform:'scale(1)'},{transform:'scale(1.4)'},{transform:'scale(1)'}],{duration:240,easing:'ease-out'}); }
   mpRo(){ /* arms rise via the .roP class set in pumpArms; the chamber bounce
     comes from rowFans() on the fansRef container — no per-element animations. */ }
-  _spawnPop(styleObj,text,life){
-    const host=this.popLayerRef.current; if(!host) return;
-    const el=document.createElement('div');
-    if(text) el.textContent=text;
-    Object.assign(el.style,styleObj);
-    host.appendChild(el);
-    setTimeout(()=>{ try{host.removeChild(el);}catch(e){} },life);
-    // keep the layer bounded even under frantic tapping
-    while(host.children.length>20) host.removeChild(host.firstChild);
-  }
-  addPop(text,kind){
-    if(kind==='perfect'){
-      // Video-style celebration: golden sunburst + big gold banner. Direct DOM —
-      // no React re-render on the hot tap path.
-      this._spawnPop({position:'absolute',left:'50%',bottom:'30%',width:'240px',height:'240px',transform:'translate(-50%,50%)',
-        background:'repeating-conic-gradient(from 8deg,rgba(255,210,62,.75) 0deg 9deg,transparent 9deg 30deg)',
-        clipPath:'circle(50% at 50% 50%)',webkitMaskImage:'radial-gradient(circle,rgba(0,0,0,.9) 30%,transparent 70%)',
-        animation:'raysKf 1.1s ease-out forwards'},'',1100);
-      this._spawnPop({position:'absolute',left:'50%',bottom:'38%',transform:'translate(-50%,0)',fontFamily:"var(--display,'Anton')",
-        fontSize:(String(text||'').length>10?'44px':'58px'),letterSpacing:'2px',color:'#ffd23e',
-        webkitTextStroke:'2.5px #fff',textShadow:'0 4px 0 #a06400,0 8px 18px rgba(0,0,0,.45)',whiteSpace:'nowrap',
-        animation:'burstPop 1.15s forwards'},text||'PERFECT!',1160);
-      return;
+  // ---------- pooled tap FX ----------
+  // Every RO press used to CREATE fresh DOM (rays gradient, big outlined text,
+  // 3-5 shout texts) — each one a full Skia raster on Android WebView, which
+  // froze weak phones for 100-600ms per hit. Now all FX elements are built
+  // ONCE per stage (hidden behind the intro card), keep their compositor
+  // layers alive, and a hit only replays their paused animations: zero paint.
+  _cssOf(o){ let s=''; for(const k in o){ const v=o[k]; if(v==null||v==='') continue;
+    let kk=k.replace(/[A-Z]/g,m=>'-'+m.toLowerCase()); if(kk.slice(0,7)==='webkit-') kk='-'+kk;
+    s+=kk+':'+v+';'; } return s; }
+  _platesHTML(kind,list,H){
+    // The plates are clipped to the crowd's band (not full-screen) so the two
+    // composited layers stay small — full-screen layers blew the GPU tile
+    // budget on weak devices and forced re-raster every frame. The inner
+    // "frame" div restores the original scene-height coordinate space so the
+    // figures' % positions resolve unchanged.
+    H=H||((typeof window!=='undefined'&&window.innerHeight)||844);
+    const BAND={fans:{css:'left:0;right:0;bottom:-3%;height:62%;overflow:hidden;',off:0.03*H},
+                mps:{css:'left:0;right:0;top:44%;height:41%;overflow:hidden;',off:null,top:0.44*H},
+                st6:{css:'left:0;right:0;bottom:26%;height:48%;overflow:hidden;',off:-0.26*H}}[kind];
+    const frame=BAND.off!=null
+      ?'position:absolute;left:0;width:100%;bottom:'+BAND.off.toFixed(1)+'px;height:'+H.toFixed(0)+'px;'
+      :'position:absolute;left:0;width:100%;top:-'+BAND.top.toFixed(1)+'px;height:'+H.toFixed(0)+'px;';
+    const dv=(st)=>'<div style="'+this._cssOf(st)+'"></div>';
+    const D=[],U=[];
+    if(kind==='fans'){
+      const order=['armL','armR','shoulders','scarf','handL','handR','neck','head','earL','earR','hair','pom'];
+      for(const f of list){ for(const k of order){ const st=f[k]; if(!st) continue; D.push(dv(st));
+        let up=st;
+        if(k==='armL') up=Object.assign({},st,{transform:'translateY(-12px) rotate(-34deg)'});
+        else if(k==='armR') up=Object.assign({},st,{transform:'translateY(-12px) rotate(34deg)'});
+        else if(k==='handL') up=Object.assign({},st,{transform:'translate(-7px,-15px)'});
+        else if(k==='handR') up=Object.assign({},st,{transform:'translate(7px,-15px)'});
+        else if(k==='pom'&&st.clipPath) up=Object.assign({},st,{transform:'translate(7px,-15px) rotate(12deg)'});
+        U.push(dv(up)); } }
+    } else if(kind==='mps'){
+      const order=['chair','body','tie','armL','armR','deskSeg','papers','hair','head'];
+      for(const m of list){ const standing=String(m.armClsL||'').indexOf('roA')>=0;
+        for(const k of order){ const st=m[k]; if(!st) continue; D.push(dv(st));
+          let up=st;
+          if(k==='armL') up=Object.assign({},st,{opacity:1,transform:standing?'translateY(-12px) rotate(-34deg)':'translateY(-9px) rotate(-26deg)'});
+          else if(k==='armR') up=Object.assign({},st,{opacity:1,transform:standing?'translateY(-12px) rotate(34deg)':'translateY(-9px) rotate(26deg)'});
+          U.push(dv(up)); } }
+    } else {
+      for(const f of list){
+        const inner=(upper)=>{ let h=''; for(const k of ['armL','armR','body','scarf','head','hair']){ const st=f[k]; if(!st) continue; let o=st;
+          if(upper&&k==='armL') o=Object.assign({},st,{transform:'translateY(-14px) rotate(-46deg)'});
+          else if(upper&&k==='armR') o=Object.assign({},st,{transform:'translateY(-14px) rotate(46deg)'});
+          h+=dv(o); } return h; };
+        D.push('<div style="'+this._cssOf(f.wrap)+'">'+inner(false)+'</div>');
+        U.push('<div style="'+this._cssOf(f.wrap)+'">'+inner(true)+'</div>');
+      }
     }
-    const left=42+Math.random()*16; const color=kind==='miss'?'#ff5252':'#fff';
-    this._spawnPop({position:'absolute',left:left+'%',bottom:'46%',transform:'translate(-50%,0)',fontFamily:"var(--display,'Anton')",
-      fontSize:'46px',color,webkitTextStroke:'2px rgba(0,0,0,.35)',whiteSpace:'nowrap',animation:'popKf 1.35s forwards'},text,1360);
+    return '<div class="cwPlate cwDown" style="'+BAND.css+'"><div style="'+frame+'">'+D.join('')+'</div></div>'
+          +'<div class="cwPlate cwUp" aria-hidden="true" style="'+BAND.css+'"><div style="'+frame+'">'+U.join('')+'</div></div>';
   }
-  roShout(){ const n=3+Math.floor(Math.random()*2); for(let i=0;i<n;i++){ const left=10+Math.random()*80; const bottom=(28+Math.random()*50); const size=[26,34,42,50][Math.floor(Math.random()*4)]; const rot=(Math.random()*34-17); const color=Math.random()<0.5?'var(--gold,#ffcb05)':'#fff';
-      this._spawnPop({position:'absolute',left:left+'%',bottom:bottom+'%',transform:'translate(-50%,0) rotate('+rot.toFixed(1)+'deg)',fontFamily:"var(--display,'Anton')",fontSize:size.toFixed(0)+'px',color,webkitTextStroke:'2px rgba(0,0,0,.35)',whiteSpace:'nowrap',animation:'popKf 1.35s forwards'},'RO',1360);
+  _mountCrowd(){
+    const s=this.state; if(s.screen!=='game') return;
+    const id=s.stageId;
+    // cached: reading window.innerHeight forces layout, and this runs after every render
+    const H=this._winH||(this._winH=Math.round(window.innerHeight||844));
+    const host=this.fansRef&&this.fansRef.current;
+    if(host){ let key=null,kind=null,list=null;
+      if((id===3||id===5||id===7||id===9)&&this._cfKey===id&&this._cfVal){ key='f'+id; kind='fans'; list=this._cfVal; }
+      else if(id===4&&this._mpVal){ key='m'+this._mpKey; kind='mps'; list=this._mpVal; }
+      if(key&&host.__ck!==key){ host.__ck=key; host.innerHTML=this._platesHTML(kind,list,H); }
+    }
+    const h6=this.st6CrowdRef&&this.st6CrowdRef.current;
+    if(h6&&id===6&&this._sfVal&&h6.__ck!=='s6'){ h6.__ck='s6'; h6.innerHTML=this._platesHTML('st6',this._sfVal,H); }
+    this._mountFx();
+  }
+  componentDidUpdate(){ try{ this._mountCrowd(); }catch(e){} }
+  _mountFx(){
+    const host=this.popLayerRef&&this.popLayerRef.current; if(!host||host.__fk) return; host.__fk=1;
+    const mk=(wrapCss,elCss,txt,kf,dur,ease)=>{
+      const w=document.createElement('div'); w.style.cssText='position:absolute;width:0;height:0;pointer-events:none;will-change:transform;'+wrapCss;
+      const e=document.createElement('div'); e.style.cssText='position:absolute;left:0;bottom:0;white-space:nowrap;opacity:0;'+elCss;
+      if(txt){ e.textContent=txt; e.__t=txt; }
+      w.appendChild(e); host.appendChild(w);
+      const a=e.animate(kf,{duration:dur,easing:ease||'ease',fill:'both'}); a.pause(); a.currentTime=0;
+      a.onfinish=()=>{ try{ a.pause(); a.currentTime=0; }catch(x){} };
+      return {w,e,a};
+    };
+    const popKf=[{transform:'translate(-50%,0) scale(.4)',opacity:0},{opacity:1,offset:.22},{transform:'translate(-50%,-90px) scale(1.4)',opacity:0}];
+    const burstKf=[{transform:'translate(-50%,0) scale(.3)',opacity:0},{transform:'translate(-50%,0) scale(1.18)',opacity:1,offset:.18},{transform:'translate(-50%,0) scale(1)',offset:.3},{opacity:1,offset:.78},{transform:'translate(-50%,-26px) scale(1.02)',opacity:0}];
+    const raysKf=[{transform:'translate(-50%,50%) scale(.4) rotate(0deg)',opacity:0},{opacity:.9,offset:.2},{transform:'translate(-50%,50%) scale(1.5) rotate(24deg)',opacity:0}];
+    const fontCss=(px,color)=>"font-family:var(--display,'Anton');font-size:"+px+"px;color:"+color+";-webkit-text-stroke:2px rgba(0,0,0,.35);";
+    const S={};
+    S.rays=mk('left:50%;bottom:30%;','width:240px;height:240px;background:repeating-conic-gradient(from 8deg,rgba(255,210,62,.75) 0deg 9deg,transparent 9deg 30deg);clip-path:circle(50% at 50% 50%);-webkit-mask-image:radial-gradient(circle,rgba(0,0,0,.9) 30%,transparent 70%);',null,raysKf,1100,'ease-out');
+    S.big=mk('left:50%;bottom:38%;',"font-family:var(--display,'Anton');font-size:58px;letter-spacing:2px;color:#ffd23e;-webkit-text-stroke:2.5px #fff;text-shadow:0 4px 0 #a06400,0 8px 18px rgba(0,0,0,.45);",'PERFECT!',burstKf,1150);
+    S.miss=mk('left:50%;bottom:46%;',fontCss(46,'#ff5252'),'MISS!',popKf,1350);
+    S.gen=[mk('left:46%;bottom:46%;',fontCss(46,'#fff'),'RO!',popKf,1350),
+           mk('left:54%;bottom:46%;',fontCss(46,'#fff'),'RO!',popKf,1350)];
+    S.ro=[mk('left:50%;bottom:40%;',fontCss(26,'var(--gold,#ffcb05)'),'RO',popKf,1350),
+          mk('left:50%;bottom:40%;',fontCss(36,'#fff'),'RO',popKf,1350),
+          mk('left:50%;bottom:40%;',fontCss(44,'var(--gold,#ffcb05)'),'RO',popKf,1350),
+          mk('left:50%;bottom:40%;',fontCss(52,'#fff'),'RO',popKf,1350)];
+    host.__slots=S;
+  }
+  _fxSlots(){ const host=this.popLayerRef&&this.popLayerRef.current; return (host&&host.__slots)||null; }
+  _fxPlay(sl){ try{ sl.a.currentTime=0; sl.a.play(); }catch(e){} }
+  addPop(text,kind){
+    const S=this._fxSlots(); if(!S) return;
+    if(kind==='perfect'){
+      this._fxPlay(S.rays);
+      const b=S.big, t=text||'PERFECT!';
+      if(b.e.__t!==t){ b.e.__t=t; b.e.textContent=t; b.e.style.fontSize=(String(t).length>10?'44px':'58px'); }
+      this._fxPlay(b); return;
+    }
+    if(kind==='miss'){
+      const m=S.miss, t=text||'MISS!';
+      if(m.e.__t!==t){ m.e.__t=t; m.e.textContent=t; }
+      this._fxPlay(m); return;
+    }
+    const g=S.gen[S.gi=((S.gi||0)+1)%S.gen.length]; const t=text||'RO!';
+    if(g.e.__t!==t){ g.e.__t=t; g.e.textContent=t; }
+    g.w.style.transform='translate('+Math.round(Math.random()*64-32)+'px,0)';
+    this._fxPlay(g);
+  }
+  roShout(){
+    const S=this._fxSlots(); if(!S) return;
+    const n=this._lowfx?2:(3+Math.floor(Math.random()*2));
+    const w=window.innerWidth||390, h=window.innerHeight||780;
+    for(let i=0;i<n;i++){
+      const sl=S.ro[S.ri=((S.ri||0)+1)%S.ro.length];
+      const dx=Math.round((Math.random()*0.8-0.4)*w);
+      const dy=Math.round(h*(0.40-(0.28+Math.random()*0.5)));
+      const rot=(Math.random()*34-17).toFixed(1);
+      sl.w.style.transform='translate('+dx+'px,'+dy+'px) rotate('+rot+'deg)';
+      this._fxPlay(sl);
     }
   }
 
@@ -1761,6 +1842,7 @@ class Component extends DCLogic {
   // ---------- sea life & events ----------
   spawnSeaLife(){
     if(this.state.stageId>=3) return;
+    if(this._lowfx){ const h=this.seaLifeRef&&this.seaLifeRef.current; if(h&&h.childElementCount>=2) return; }
     const st=this.state; const tier=st.tier; const id=++this._sid;
     const push=(item,dur)=>{ const host=this.seaLifeRef&&this.seaLifeRef.current; if(!host) return;
       const el=document.createElement('div'); Object.assign(el.style,item.style);
@@ -1830,6 +1912,7 @@ class Component extends DCLogic {
   // and pre-rasterized layers instead of stuttering (ilk saniyelerdeki kasma).
   _warmup(){
     if(this.state.screen!=='game'||!this.state.intro) return;
+    try{ this._mountCrowd(); }catch(e){}
     const host=this.popLayerRef&&this.popLayerRef.current;
     if(host) host.style.opacity='0';
     try{
@@ -1842,7 +1925,10 @@ class Component extends DCLogic {
       this.addPop('PERFECT!','perfect'); this.addPop('RO!','good'); this.roShout();
     }catch(e){}
     clearTimeout(this._wuT2);
-    this._wuT2=setTimeout(()=>{ if(host){ try{host.textContent='';}catch(e){} host.style.opacity='1'; } },1000);
+    this._wuT2=setTimeout(()=>{ if(host){ const S=host.__slots;
+      if(S){ const all=[S.rays,S.big,S.miss].concat(S.gen||[],S.ro||[]);
+        for(const sl of all){ try{ sl.a.pause(); sl.a.currentTime=0; }catch(e){} } }
+      host.style.opacity='1'; } },1000);
   }
   doPromoWin(){
     if(this._polWon) return; this._polWon=true;
@@ -1969,7 +2055,7 @@ class Component extends DCLogic {
     if(this.state.stageId===4||this.state.stageId===7||this.state.stageId===9){ this._redMs=5000; this._paintRed(); }
   }
   _save(dist,combo){ this.setState(s=>{ const best={dist:Math.max(s.best.dist,dist),combo:Math.max(s.best.combo,combo)}; try{localStorage.setItem('ro_best_dist',best.dist);localStorage.setItem('ro_best_combo',best.combo);}catch(e){} return {best}; }); }
-  _paintRed(){ const ms=Math.max(0,this._redMs==null?5000:this._redMs); const b=this.redBarRef&&this.redBarRef.current; const n=this.redNumRef&&this.redNumRef.current; const low=ms<2000; const w=(ms/5000*100).toFixed(1)+'%'; if(b&&(b.__w!==w||b.__lo!==low)){ b.__w=w; b.__lo=low; b.style.width=w; b.style.background=low?'linear-gradient(90deg,#ffce2b,#ba0c2f)':'linear-gradient(90deg,#7d0820,#ba0c2f)'; } const sec=Math.ceil(ms/1000); if(n&&(n.__s!==sec||n.__lo!==low)){ n.__s=sec; n.__lo=low; n.textContent=sec; n.style.color=low?'#ff5252':'var(--gold,#ffcb05)'; } }
+  _paintRed(){ const ms=Math.max(0,this._redMs==null?5000:this._redMs); const b=this.redBarRef&&this.redBarRef.current; const n=this.redNumRef&&this.redNumRef.current; const low=ms<2000; const sc=(ms/5000).toFixed(3); if(b&&(b.__w!==sc||b.__lo!==low)){ b.__w=sc; b.__lo=low; b.style.transform='scaleX('+sc+')'; if(b.__bg!==low){ b.__bg=low; b.style.background=low?'linear-gradient(90deg,#ffce2b,#ba0c2f)':'linear-gradient(90deg,#7d0820,#ba0c2f)'; } } const sec=Math.ceil(ms/1000); if(n&&(n.__s!==sec||n.__lo!==low)){ n.__s=sec; n.__lo=low; n.textContent=sec; n.style.color=low?'#ff5252':'var(--gold,#ffcb05)'; } }
   redTimeout(){ this.shake(); this.flash('#ba0c2f',240); this.sfx('miss'); this.buzz(140); this.addPop('TIME UP!','miss'); this.setState(s=>{ if(s.screen!=='game'||s.result) return null; const shields=s.shields-1; const next={shields,combo:0}; if(shields<=0){ if(s.stageId===9){ next.screen='result'; next.result='win'; this._save(s.progress,s.maxCombo); this.doValhallaEnd(s); } else { next.screen='result'; next.result='lose'; this._save(s.progress,s.maxCombo); setTimeout(()=>this.sfx('lose'),60); setTimeout(()=>this.recordLoss(),60); } } return next; }); }
 
   // ---------- Times Square "BIG SCREEN" bonus window (stage 5) ----------
@@ -2016,7 +2102,7 @@ class Component extends DCLogic {
   _roundDur(){ const rounds=(this.STAGES[5]||{}).rounds||[]; const r=Math.min(this.state.round||0,Math.max(0,rounds.length-1)); return ((rounds[r]||{}).secs||45)*1000; }
   _paintSt6Timer(){ const dur=this._roundDur()||1; const ms=Math.max(0,this._st6Ms==null?dur:this._st6Ms); const b=this.st6BarRef&&this.st6BarRef.current; const n=this.st6TimeRef&&this.st6TimeRef.current; const low=ms<10000; if(b){ b.style.width=(ms/dur*100).toFixed(1)+'%'; b.style.background=low?'linear-gradient(90deg,#ffce2b,#ba0c2f)':'linear-gradient(90deg,#00205b,#ffcb05)'; } if(n){ n.textContent=Math.ceil(ms/1000)+'s'; n.style.color=low?'#ff5252':'#fff'; } const rms=Math.max(0,this._roMs==null?5000:this._roMs); const rb=this.roMsBarRef&&this.roMsBarRef.current; const rn=this.roMsNumRef&&this.roMsNumRef.current; const rlow=rms<2000; if(rb){ rb.style.width=(rms/5000*100).toFixed(1)+'%'; rb.style.background=rlow?'linear-gradient(90deg,#ffce2b,#ff2a2a)':'linear-gradient(90deg,#ba0c2f,#ff6b6b)'; } if(rn){ rn.textContent=(rms/1000).toFixed(1)+'s'; rn.style.color=rlow?'#ffce2b':'#ff9a9a'; } }
   roTimeout(){ if(this.state.screen!=='game'||this.state.result||this.state.roundTrans||this.state.intro) return; this.addPop('TOO LATE!','miss'); this.doOppGoal(); }
-  roWave(){ const el=this.roWaveRef&&this.roWaveRef.current; if(el){ el.animate([{transform:'translateX(-160px)',opacity:0},{opacity:.55,offset:.35},{transform:'translateX(480px)',opacity:0}],{duration:620,easing:'ease-out'}); } const c=this.st6CrowdRef&&this.st6CrowdRef.current; if(c){ c.animate([{transform:'scale(1)'},{transform:'scale(1.045)'},{transform:'scale(1)'}],{duration:440,easing:'ease-out'}); this.pumpArms(false); } }
+  roWave(){ const el=this.roWaveRef&&this.roWaveRef.current; if(el){ el.animate([{transform:'translateX(-160px)',opacity:0},{opacity:.55,offset:.35},{transform:'translateX(480px)',opacity:0}],{duration:620,easing:'ease-out'}); } const c=this.st6CrowdRef&&this.st6CrowdRef.current; if(c){ c.animate([{transform:'translateY(0)'},{transform:'translateY(-7px)'},{transform:'translateY(0)'}],{duration:440,easing:'ease-out',composite:'add'}); this.pumpArms(false); } }
   st6TimeUp(){ if(this.state.screen!=='game'||this.state.result||this.state.roundTrans) return; const rounds=(this.STAGES[5]||{}).rounds||[]; const r=this.state.round; const advanced=this.state.norGoals>this.state.oppGoals;
     if(advanced && r<rounds.length-1){ this.sfx('combo'); this.flash('var(--gold,#ffcb05)',220); this.buzz([20,40,20]); this.setState({roundTrans:{from:(rounds[r]||{}).label,to:(rounds[r+1]||{}).label,opp:(rounds[r+1]||{}).opp,flag:(rounds[r+1]||{}).flag,score:this.state.norGoals+'-'+this.state.oppGoals}}); }
     else if(advanced){ this.flash('var(--gold,#ffcb05)',260); this.setState(s=>{ this._save(100,s.maxCombo); return {screen:'result',result:'win'}; }); setTimeout(()=>{this.sfx('win');this._unlockNext();this.recordWin(6,this.state.maxCombo,this.state.perfects,this.state.strokes);},60); }
@@ -3149,7 +3235,7 @@ class Component extends DCLogic {
       seaLifeRef:this.seaLifeRef, eventShow:!!ev, eventToastStyle, eventText:ev?ev.text:'', eventSub:ev?ev.sub:'',
       resultIcon, resultTitle, resultSub, hasNext, nextName:(nextStage&&!nextStage.locked)?nextStage.name:'',
       stageCards, stageName, stageSub, bestComboR:s.best.combo,
-      isStage7, paradeBgStyle, paradeStreetStyle, paradeConfettiStyle, busWrap, busShadow, busRail, busBody, busBand, busWheelL, busWheelR, busWin, busPlayers, busTrophyStyle,
+      isStage7, paradeBgStyle, paradeStreetStyle, paradeConfettiStyle, busWrap, busRef:this.busRef, busShadow, busRail, busBody, busBand, busWheelL, busWheelR, busWin, busPlayers, busTrophyStyle,
       isStage9, valBgStyle, valEmbers, valBraz, valScoreStyle, vScore:(s.vScore||0).toLocaleString(),
       isStage8, showMeter:isGame&&!isStage8, showCombo:!isStage8, polBgStyle, polAur1, polAur2, polCard, polIcon, polBar1, polBar2, polBar3, polTitle, polSub, polTag, polFeats, polFeatStyle, polSoon, polBrand,
       showRedTimer:(s.stageId===4||s.stageId===7||s.stageId===9), redLbl1:((s.stageId===7||s.stageId===9)?'KEEP THE':'HIT THE'), redLbl2:((s.stageId===7||s.stageId===9)?'CHANT':'RED'),
