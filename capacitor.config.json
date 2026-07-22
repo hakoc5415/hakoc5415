@@ -23,6 +23,10 @@
       "style": "DARK",
       "backgroundColor": "#06101e",
       "overlaysWebView": true
+    },
+    "SystemBars": {
+      "insetsHandling": "disable",
+      "style": "DARK"
     }
   }
 }
