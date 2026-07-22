@@ -1319,7 +1319,10 @@ class Component extends DCLogic {
     this._lbUpdate=()=>{ if(this.state.screen!=='game') this.forceUpdate(); };
     window.addEventListener('ro-leaderboard-updated',this._lbUpdate);
     this._tick=setInterval(()=>{
-      if(this.state.screen==='game' && !this._lowfx && this.state.stageId!==6 && this.state.tier===2 && Math.random()<0.18){ this.flash('#dfe9ff',150); this.sfx('thunder'); }
+      // Thunder is fjord-storm ambience ONLY. It used to fire on every stage at
+      // tier 2 and its low boom was indistinguishable from the miss sound —
+      // players reported "the burn sound plays even though I didn't burn".
+      if(this.state.screen==='game' && !this._lowfx && this.state.stageId===1 && this.state.tier===2 && Math.random()<0.14){ this.flash('#dfe9ff',150); this.sfx('thunder'); }
     },900);
     try{ const im=new Image(); im.src='assets/fjord-bg.webp'; if(im.decode) im.decode().catch(()=>{}); this._fjordImg=im; const im2=new Image(); im2.src='assets/parade-bg.webp'; if(im2.decode) im2.decode().catch(()=>{}); this._paradeImg=im2; const im3=new Image(); im3.src='assets/polara-bg.webp'; if(im3.decode) im3.decode().catch(()=>{}); this._polImg=im3; const im4=new Image(); im4.src='assets/valhalla-bg.webp'; if(im4.decode) im4.decode().catch(()=>{}); this._valImg=im4; }catch(e){}
     this.loadRo();
@@ -1428,7 +1431,7 @@ class Component extends DCLogic {
     }
     else if(kind==='miss'){ this.tone(90,t,0.3,0.3,'square'); this.noise(t,0.25,0.18,200); }
     else if(kind==='combo'){ [523,659,784,1046].forEach((f,i)=>this.tone(f,t+i*0.06,0.16,0.16,'triangle')); }
-    else if(kind==='thunder'){ this.noise(t,0.5,0.25,120); this.tone(60,t,0.5,0.2,'sine'); }
+    else if(kind==='thunder'){ this.noise(t,0.9,0.10,80); this.tone(46,t,0.9,0.10,'sine'); }
     else if(kind==='win'){ [392,523,659,784,1046].forEach((f,i)=>this.tone(f,t+i*0.1,0.3,0.2,'triangle')); }
     else if(kind==='lose'){ [330,262,196].forEach((f,i)=>this.tone(f,t+i*0.16,0.4,0.22,'sawtooth')); }
   }
@@ -1966,7 +1969,11 @@ class Component extends DCLogic {
         }
       }catch(e){}
     }
-    if(kind==='miss') this.doMiss(); else this.doHit(kind);
+    // Accidental double-tap guard: a second tap right after a successful hit
+    // (before the zone has meaningfully moved on) must not burn the player —
+    // another reported source of "the burn sound without burning".
+    if(kind==='miss' && this._lastHitT && (performance.now()-this._lastHitT)<160) return;
+    if(kind==='miss') this.doMiss(); else { this._lastHitT=performance.now(); this.doHit(kind); }
   };
 
   romanOf(n){ const RN=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII','XIII','XIV','XV']; return RN[Math.min(RN.length-1,Math.max(0,n-1))]||String(n); }
