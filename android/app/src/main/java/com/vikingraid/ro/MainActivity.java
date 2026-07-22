@@ -3,9 +3,11 @@ package com.vikingraid.ro;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.view.ViewTreeObserver;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.SystemBarStyle;
-import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -13,6 +15,44 @@ import androidx.core.view.WindowInsetsControllerCompat;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
+
+    // The game is a fullscreen canvas that manages its own safe areas in CSS.
+    // Depending on the Capacitor version, its SystemBars code pads the WebView
+    // (or one of its ancestors) with system-bar insets on Android 15+, which
+    // paints ugly bands above/below the game. enforceFullscreen() runs on
+    // EVERY layout pass and strips any padding/margin from the WebView up to
+    // the window root — whatever adds it, it is gone on the next frame. Only
+    // the keyboard inset is kept so text inputs stay visible.
+    private void enforceFullscreen() {
+        if (bridge == null || bridge.getWebView() == null) return;
+        int imeBottom = 0;
+        try {
+            WindowInsetsCompat ins = ViewCompat.getRootWindowInsets(bridge.getWebView());
+            if (ins != null && ins.isVisible(WindowInsetsCompat.Type.ime())) {
+                imeBottom = ins.getInsets(WindowInsetsCompat.Type.ime()).bottom;
+            }
+        } catch (Exception ignored) {}
+        View v = bridge.getWebView();
+        boolean first = true;
+        while (v != null) {
+            int wantBottom = first ? imeBottom : 0;
+            if (v.getPaddingLeft() != 0 || v.getPaddingTop() != 0 || v.getPaddingRight() != 0 || v.getPaddingBottom() != wantBottom) {
+                v.setPadding(0, 0, 0, wantBottom);
+            }
+            ViewGroup.LayoutParams lp = v.getLayoutParams();
+            if (lp instanceof ViewGroup.MarginLayoutParams) {
+                ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) lp;
+                if (mlp.leftMargin != 0 || mlp.topMargin != 0 || mlp.rightMargin != 0 || mlp.bottomMargin != 0) {
+                    mlp.setMargins(0, 0, 0, 0);
+                    v.setLayoutParams(mlp);
+                }
+            }
+            first = false;
+            ViewParent p = v.getParent();
+            v = (p instanceof View) ? (View) p : null;
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         EdgeToEdge.enable(
@@ -22,30 +62,20 @@ public class MainActivity extends BridgeActivity {
         );
         super.onCreate(savedInstanceState);
 
-        // The game is a fullscreen canvas that manages its own safe areas in
-        // CSS. Capacitor's SystemBars code (present in some 8.x versions) pads
-        // the WebView with system-bar insets on Android 15+, painting ugly
-        // bands above/below the game. Replacing the insets listener on the
-        // WebView's parent makes that padding impossible on every Capacitor
-        // version; only the keyboard still pads the bottom so inputs stay
-        // visible.
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
-        if (this.bridge != null && this.bridge.getWebView() != null) {
-            final View parent = (View) this.bridge.getWebView().getParent();
-            if (parent != null) {
-                ViewCompat.setOnApplyWindowInsetsListener(parent, (v, insets) -> {
-                    Insets ime = insets.getInsets(WindowInsetsCompat.Type.ime());
-                    boolean imeVisible = insets.isVisible(WindowInsetsCompat.Type.ime());
-                    v.setPadding(0, 0, 0, imeVisible ? ime.bottom : 0);
-                    return insets;
-                });
-                parent.setPadding(0, 0, 0, 0);
-                ViewCompat.requestApplyInsets(parent);
-            }
-        }
         WindowInsetsControllerCompat wic =
             new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView());
         wic.setAppearanceLightStatusBars(false);
         wic.setAppearanceLightNavigationBars(false);
+
+        enforceFullscreen();
+        getWindow().getDecorView().getViewTreeObserver().addOnGlobalLayoutListener(
+            new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    enforceFullscreen();
+                }
+            }
+        );
     }
 }
