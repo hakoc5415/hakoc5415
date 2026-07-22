@@ -1,7 +1,7 @@
 {
   "name": "ro-viking-raid",
   "version": "1.0.0",
-  "description": "RO! Viking Raid — Capacitor native wrapper (Android + iOS) with Firebase world leaderboard backend.",
+  "description": "RO! Viking Raid \u2014 Capacitor native wrapper (Android + iOS) with Firebase world leaderboard backend.",
   "private": true,
   "scripts": {
     "build:web": "esbuild src/leaderboard.js --bundle --minify --format=iife --outfile=www/js/leaderboard.js",
@@ -22,6 +22,7 @@
     "@capacitor/haptics": "^8.0.2",
     "@capacitor/ios": "^8.4.1",
     "@capacitor/splash-screen": "^8.0.1",
+    "@capacitor/status-bar": "^8.0.2",
     "firebase": "^12.15.0"
   },
   "devDependencies": {
