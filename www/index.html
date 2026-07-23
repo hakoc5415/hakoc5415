@@ -200,7 +200,6 @@
      cascade (critical on Android WebView). */
   .cwPlate{position:absolute;transform:translateZ(0);will-change:opacity;pointer-events:none;transform-origin:50% 90%}
   .cwUp{opacity:0.001}
-  .lowfx .fxAmb{animation:none!important}
   @keyframes roArmSwing{0%,100%{transform:rotate(var(--rF,-150deg)) scaleY(.74)}50%{transform:rotate(var(--rP,-24deg)) scaleY(1)}}
   @keyframes roLean{0%,100%{transform:translateX(-50%) translateY(-7px) scaleY(.95)}50%{transform:translateX(-50%) translateY(7px) scaleY(1.04)}}
   @keyframes gallWalk{0%,100%{transform:translateX(0)}50%{transform:translateX(var(--wx,12px))}}
@@ -1289,16 +1288,8 @@ class Component extends DCLogic {
   componentDidMount(){
     this._key=(e)=>{ if(e.code==='Space'){ e.preventDefault(); if(this.state.screen==='game') this.ro(); } };
     window.addEventListener('keydown',this._key);
-    // Adaptive quality: if a device sustains janky frames during play, drop the
-    // decorative ambient animations (embers/confetti/aurora) permanently for it.
-    try{ if(localStorage.getItem('ro_fx')==='low') this._setLowfx(true); }catch(e){}
-    this._fpsA=()=>{ const t=performance.now(); const st=this.state;
-      if(!this._lowfx&&st.screen==='game'&&!st.intro&&!st.mounting&&!st.result){
-        if(this._fpT){ const gap=t-this._fpT; this._fjN=(this._fjN||0)+1; if(gap>34) this._fjS=(this._fjS||0)+1;
-          if(this._fjN>=240){ if((this._fjS||0)/this._fjN>0.2) this._setLowfx(true); this._fjN=0; this._fjS=0; } }
-      } else { this._fjN=0; this._fjS=0; }
-      this._fpT=t; if(!this._lowfx) this._fpRaf=requestAnimationFrame(this._fpsA); else this._fpRaf=null; };
-    this._fpRaf=requestAnimationFrame(this._fpsA);
+    // Full graphics everywhere, always — no adaptive quality reduction.
+    try{ localStorage.removeItem('ro_fx'); document.body.classList.remove('lowfx'); }catch(e){}
     this._rsz=()=>{ this._winH=Math.round(window.innerHeight||844); const f=this.fansRef&&this.fansRef.current; if(f) f.__ck=null; const h6=this.st6CrowdRef&&this.st6CrowdRef.current; if(h6) h6.__ck=null; };
     window.addEventListener('resize',this._rsz);
     // Heal the world-board entry: push every local stage best (incl. 7/9, which
@@ -1326,7 +1317,7 @@ class Component extends DCLogic {
       // Thunder is fjord-storm ambience ONLY. It used to fire on every stage at
       // tier 2 and its low boom was indistinguishable from the miss sound —
       // players reported "the burn sound plays even though I didn't burn".
-      if(this.state.screen==='game' && !this._lowfx && this.state.stageId===1 && this.state.tier===2 && Math.random()<0.14){ this.flash('#dfe9ff',150); this.sfx('thunder'); }
+      if(this.state.screen==='game' && this.state.stageId===1 && this.state.tier===2 && Math.random()<0.14){ this.flash('#dfe9ff',150); this.sfx('thunder'); }
     },900);
     try{ const im=new Image(); im.src='assets/fjord-bg.webp'; if(im.decode) im.decode().catch(()=>{}); this._fjordImg=im; const im2=new Image(); im2.src='assets/parade-bg.webp'; if(im2.decode) im2.decode().catch(()=>{}); this._paradeImg=im2; const im3=new Image(); im3.src='assets/polara-bg.webp'; if(im3.decode) im3.decode().catch(()=>{}); this._polImg=im3; const im4=new Image(); im4.src='assets/valhalla-bg.webp'; if(im4.decode) im4.decode().catch(()=>{}); this._valImg=im4; }catch(e){}
     this.loadRo();
@@ -1355,8 +1346,7 @@ class Component extends DCLogic {
       }
     },120);
   }
-  componentWillUnmount(){ window.removeEventListener('keydown',this._key); window.removeEventListener('ro-leaderboard-updated',this._lbUpdate); clearInterval(this._tick); clearInterval(this._loop); clearTimeout(this._evtT); if(this._fpRaf) cancelAnimationFrame(this._fpRaf); window.removeEventListener('resize',this._rsz); this.stopMusic(); }
-  _setLowfx(on){ this._lowfx=!!on; try{ document.body.classList.toggle('lowfx',this._lowfx); }catch(e){} try{ localStorage.setItem('ro_fx',this._lowfx?'low':''); }catch(e){} }
+  componentWillUnmount(){ window.removeEventListener('keydown',this._key); window.removeEventListener('ro-leaderboard-updated',this._lbUpdate); clearInterval(this._tick); clearInterval(this._loop); clearTimeout(this._evtT); window.removeEventListener('resize',this._rsz); this.stopMusic(); }
 
 
   // ---------- audio ----------
@@ -1649,7 +1639,7 @@ class Component extends DCLogic {
   }
   roShout(){
     const S=this._fxSlots(); if(!S) return;
-    const n=this._lowfx?2:(3+Math.floor(Math.random()*2));
+    const n=3+Math.floor(Math.random()*2);
     const w=window.innerWidth||390, h=window.innerHeight||780;
     for(let i=0;i<n;i++){
       const sl=S.ro[S.ri=((S.ri||0)+1)%S.ro.length];
@@ -1850,7 +1840,6 @@ class Component extends DCLogic {
   // ---------- sea life & events ----------
   spawnSeaLife(){
     if(this.state.stageId>=3) return;
-    if(this._lowfx){ const h=this.seaLifeRef&&this.seaLifeRef.current; if(h&&h.childElementCount>=2) return; }
     const st=this.state; const tier=st.tier; const id=++this._sid;
     const push=(item,dur)=>{ const host=this.seaLifeRef&&this.seaLifeRef.current; if(!host) return;
       const el=document.createElement('div'); Object.assign(el.style,item.style);
