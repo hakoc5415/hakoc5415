@@ -1,5 +1,6 @@
 package com.vikingraid.ro;
 
+import android.app.ActivityManager;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -16,13 +17,39 @@ import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
 
-    // The game is a fullscreen canvas that manages its own safe areas in CSS.
-    // Depending on the Capacitor version, its SystemBars code pads the WebView
-    // (or one of its ancestors) with system-bar insets on Android 15+, which
-    // paints ugly bands above/below the game. enforceFullscreen() runs on
-    // EVERY layout pass and strips any padding/margin from the WebView up to
-    // the window root — whatever adds it, it is gone on the next frame. Only
-    // the keyboard inset is kept so text inputs stay visible.
+    // Render-scale for weak devices (<= 6 GB RAM): the WebView is laid out
+    // ~20% smaller and GPU-upscaled to fill the screen. The game is fully
+    // responsive (it already runs on 320-450px-wide viewports), so the layout
+    // stays correct — but ~36% fewer pixels are rasterized and composited
+    // every frame, which is the difference between ~40fps and ~60fps on
+    // fill-rate-bound GPUs like the Galaxy A50's. Flagships keep full res.
+    private static final float PERF_SCALE = 1.25f;
+    private boolean perfScaleApplied = false;
+    private boolean weakDevice = false;
+
+    private void applyPerfScale() {
+        if (perfScaleApplied || !weakDevice) return;
+        if (bridge == null || bridge.getWebView() == null) return;
+        View wv = bridge.getWebView();
+        View parent = (View) wv.getParent();
+        if (parent == null || parent.getWidth() == 0 || parent.getHeight() == 0) return;
+        int w = Math.round(parent.getWidth() / PERF_SCALE);
+        int h = Math.round(parent.getHeight() / PERF_SCALE);
+        ViewGroup.LayoutParams lp = wv.getLayoutParams();
+        lp.width = w;
+        lp.height = h;
+        wv.setLayoutParams(lp);
+        wv.setPivotX(0f);
+        wv.setPivotY(0f);
+        wv.setScaleX(PERF_SCALE);
+        wv.setScaleY(PERF_SCALE);
+        perfScaleApplied = true;
+    }
+
+    // Strip any padding/margins something (e.g. Capacitor's SystemBars insets
+    // code) applies between the WebView and the window edges — the game draws
+    // its own dark background and manages safe areas in CSS. Keyboard inset is
+    // kept so text inputs stay visible.
     private void enforceFullscreen() {
         if (bridge == null || bridge.getWebView() == null) return;
         int imeBottom = 0;
@@ -62,6 +89,13 @@ public class MainActivity extends BridgeActivity {
         );
         super.onCreate(savedInstanceState);
 
+        try {
+            ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
+            ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
+            am.getMemoryInfo(mi);
+            weakDevice = mi.totalMem <= 6L * 1024L * 1024L * 1024L;
+        } catch (Exception ignored) {}
+
         WindowCompat.setDecorFitsSystemWindows(getWindow(), false);
         WindowInsetsControllerCompat wic =
             new WindowInsetsControllerCompat(getWindow(), getWindow().getDecorView());
@@ -74,6 +108,7 @@ public class MainActivity extends BridgeActivity {
                 @Override
                 public void onGlobalLayout() {
                     enforceFullscreen();
+                    applyPerfScale();
                 }
             }
         );
