@@ -1756,8 +1756,15 @@ class Component extends DCLogic {
       const country=this.COUNTRIES.find(c=>c.code===(cloud&&cloud.countryCode))||this.COUNTRIES.find(c=>c.code===this.state.newCountry)||this.COUNTRIES[0];
       const name=(cloud&&cloud.name)||uname.slice(0,16);
       const scores={}; if(cloud&&cloud.scores){ for(const k in cloud.scores){ const n=+cloud.scores[k]; if(n>0) scores[+k]=n; } }
+      // Merge with any local copy of this account: keep the HIGHER score per
+      // stage so logging in can never erase progress made on this device.
+      // (Before this fix a login overwrote local bests with the cloud list —
+      // if the cloud was stale, real records were lost.)
+      const prevLocal=this.state.profiles.find(p=>p.id===id);
+      if(prevLocal&&prevLocal.scores){ for(const k in prevLocal.scores){ const n=+prevLocal.scores[k]; if(n>0&&n>(scores[+k]||0)) scores[+k]=n; } }
       const prof={id,name,country,scores,total:Object.values(scores).reduce((a,b)=>a+b,0),
-        bestCombo:(cloud&&cloud.bestCombo)||0,bestTime:(cloud&&cloud.bestTime!=null)?cloud.bestTime:null,createdAt:Date.now()};
+        bestCombo:Math.max((cloud&&cloud.bestCombo)||0,(prevLocal&&prevLocal.bestCombo)||0),
+        bestTime:(cloud&&cloud.bestTime!=null&&prevLocal&&prevLocal.bestTime!=null)?Math.min(cloud.bestTime,prevLocal.bestTime):((cloud&&cloud.bestTime!=null)?cloud.bestTime:((prevLocal&&prevLocal.bestTime!=null)?prevLocal.bestTime:null)),createdAt:Date.now()};
       // Restore stage progression from the cloud scores: a recorded score means
       // that stage was won, so the next one must be open on this device too.
       let unl=this.state.unlocked||1;
