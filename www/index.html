@@ -1578,7 +1578,9 @@ class Component extends DCLogic {
           +'<div class="cwPlate cwUp" aria-hidden="true" style="'+BAND.css+'"><div style="'+frame+'">'+U.join('')+'</div></div>';
   }
   _mountCrowd(){
-    const s=this.state; if(s.screen!=='game') return;
+    // The stage scene is also the MENU backdrop — build the crowd plates
+    // whenever the scene can be on screen, not only during play.
+    const s=this.state; if(s.screen!=='game'&&s.screen!=='menu') return;
     const id=s.stageId;
     // cached: reading window.innerHeight forces layout, and this runs after every render
     const H=this._winH||(this._winH=Math.round(window.innerHeight||844));
