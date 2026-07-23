@@ -1429,9 +1429,10 @@ class Component extends DCLogic {
     else if(kind==='win'){ [392,523,659,784,1046].forEach((f,i)=>this.tone(f,t+i*0.1,0.3,0.2,'triangle')); }
     else if(kind==='lose'){ [330,262,196].forEach((f,i)=>this.tone(f,t+i*0.16,0.4,0.22,'sawtooth')); }
   }
-  buzz(ms){ /* Vibration disabled for iOS parity: WKWebView has no
-    navigator.vibrate, so iOS never vibrated - and on several Android
-    WebViews the per-tap vibrator IPC stalls the frame right at hit time. */ }
+  buzz(ms){ // Haptics kept, but DEFERRED past the hit frame: the vibrator IPC
+    // used to run inside the tap task and delayed that frame on many Androids.
+    if(this.state.muted) return;
+    try{ if(navigator.vibrate){ clearTimeout(this._bzT); this._bzT=setTimeout(()=>{ try{ navigator.vibrate(ms); }catch(e){} },24); } }catch(e){} }
 
   // ---------- effects ----------
   flash(color,ms){ const el=this.flashRef.current; if(!el) return; ms=ms||220;
