@@ -1429,7 +1429,9 @@ class Component extends DCLogic {
     else if(kind==='win'){ [392,523,659,784,1046].forEach((f,i)=>this.tone(f,t+i*0.1,0.3,0.2,'triangle')); }
     else if(kind==='lose'){ [330,262,196].forEach((f,i)=>this.tone(f,t+i*0.16,0.4,0.22,'sawtooth')); }
   }
-  buzz(ms){ try{ if(!this.state.muted && navigator.vibrate) navigator.vibrate(ms); }catch(e){} }
+  buzz(ms){ /* Vibration disabled for iOS parity: WKWebView has no
+    navigator.vibrate, so iOS never vibrated - and on several Android
+    WebViews the per-tap vibrator IPC stalls the frame right at hit time. */ }
 
   // ---------- effects ----------
   flash(color,ms){ const el=this.flashRef.current; if(!el) return; ms=ms||220;
