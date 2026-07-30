@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>POLARA — Gizlilik Politikası / Privacy Policy</title>
+  <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192.png">
+  <script src="./i18n.js"></script>
+  <style>
+    body { margin: 0; background: #03050e; color: #cfd9ee; font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+    .wrap { max-width: 640px; margin: 0 auto; padding: 32px 20px 60px; }
+    h1 { color: #f2f6ff; font-size: 26px; margin: 18px 0 4px; }
+    .sub { color: #5b6b8c; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 22px; }
+    .card { background: rgba(124,141,176,0.07); border: 1px solid rgba(124,141,176,0.18); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+    .card h2 { color: #8ef5c8; font-size: 15px; margin: 0 0 8px; }
+    .card p { font-size: 14px; line-height: 1.65; margin: 0; }
+    .langs { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .langs button { border: 1px solid rgba(124,141,176,0.35); background: rgba(10,16,34,0.6); color: #cfd9ee; border-radius: 999px; padding: 8px 14px; font-size: 13px; cursor: pointer; }
+    .langs button.on { border-color: rgba(142,245,200,0.6); color: #8ef5c8; background: rgba(142,245,200,0.1); }
+    .logo { width: 64px; height: 64px; border-radius: 16px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <img class="logo" src="./icons/icon-192.png" alt="POLARA">
+    <h1 id="title">Gizlilik Politikası</h1>
+    <div class="sub" id="updated"></div>
+    <div class="langs" id="langs"></div>
+    <div id="sections" style="margin-top: 20px;"></div>
+  </div>
+  <script>
+    (function () {
+      var I = window.POLARA_I18N;
+      var order = ['tr', 'en', 'no', 'fr', 'es', 'it'];
+      var cur = (location.hash || '#tr').slice(1);
+      if (order.indexOf(cur) < 0) cur = 'tr';
+      function li() { return order.indexOf(cur); }
+      function t(k) { var a = I.S[k]; return a ? (a[li()] || a[0]) : k; }
+      function render() {
+        document.getElementById('title').textContent = t('privacy');
+        document.getElementById('updated').textContent = t('privUpdated');
+        var langs = document.getElementById('langs');
+        langs.innerHTML = '';
+        I.LANGS.forEach(function (lg) {
+          var b = document.createElement('button');
+          b.textContent = lg.flag + ' ' + lg.label;
+          b.className = lg.id === cur ? 'on' : '';
+          b.onclick = function () { cur = lg.id; location.hash = lg.id; render(); };
+          langs.appendChild(b);
+        });
+        var s = document.getElementById('sections');
+        s.innerHTML = '';
+        for (var i = 1; i <= 7; i++) {
+          var c = document.createElement('div');
+          c.className = 'card';
+          var h = document.createElement('h2'); h.textContent = t('privH' + i);
+          var p = document.createElement('p'); p.textContent = t('privB' + i);
+          c.appendChild(h); c.appendChild(p); s.appendChild(c);
+        }
+        document.documentElement.lang = cur;
+      }
+      render();
+    })();
+  </script>
+</body>
+</html>
