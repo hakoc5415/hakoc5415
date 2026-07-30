@@ -684,7 +684,7 @@
         <sc-for list="{{ st6Aisles }}" as="a" hint-placeholder-count="0"><div style="{{ a }}"></div></sc-for>
         <div style="{{ st6Roof }}"></div>
         <div style="{{ st6RoofLip }}"></div>
-        <div ref="{{ st6CrowdRef }}" style="position:absolute;inset:0;z-index:5"></div>
+        <div ref="{{ st6CrowdRef }}" style="position:absolute;inset:0;z-index:5;transform:translateZ(0);will-change:transform"></div>
         <sc-for list="{{ st6CrowdFlags }}" as="cf" hint-placeholder-count="0"><div style="{{ cf.pole }}"></div><div style="{{ cf.wrap }}"></div></sc-for>
         <div ref="{{ roWaveRef }}" style="{{ roWaveStyle }}"></div>
         <div style="position:absolute;top:2%;left:4%;width:200px;height:60%;z-index:1;pointer-events:none;transform:rotate(16deg);transform-origin:0 0;background:linear-gradient(168deg,rgba(240,248,255,.16),rgba(240,248,255,.04) 60%,transparent 75%);clip-path:polygon(0 0,26% 0,100% 100%,40% 100%)"></div>
@@ -790,7 +790,7 @@
         <div style="{{ vfillStyle }}"></div>
       </div>
       <div style="position:relative;height:0">
-        <div style="{{ vshipStyle }}">{{ stageIcon }}</div>
+        <div style="{{ vshipWrap }}"><div style="{{ vshipStyle }}">{{ stageIcon }}</div></div>
       </div>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px">
         <div style="display:flex;gap:4px">
@@ -841,13 +841,13 @@
       <div style="max-width:360px;margin:9px auto 0">
         <div style="display:flex;justify-content:space-between;align-items:baseline;font-family:var(--display,'Anton');font-size:9px;letter-spacing:1px;color:#fff;opacity:.9;margin-bottom:3px"><span>TIME</span><span style="opacity:.8">RO FOR GOAL {{ roCount }}/3</span><span ref="{{ st6TimeRef }}" style="font-size:15px">{{ roundSecs }}</span></div>
         <div style="position:relative;height:9px;background:rgba(0,0,0,.4);border-radius:5px;overflow:hidden">
-          <div ref="{{ st6BarRef }}" style="position:absolute;top:0;left:0;bottom:0;width:100%;background:linear-gradient(90deg,#00205b,#ffcb05);border-radius:5px"></div>
+          <div ref="{{ st6BarRef }}" style="position:absolute;top:0;left:0;bottom:0;width:100%;background:linear-gradient(90deg,#00205b,#ffcb05);border-radius:5px;transform-origin:0 50%;will-change:transform"></div>
         </div>
       </div>
       <div style="max-width:360px;margin:7px auto 0">
         <div style="display:flex;justify-content:space-between;align-items:baseline;font-family:var(--display,'Anton');font-size:9px;letter-spacing:1px;margin-bottom:3px"><span style="color:#ff9a9a">RO TIMER</span><span style="opacity:.7;font-size:8px;color:#fff">HIT RO BEFORE IT EMPTIES!</span><span ref="{{ roMsNumRef }}" style="font-size:14px;color:#ff9a9a">5.0s</span></div>
         <div style="position:relative;height:7px;background:rgba(0,0,0,.4);border-radius:5px;overflow:hidden">
-          <div ref="{{ roMsBarRef }}" style="position:absolute;top:0;left:0;bottom:0;width:100%;background:linear-gradient(90deg,#ba0c2f,#ff6b6b);border-radius:5px"></div>
+          <div ref="{{ roMsBarRef }}" style="position:absolute;top:0;left:0;bottom:0;width:100%;background:linear-gradient(90deg,#ba0c2f,#ff6b6b);border-radius:5px;transform-origin:0 50%;will-change:transform"></div>
         </div>
       </div>
     </div>
@@ -1465,25 +1465,32 @@ class Component extends DCLogic {
     // NOTE: translation-only on purpose — a scale here forces the compositor to
     // re-raster the two crowd plates at every step (the Android jank source).
   rowFans(){ this._play('fans',this._fansBuild); }
-  escRow(){ const root=this.stageRef&&this.stageRef.current; if(!root) return;
+  _escRowBuild=()=>{ const root=this.stageRef&&this.stageRef.current; if(!root) return [];
+    // Pooled mall celebration: geometry is read ONCE here (during warmup,
+    // behind the intro card) and the ~30 animations are built ONCE — escRow()
+    // used to force layout for 20 arms and allocate fresh animations on
+    // EVERY hit.
+    const anims=[];
     root.querySelectorAll('.efWrap').forEach(w=>{
-      w.animate([
+      anims.push(w.animate([
         {transform:'translateX(-50%) perspective(240px) rotateX(0deg) scaleY(1)',easing:'cubic-bezier(.3,0,.55,1)'},
         {transform:'translateX(-50%) perspective(240px) rotateX(26deg) scaleY(.94)',offset:.3,easing:'linear'},
         {transform:'translateX(-50%) perspective(240px) rotateX(26deg) scaleY(.94)',offset:.38,easing:'cubic-bezier(.55,0,.35,1)'},
         {transform:'translateX(-50%) perspective(240px) rotateX(-15deg) scaleY(1.05)',offset:.62,easing:'ease-out'},
         {transform:'translateX(-50%) perspective(240px) rotateX(-6deg) scaleY(1.02)',offset:.8,easing:'ease-in-out'},
         {transform:'translateX(-50%) perspective(240px) rotateX(0deg) scaleY(1)'}
-      ],{duration:700,easing:'linear'}); });
+      ],{duration:700,easing:'linear'})); });
     root.querySelectorAll('.efArm').forEach(a=>{ const p=a.parentElement; const pw=p?p.offsetWidth:40; const pr=p?p.getBoundingClientRect():null; const ar=a.getBoundingClientRect(); const sgIn=(pr && (ar.left+ar.width/2)<(pr.left+pr.width/2))?1:-1; const dx=(pw*0.17*sgIn).toFixed(1);
-      a.animate([
+      anims.push(a.animate([
         {transform:'translateX(0) scaleY(.4)',easing:'cubic-bezier(.3,0,.55,1)'},
         {transform:'translateX('+dx+'px) scaleY(.96)',offset:.3,easing:'linear'},
         {transform:'translateX('+dx+'px) scaleY(.96)',offset:.38,easing:'cubic-bezier(.55,0,.35,1)'},
         {transform:'translateX(0) scaleY(.16)',offset:.62,easing:'ease-out'},
         {transform:'translateX(0) scaleY(.46)',offset:.82,easing:'ease-in-out'},
         {transform:'translateX(0) scaleY(.4)'}
-      ],{duration:700,easing:'linear'}); }); }
+      ],{duration:700,easing:'linear'})); });
+    return anims; };
+  escRow(){ this._play('esc',this._escRowBuild); }
   _mirrorSweep(sel,deg,dur,comp){ const root=this.stageRef&&this.stageRef.current; if(!root) return; root.querySelectorAll(sel).forEach(el=>{ const sg=parseFloat(el.style.getPropertyValue('--sg'))||1; el.animate([{transform:'rotate(0deg)'},{transform:'rotate('+(-deg*sg)+'deg)',offset:.14},{transform:'rotate('+(deg*sg)+'deg)',offset:.5},{transform:'rotate('+(deg*0.28*sg)+'deg)',offset:.72},{transform:'rotate(0deg)'}],{duration:dur,easing:'cubic-bezier(.34,.08,.28,1)',composite:comp||'replace'}); }); }
   _strokeBuild=()=>{ const P=[]; const root=this.stageRef&&this.stageRef.current; if(!root) return P;
     const g=this.rowersRef&&this.rowersRef.current;
@@ -1688,6 +1695,11 @@ class Component extends DCLogic {
     S.miss=mk('left:50%;bottom:46%;',fontCss(46,'#ff5252'),'MISS!',popKf,1350);
     S.gen=[mk('left:46%;bottom:46%;',fontCss(46,'#fff'),'RO!',popKf,1350),
            mk('left:54%;bottom:46%;',fontCss(46,'#fff'),'RO!',popKf,1350)];
+    const ballKf=[{transform:'translate(-50%,0) scale(1.25)',opacity:0},{opacity:1,offset:.14},{transform:'translate(-50%,-78px) scale(.42)',opacity:1}];
+    S.ball=[mk('left:50%;bottom:22%;','width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 38% 30%,#fff,#e2e6ea 58%,#9aa2ab);box-shadow:0 3px 8px rgba(0,0,0,.5);',null,ballKf,620,'ease-out'),
+            mk('left:50%;bottom:22%;','width:22px;height:22px;border-radius:50%;background:radial-gradient(circle at 38% 30%,#fff,#e2e6ea 58%,#9aa2ab);box-shadow:0 3px 8px rgba(0,0,0,.5);',null,ballKf,620,'ease-out')];
+    S.big2=mk('left:50%;bottom:38%;',"font-family:var(--display,'Anton');font-size:44px;letter-spacing:2px;color:#ffd23e;-webkit-text-stroke:2.5px #fff;text-shadow:0 4px 0 #a06400,0 8px 18px rgba(0,0,0,.45);",'GOAAAL! \u26bd',burstKf,1150);
+    S.miss2=mk('left:50%;bottom:46%;',fontCss(46,'#ff5252'),'TIME UP!',popKf,1350);
     S.ro=[mk('left:50%;bottom:40%;',fontCss(26,'var(--gold,#ffcb05)'),'RO',popKf,1350),
           mk('left:50%;bottom:40%;',fontCss(36,'#fff'),'RO',popKf,1350),
           mk('left:50%;bottom:40%;',fontCss(44,'var(--gold,#ffcb05)'),'RO',popKf,1350),
@@ -1700,12 +1712,14 @@ class Component extends DCLogic {
     const S=this._fxSlots(); if(!S) return;
     if(kind==='perfect'){
       this._fxPlay(S.rays);
-      const b=S.big, t=text||'PERFECT!';
+      const t=text||'PERFECT!';
+      const b=/GOAAAL/.test(t)?S.big2:S.big;
       if(b.e.__t!==t){ b.e.__t=t; b.e.textContent=t; b.e.style.fontSize=(String(t).length>10?'44px':'58px'); }
       this._fxPlay(b); return;
     }
     if(kind==='miss'){
-      const m=S.miss, t=text||'MISS!';
+      const t=text||'MISS!';
+      const m=(t==='MISS!')?S.miss:S.miss2;
       if(m.e.__t!==t){ m.e.__t=t; m.e.textContent=t; }
       this._fxPlay(m); return;
     }
@@ -2000,6 +2014,7 @@ class Component extends DCLogic {
       this._prime('lurch',this._lurchBuild);
       this._prime('shake',this._shakeBuild);
       if(this.state.stageId===1) this._prime('stroke',this._strokeBuild);
+      if(this.state.stageId===2) this._prime('esc',this._escRowBuild);
       if(this.state.stageId>=2) this._prime('fans',this._fansBuild);
       this.pumpArms(false);
       if(this.state.stageId<=2){ this.spawnSeaLife(); this.spawnSeaLife(); }
@@ -2149,8 +2164,15 @@ class Component extends DCLogic {
 
   // ---------- Stage 6: STADIUM RO (football) ----------
   scorePop(which){ const el=(which==='nor'?this.norScoreRef:this.oppScoreRef).current; if(el) el.animate([{transform:'scale(1)'},{transform:'scale(1.65)'},{transform:'scale(1)'}],{duration:360,easing:'ease-out'}); }
-  netFlash(){ const el=this.netRef&&this.netRef.current; if(el) el.animate([{filter:'brightness(1)'},{filter:'brightness(2.6)'},{filter:'brightness(1)'}],{duration:440,easing:'ease-out'}); }
-  addBall(){ const id=++this._pid; this.setState(s=>({balls:[...(s.balls||[]),{id}]})); setTimeout(()=>this.setState(s=>({balls:(s.balls||[]).filter(b=>b.id!==id)})),640); }
+  netFlash(){ const el=this.netRef&&this.netRef.current; if(!el) return;
+    // opacity pulse on a persistent glow child — animating filter re-rastered
+    // the whole goal every goal.
+    let g=el.__glow;
+    if(!g||!g.isConnected){ g=document.createElement('div');
+      g.style.cssText='position:absolute;inset:-6px;border-radius:inherit;background:radial-gradient(60% 80% at 50% 45%,rgba(255,255,255,.85),rgba(255,255,255,.25) 60%,transparent 78%);opacity:0;pointer-events:none;will-change:opacity';
+      el.appendChild(g); el.__glow=g; }
+    try{ if(g.__a) g.__a.cancel(); g.__a=g.animate([{opacity:0},{opacity:1,offset:.3},{opacity:0}],{duration:440,easing:'ease-out'}); }catch(e){} }
+  addBall(){ const S=this._fxSlots(); if(!S||!S.ball) return; const sl=S.ball[S.bi=((S.bi||0)+1)%S.ball.length]; this._fxPlay(sl); }
   doGoal(kind){
     const rounds=(this.STAGES[5]||{}).rounds||[];
     this._roMs=5000;
@@ -2185,9 +2207,23 @@ class Component extends DCLogic {
   }
   continueRound=()=>{ const r=this.state.round+1; this._st6Ms=(((this.STAGES[5]||{}).rounds[r]||{}).secs||45)*1000; this._roMs=5000; this.setState(s=>{ const d=this.diff(0,r); return {round:r,norGoals:0,oppGoals:0,roCount:0,combo:0,progress:0,roundTrans:null,balls:[],zoneWidth:d.zoneWidth,speedDur:d.speedDur,tier:d.tier,zoneLeft:this.rollZone(d.zoneWidth)}; }); };
   _roundDur(){ const rounds=(this.STAGES[5]||{}).rounds||[]; const r=Math.min(this.state.round||0,Math.max(0,rounds.length-1)); return ((rounds[r]||{}).secs||45)*1000; }
-  _paintSt6Timer(){ const dur=this._roundDur()||1; const ms=Math.max(0,this._st6Ms==null?dur:this._st6Ms); const b=this.st6BarRef&&this.st6BarRef.current; const n=this.st6TimeRef&&this.st6TimeRef.current; const low=ms<10000; if(b){ b.style.width=(ms/dur*100).toFixed(1)+'%'; b.style.background=low?'linear-gradient(90deg,#ffce2b,#ba0c2f)':'linear-gradient(90deg,#00205b,#ffcb05)'; } if(n){ n.textContent=Math.ceil(ms/1000)+'s'; n.style.color=low?'#ff5252':'#fff'; } const rms=Math.max(0,this._roMs==null?5000:this._roMs); const rb=this.roMsBarRef&&this.roMsBarRef.current; const rn=this.roMsNumRef&&this.roMsNumRef.current; const rlow=rms<2000; if(rb){ rb.style.width=(rms/5000*100).toFixed(1)+'%'; rb.style.background=rlow?'linear-gradient(90deg,#ffce2b,#ff2a2a)':'linear-gradient(90deg,#ba0c2f,#ff6b6b)'; } if(rn){ rn.textContent=(rms/1000).toFixed(1)+'s'; rn.style.color=rlow?'#ffce2b':'#ff9a9a'; } }
+  _paintSt6Timer(){ const dur=this._roundDur()||1; const ms=Math.max(0,this._st6Ms==null?dur:this._st6Ms); const b=this.st6BarRef&&this.st6BarRef.current; const n=this.st6TimeRef&&this.st6TimeRef.current; const low=ms<10000;
+    // scaleX on a promoted layer + gradient refilled only when the color state
+    // flips: the old width+background writes repainted both bars every tick.
+    if(b){ b.style.transform='scaleX('+(ms/dur).toFixed(3)+')'; if(b.__lo!==low){ b.__lo=low; b.style.background=low?'linear-gradient(90deg,#ffce2b,#ba0c2f)':'linear-gradient(90deg,#00205b,#ffcb05)'; } }
+    if(n){ const sec=Math.ceil(ms/1000)+'s'; if(n.__t!==sec){ n.__t=sec; n.textContent=sec; n.style.color=low?'#ff5252':'#fff'; } }
+    const rms=Math.max(0,this._roMs==null?5000:this._roMs); const rb=this.roMsBarRef&&this.roMsBarRef.current; const rn=this.roMsNumRef&&this.roMsNumRef.current; const rlow=rms<2000;
+    if(rb){ rb.style.transform='scaleX('+(rms/5000).toFixed(3)+')'; if(rb.__lo!==rlow){ rb.__lo=rlow; rb.style.background=rlow?'linear-gradient(90deg,#ffce2b,#ff2a2a)':'linear-gradient(90deg,#ba0c2f,#ff6b6b)'; } }
+    if(rn){ const t=(rms/1000).toFixed(1)+'s'; if(rn.__t!==t){ rn.__t=t; rn.textContent=t; rn.style.color=rlow?'#ffce2b':'#ff9a9a'; } } }
   roTimeout(){ if(this.state.screen!=='game'||this.state.result||this.state.roundTrans||this.state.intro) return; this.addPop('TOO LATE!','miss'); this.doOppGoal(); }
-  roWave(){ const el=this.roWaveRef&&this.roWaveRef.current; if(el){ el.animate([{transform:'translateX(-160px)',opacity:0},{opacity:.55,offset:.35},{transform:'translateX(480px)',opacity:0}],{duration:620,easing:'ease-out'}); } const c=this.st6CrowdRef&&this.st6CrowdRef.current; if(c){ c.animate([{transform:'translateY(0)'},{transform:'translateY(-7px)'},{transform:'translateY(0)'}],{duration:440,easing:'ease-out',composite:'add'}); this.pumpArms(false); } }
+  _roWaveBuild=()=>{ const P=[]; const el=this.roWaveRef&&this.roWaveRef.current;
+    if(el) P.push(el.animate([{transform:'translateX(-160px)',opacity:0},{opacity:.55,offset:.35},{transform:'translateX(480px)',opacity:0}],{duration:620,easing:'ease-out'}));
+    const c=this.st6CrowdRef&&this.st6CrowdRef.current;
+    // pooled + container stays promoted: per-goal animate() churned the layer
+    // tree and re-rastered both crowd plates every goal
+    if(c) P.push(c.animate([{transform:'translateY(0)'},{transform:'translateY(-7px)'},{transform:'translateY(0)'}],{duration:440,easing:'ease-out',composite:'add'}));
+    return P; };
+  roWave(){ this._play('rowave',this._roWaveBuild); const c=this.st6CrowdRef&&this.st6CrowdRef.current; if(c) this.pumpArms(false); }
   st6TimeUp(){ if(this.state.screen!=='game'||this.state.result||this.state.roundTrans) return; const rounds=(this.STAGES[5]||{}).rounds||[]; const r=this.state.round; const advanced=this.state.norGoals>this.state.oppGoals;
     if(advanced && r<rounds.length-1){ this.sfx('combo'); this.flash('var(--gold,#ffcb05)',220); this.buzz([20,40,20]); this.setState({roundTrans:{from:(rounds[r]||{}).label,to:(rounds[r+1]||{}).label,opp:(rounds[r+1]||{}).opp,flag:(rounds[r+1]||{}).flag,score:this.state.norGoals+'-'+this.state.oppGoals}}); }
     else if(advanced){ this.flash('var(--gold,#ffcb05)',260); this.setState(s=>{ this._save(100,s.maxCombo); return {screen:'result',result:'win'}; }); setTimeout(()=>{this.sfx('win');this._unlockNext();this.recordWin(6,this.state.maxCombo,this.state.perfects,this.state.strokes);},60); }
@@ -2247,8 +2283,11 @@ class Component extends DCLogic {
     const cursorStyle={position:'absolute',left:'-2px',right:'-2px',height:'8px',top:'0',background:'linear-gradient(180deg,#ffffff,#dfe7ee)',boxShadow:'0 2px 6px rgba(0,0,0,.55),0 0 3px rgba(0,0,0,.4)',borderRadius:'4px',zIndex:3,willChange:'transform',animation:'roSweep '+s.speedDur+'s linear infinite alternate'};
 
     // ---- hud ----
-    const vfillStyle={position:'absolute',top:0,left:0,bottom:0,width:progressR+'%',background:'linear-gradient(90deg,var(--accent2,#00205b),var(--gold,#ffcb05))',borderRadius:'6px',transition:'width .25s'};
-    const vshipStyle={position:'absolute',top:'-9px',left:progressR+'%',transform:'translateX(-50%)',fontSize:'15px',transition:'left .25s',filter:'drop-shadow(0 1px 2px rgba(0,0,0,.5))'};
+    // Voyage bar: scaleX + translated wrapper instead of animated width/left —
+    // those repainted the HUD band every frame of every hit's 250ms tween.
+    const vfillStyle={position:'absolute',top:0,left:0,bottom:0,width:'100%',background:'linear-gradient(90deg,var(--accent2,#00205b),var(--gold,#ffcb05))',borderRadius:'6px',transform:'scaleX('+(progressR/100)+')',transformOrigin:'0 50%',transition:'transform .25s',willChange:'transform'};
+    const vshipWrap={position:'absolute',top:'-9px',left:0,width:'100%',transform:'translateX('+(progressR-100)+'%)',transition:'transform .25s',willChange:'transform',pointerEvents:'none'};
+    const vshipStyle={position:'absolute',right:0,transform:'translateX(50%)',fontSize:'15px',filter:'drop-shadow(0 1px 2px rgba(0,0,0,.5))'};
     // ---- event toast ----
     const ev=s.event; const eventToastStyle={position:'absolute',left:'50%',top:'13%',transform:'translateX(-50%)',padding:'9px 16px',background:'rgba(13,27,42,.82)',border:'2px solid var(--gold,#ffcb05)',borderRadius:'14px',textAlign:'center',whiteSpace:'nowrap',zIndex:7,animation:'toastPop 2.2s ease-out forwards',boxShadow:'0 6px 18px rgba(0,0,0,.4)'};
     const shieldsArr=[]; if(!isStage8) for(let i=0;i<5;i++){ const on=i<s.shields; shieldsArr.push({style:{width:'21px',height:'26px',
@@ -3174,7 +3213,7 @@ class Component extends DCLogic {
     const roundLabel=round6.label||''; const oppShort=round6.oppShort||''; const oppFlag=round6.flag||'assets/flags/no.png';
     const roundTarget=round6.target||4; const roundNo=rIdx+1;
     const goalProgPct=Math.min(100, roundTarget? norGoals6/roundTarget*100 : 0);
-    const goalProgStyle={position:'absolute',top:0,left:0,bottom:0,width:goalProgPct.toFixed(1)+'%',background:'linear-gradient(90deg,var(--accent2,#00205b),var(--gold,#ffcb05))',borderRadius:'5px',transition:'width .25s'};
+    const goalProgStyle={position:'absolute',top:0,left:0,bottom:0,width:'100%',background:'linear-gradient(90deg,var(--accent2,#00205b),var(--gold,#ffcb05))',borderRadius:'5px',transform:'scaleX('+(goalProgPct/100).toFixed(3)+')',transformOrigin:'0 50%',transition:'transform .25s',willChange:'transform'};
     const showStdHud=isGame && !isStage6;
     const showStadiumHud=isGame && isStage6;
     const rt=s.roundTrans; const showRoundTrans=isStage6 && !!rt;
@@ -3277,7 +3316,7 @@ class Component extends DCLogic {
       introStageTag, introBtn, introDesc,
       isRoof, showSkylight, mallTintStyle, rooftopSkyStyle,
       mallBgStyle, floorTilesStyle, skylightStyle, ceilingBandStyle, shops, galleryRails, shoppers, decor, escFrameStyle, escStepsWrapStyle, escStepsStyle, skirtLStyle, skirtRStyle, handrailLStyle, handrailRStyle, railInnerL, railInnerR, combTopStyle, combBotStyle, landingTopStyle, landingBotStyle, newelLStyle, newelRStyle, upLampStyle, floorSignStyle, escFans,
-      vfillStyle, vshipStyle, shieldsArr,
+      vfillStyle, vshipStyle, vshipWrap, shieldsArr,
       combo:s.combo, maxCombo:s.maxCombo, perfects:s.perfects, strokes:s.strokes,
       zoneStyle, perfectStyle, zoneDriftWrap, cursorStyle, popLayerRef:this.popLayerRef,
       muteIcon:s.muted?'🔇':'🔊',
