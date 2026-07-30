@@ -82,12 +82,18 @@ public class MainActivity extends BridgeActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        // NOTE: EdgeToEdge.enable must run AFTER super.onCreate here — calling
+        // it earlier forces the window decor to be created under the manifest
+        // theme, and BridgeActivity's later NoActionBar setTheme() can no
+        // longer remove the action bar: an ugly "RO! Viking Raid" title bar
+        // appeared on some devices.
+        super.onCreate(savedInstanceState);
         EdgeToEdge.enable(
             this,
             SystemBarStyle.dark(Color.TRANSPARENT),
             SystemBarStyle.dark(Color.TRANSPARENT)
         );
-        super.onCreate(savedInstanceState);
+        if (getSupportActionBar() != null) getSupportActionBar().hide();
 
         try {
             ActivityManager am = (ActivityManager) getSystemService(ACTIVITY_SERVICE);

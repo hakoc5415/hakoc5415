@@ -1498,7 +1498,9 @@ class Component extends DCLogic {
     // only tiny groups (ship supporters, bus players) still use the .roP class,
     // scoped to their own small containers instead of the whole stage root.
     const plates=[]; const legacy=[];
-    const f=this.fansRef&&this.fansRef.current; if(f&&f.querySelector('.cwUp')) plates.push(f);
+    let f=this.fansRef&&this.fansRef.current;
+    if(f){ const on=f.querySelector('.cwOn'); if(on) f=on; }
+    if(f&&f.querySelector('.cwUp')) plates.push(f);
     const s6=this.st6CrowdRef&&this.st6CrowdRef.current; if(s6&&s6.querySelector('.cwUp')) plates.push(s6);
     const id=this.state.stageId;
     if(id<=2){ const sh=this.shipRef&&this.shipRef.current; if(sh) legacy.push(sh); }
@@ -1577,6 +1579,59 @@ class Component extends DCLogic {
     return '<div class="cwPlate cwDown" style="'+BAND.css+'"><div style="'+frame+'">'+D.join('')+'</div></div>'
           +'<div class="cwPlate cwUp" aria-hidden="true" style="'+BAND.css+'"><div style="'+frame+'">'+U.join('')+'</div></div>';
   }
+  _mpList(standCount4){
+    // Tiered MP seating for a given stand-count. Extracted from render so
+    // _mountCrowd can PRE-BUILD every phase variant behind the intro card
+    // (rebuilding mid-game caused a visible freeze on weak devices).
+    this._mpAll=this._mpAll||{};
+    if(this._mpAll[standCount4]) return this._mpAll[standCount4];
+    const yp=(y)=>(y/900*100).toFixed(2)+'%';
+    const mps=[];
+      const rowsCfg=[
+        {y:448,X:118,bul:18,n:14,sc:0.50},
+        {y:510,X:148,bul:24,n:17,sc:0.62},
+        {y:576,X:172,bul:30,n:20,sc:0.75},
+        {y:644,X:192,bul:35,n:22,sc:0.88},
+        {y:714,X:208,bul:40,n:24,sc:1.0}
+      ];
+      const suitCols=['#1c2c4c','#2a2a32','#3a2030','#22324a','#4a4a52','#5a2030','#243018','#6a6a72'];
+      const tieCols=['#ba0c2f','#ffce2b','#00205b','#e9ecf2','#1a7a3a','#9a2240'];
+      const hairC4=['#2a1c12','#5a3d22','#caa15a','#171717','#7a5a3a','#b8b8b8','#e0d2b4','#3a2a1c'];
+      let idx=0;
+      rowsCfg.forEach((row,r)=>{
+        const standing = r >= (5-standCount4);
+        const sc=row.sc, baseZ=20+r*16, spacingPx=(2*row.X)/(row.n-1), dW=spacingPx*1.3;
+        for(let i=0;i<row.n;i++){
+          const t=row.n===1?0:(i/(row.n-1)*2-1);
+          const x=230+row.X*t, yLine=row.y+row.bul*(1-t*t), leftPct=x/460*100;
+          const rise=standing?28*sc:0;
+          const shW=30*sc, shH=20*sc, hd=15*sc;
+          const headTop=yLine-(shH+hd*0.7)-rise, bodyTop=yLine-shH-rise+2;
+          const suit=suitCols[idx%suitCols.length], tie=tieCols[idx%tieCols.length], hc=hairC4[(idx*3+r)%hairC4.length];
+          const skins4=['#f3d2ab','#e7bd92','#d3a071','#b9834f','#96683a','#f7e0bd'];
+          const sk4=skins4[(idx*5+r)%skins4.length]; const beard4=((idx+r)%5===0); const bald4=((idx*7+r)%9===0);
+          const aw=5.5*sc, aL=26*sc, armBgUp='linear-gradient(to top,'+suit+' 0 58%,#e7bd92 58% 100%)';
+          mps.push({
+            chair:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(headTop-7*sc),width:(shW*1.18).toFixed(1)+'px',height:(shH+hd+rise+12*sc).toFixed(1)+'px',transform:'translateX(-50%)',background:'linear-gradient(180deg,#a8121f,#6e0c16)',border:'1.5px solid #d8b440',borderRadius:(shW*0.42).toFixed(1)+'px '+(shW*0.42).toFixed(1)+'px 4px 4px',boxShadow:'0 1px 3px rgba(0,0,0,.4)',zIndex:baseZ},
+            body:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(bodyTop),width:shW.toFixed(1)+'px',height:(shH+rise).toFixed(1)+'px',transform:'translateX(-50%)',background:'radial-gradient(circle at 50% 26%,color-mix(in srgb,'+suit+' 78%,#fff 22%),'+suit+' 60%,color-mix(in srgb,'+suit+' 66%,#000))',borderRadius:(shW*0.5).toFixed(1)+'px '+(shW*0.5).toFixed(1)+'px '+(shW*0.22).toFixed(1)+'px '+(shW*0.22).toFixed(1)+'px',boxShadow:'0 2px 3px rgba(0,0,0,.4),inset 0 4px 5px rgba(255,255,255,.1)',zIndex:baseZ+1},
+            tie:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(bodyTop+1),width:(4*sc).toFixed(1)+'px',height:(shH*0.7).toFixed(1)+'px',transform:'translateX(-50%)',background:tie,borderRadius:'1px',zIndex:baseZ+2},
+            armClsL: standing?'roArm roAL':'mpArm mpL',
+            armClsR: standing?'roArm roAR':'mpArm mpR',
+            armL: {position:'absolute',left:'calc('+leftPct.toFixed(2)+'% - '+(shW*0.30).toFixed(1)+'px)',top:yp(bodyTop-aL*0.62),width:aw.toFixed(1)+'px',height:aL.toFixed(1)+'px',background:armBgUp,borderRadius:aw.toFixed(1)+'px',transformOrigin:'50% 100%',transform:'rotate(-20deg)',boxShadow:'0 1px 2px rgba(0,0,0,.3)',opacity:standing?1:0,zIndex:baseZ+3},
+            armR: {position:'absolute',left:'calc('+leftPct.toFixed(2)+'% + '+(shW*0.30).toFixed(1)+'px)',top:yp(bodyTop-aL*0.62),width:aw.toFixed(1)+'px',height:aL.toFixed(1)+'px',background:armBgUp,borderRadius:aw.toFixed(1)+'px',transformOrigin:'50% 100%',transform:'rotate(20deg)',boxShadow:'0 1px 2px rgba(0,0,0,.3)',opacity:standing?1:0,zIndex:baseZ+3},
+            deskSeg:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(yLine-3),width:dW.toFixed(1)+'px',height:(15*sc).toFixed(1)+'px',transform:'translateX(-50%)',background:'linear-gradient(180deg,#dcc191,#b8975c 45%,#8f6f3e)',borderRadius:'2px 2px 1px 1px',borderTop:'1px solid rgba(255,247,214,.6)',boxShadow:'0 2px 3px rgba(0,0,0,.5),inset 0 2px 0 rgba(255,247,214,.3)',zIndex:baseZ+6},
+            papers:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(yLine-1),width:(10*sc).toFixed(1)+'px',height:(7*sc).toFixed(1)+'px',transform:'translateX(-50%)',background:'linear-gradient(180deg,#dce8f4,#aec4dd)',borderRadius:'1px',boxShadow:'0 1px 1px rgba(0,0,0,.3)',zIndex:baseZ+7},
+            hair:bald4?{display:'none'}:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(headTop-hd*0.26),width:(hd*1.08).toFixed(1)+'px',height:(hd*0.68).toFixed(1)+'px',transform:'translateX(-50%)',background:'radial-gradient(circle at 50% 82%,'+hc+',color-mix(in srgb,'+hc+' 62%,#000))',borderRadius:'50% 50% 36% 36%',boxShadow:'inset 0 -2px 2px rgba(0,0,0,.3)',zIndex:baseZ+6},
+            head:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(headTop),width:hd.toFixed(1)+'px',height:hd.toFixed(1)+'px',transform:'translateX(-50%)',
+              background:'radial-gradient('+(hd*0.10).toFixed(1)+'px '+(hd*0.10).toFixed(1)+'px at 35% 50%,#241610 60%,transparent 61%),radial-gradient('+(hd*0.10).toFixed(1)+'px '+(hd*0.10).toFixed(1)+'px at 65% 50%,#241610 60%,transparent 61%)'+(beard4?',radial-gradient(70% 42% at 50% 94%,color-mix(in srgb,'+hc+' 84%,#000) 56%,transparent 58%)':'')+',radial-gradient(circle at 44% 34%,color-mix(in srgb,'+sk4+' 82%,#fff 18%),'+sk4+' 60%,color-mix(in srgb,'+sk4+' 72%,#000))',
+              borderRadius:'50%',boxShadow:'0 1px 2px rgba(0,0,0,.4),inset 0 -3px 3px rgba(0,0,0,.16)',zIndex:baseZ+7}
+          });
+          idx++;
+        }
+      });
+    this._mpAll[standCount4]=mps;
+    return mps;
+  }
   _mountCrowd(){
     // The stage scene is also the MENU backdrop — build the crowd plates
     // whenever the scene can be on screen, not only during play.
@@ -1587,8 +1642,25 @@ class Component extends DCLogic {
     const host=this.fansRef&&this.fansRef.current;
     if(host){ let key=null,kind=null,list=null;
       if((id===3||id===5||id===7||id===9)&&this._cfKey===id&&this._cfVal){ key='f'+id; kind='fans'; list=this._cfVal; }
-      else if(id===4&&this._mpVal){ key='m'+this._mpKey; kind='mps'; list=this._mpVal; }
       if(key&&host.__ck!==key){ host.__ck=key; host.innerHTML=this._platesHTML(kind,list,H); }
+      if(id===4){
+        // Chamber: EVERY stand-count variant is pre-built once (behind the
+        // intro card). A phase change only flips which set is visible — the
+        // mid-game innerHTML rebuild used to freeze weak phones for ~700ms.
+        if(host.__ck!=='m4all'){ host.__ck='m4all'; let html='';
+          for(let sc=0;sc<=4;sc++){ html+='<div class="mpSet" data-sc="'+sc+'" style="position:absolute;inset:0;display:none">'+this._platesHTML('mps',this._mpList(sc),H)+'</div>'; }
+          host.innerHTML=html; host.__mpsc=null;
+        }
+        const sc=Math.max(0,Math.min(4,this._mpKey||0));
+        if(host.__mpsc!==sc){ host.__mpsc=sc;
+          host.querySelectorAll('.mpSet').forEach(el=>{
+            const v=+el.getAttribute('data-sc');
+            if(v===sc){ el.style.display='block'; el.style.opacity='1'; el.classList.add('cwOn'); }
+            else if(v===sc+1){ el.style.display='block'; el.style.opacity='0.001'; el.classList.remove('cwOn'); }
+            else { el.style.display='none'; el.classList.remove('cwOn'); }
+          });
+        }
+      }
     }
     const h6=this.st6CrowdRef&&this.st6CrowdRef.current;
     if(h6&&id===6&&this._sfVal&&h6.__ck!=='s6'){ h6.__ck='s6'; h6.innerHTML=this._platesHTML('st6',this._sfVal,H); }
@@ -2949,52 +3021,8 @@ class Component extends DCLogic {
       boards.forEach((x0)=>{ for(let rr=0;rr<rows;rr++){ for(let cc=0;cc<cols;cc++){ const on=gi<lit; const dx=x0+cc*8, dy=306+rr*8;
         voteDots.push({style:{position:'absolute',left:xp(dx),top:yp(dy),width:'5px',height:'5px',borderRadius:'1px',background:on?'#2ee06a':'#1c3029',boxShadow:on?'0 0 5px rgba(46,224,106,.9)':'none',zIndex:3}}); gi++; } } }); }
     // milletvekilleri — tiered semicircular seating in red-gold chairs
-    let mps=isStage4?((this._mpKey===standCount4&&this._mpVal)?this._mpVal:null):[];
-    if(mps===null){ mps=[];
-      const rowsCfg=[
-        {y:448,X:118,bul:18,n:14,sc:0.50},
-        {y:510,X:148,bul:24,n:17,sc:0.62},
-        {y:576,X:172,bul:30,n:20,sc:0.75},
-        {y:644,X:192,bul:35,n:22,sc:0.88},
-        {y:714,X:208,bul:40,n:24,sc:1.0}
-      ];
-      const suitCols=['#1c2c4c','#2a2a32','#3a2030','#22324a','#4a4a52','#5a2030','#243018','#6a6a72'];
-      const tieCols=['#ba0c2f','#ffce2b','#00205b','#e9ecf2','#1a7a3a','#9a2240'];
-      const hairC4=['#2a1c12','#5a3d22','#caa15a','#171717','#7a5a3a','#b8b8b8','#e0d2b4','#3a2a1c'];
-      let idx=0;
-      rowsCfg.forEach((row,r)=>{
-        const standing = r >= (5-standCount4);
-        const sc=row.sc, baseZ=20+r*16, spacingPx=(2*row.X)/(row.n-1), dW=spacingPx*1.3;
-        for(let i=0;i<row.n;i++){
-          const t=row.n===1?0:(i/(row.n-1)*2-1);
-          const x=230+row.X*t, yLine=row.y+row.bul*(1-t*t), leftPct=x/460*100;
-          const rise=standing?28*sc:0;
-          const shW=30*sc, shH=20*sc, hd=15*sc;
-          const headTop=yLine-(shH+hd*0.7)-rise, bodyTop=yLine-shH-rise+2;
-          const suit=suitCols[idx%suitCols.length], tie=tieCols[idx%tieCols.length], hc=hairC4[(idx*3+r)%hairC4.length];
-          const skins4=['#f3d2ab','#e7bd92','#d3a071','#b9834f','#96683a','#f7e0bd'];
-          const sk4=skins4[(idx*5+r)%skins4.length]; const beard4=((idx+r)%5===0); const bald4=((idx*7+r)%9===0);
-          const aw=5.5*sc, aL=26*sc, armBgUp='linear-gradient(to top,'+suit+' 0 58%,#e7bd92 58% 100%)';
-          mps.push({
-            chair:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(headTop-7*sc),width:(shW*1.18).toFixed(1)+'px',height:(shH+hd+rise+12*sc).toFixed(1)+'px',transform:'translateX(-50%)',background:'linear-gradient(180deg,#a8121f,#6e0c16)',border:'1.5px solid #d8b440',borderRadius:(shW*0.42).toFixed(1)+'px '+(shW*0.42).toFixed(1)+'px 4px 4px',boxShadow:'0 1px 3px rgba(0,0,0,.4)',zIndex:baseZ},
-            body:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(bodyTop),width:shW.toFixed(1)+'px',height:(shH+rise).toFixed(1)+'px',transform:'translateX(-50%)',background:'radial-gradient(circle at 50% 26%,color-mix(in srgb,'+suit+' 78%,#fff 22%),'+suit+' 60%,color-mix(in srgb,'+suit+' 66%,#000))',borderRadius:(shW*0.5).toFixed(1)+'px '+(shW*0.5).toFixed(1)+'px '+(shW*0.22).toFixed(1)+'px '+(shW*0.22).toFixed(1)+'px',boxShadow:'0 2px 3px rgba(0,0,0,.4),inset 0 4px 5px rgba(255,255,255,.1)',zIndex:baseZ+1},
-            tie:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(bodyTop+1),width:(4*sc).toFixed(1)+'px',height:(shH*0.7).toFixed(1)+'px',transform:'translateX(-50%)',background:tie,borderRadius:'1px',zIndex:baseZ+2},
-            armClsL: standing?'roArm roAL':'mpArm mpL',
-            armClsR: standing?'roArm roAR':'mpArm mpR',
-            armL: {position:'absolute',left:'calc('+leftPct.toFixed(2)+'% - '+(shW*0.30).toFixed(1)+'px)',top:yp(bodyTop-aL*0.62),width:aw.toFixed(1)+'px',height:aL.toFixed(1)+'px',background:armBgUp,borderRadius:aw.toFixed(1)+'px',transformOrigin:'50% 100%',transform:'rotate(-20deg)',boxShadow:'0 1px 2px rgba(0,0,0,.3)',opacity:standing?1:0,zIndex:baseZ+3},
-            armR: {position:'absolute',left:'calc('+leftPct.toFixed(2)+'% + '+(shW*0.30).toFixed(1)+'px)',top:yp(bodyTop-aL*0.62),width:aw.toFixed(1)+'px',height:aL.toFixed(1)+'px',background:armBgUp,borderRadius:aw.toFixed(1)+'px',transformOrigin:'50% 100%',transform:'rotate(20deg)',boxShadow:'0 1px 2px rgba(0,0,0,.3)',opacity:standing?1:0,zIndex:baseZ+3},
-            deskSeg:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(yLine-3),width:dW.toFixed(1)+'px',height:(15*sc).toFixed(1)+'px',transform:'translateX(-50%)',background:'linear-gradient(180deg,#dcc191,#b8975c 45%,#8f6f3e)',borderRadius:'2px 2px 1px 1px',borderTop:'1px solid rgba(255,247,214,.6)',boxShadow:'0 2px 3px rgba(0,0,0,.5),inset 0 2px 0 rgba(255,247,214,.3)',zIndex:baseZ+6},
-            papers:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(yLine-1),width:(10*sc).toFixed(1)+'px',height:(7*sc).toFixed(1)+'px',transform:'translateX(-50%)',background:'linear-gradient(180deg,#dce8f4,#aec4dd)',borderRadius:'1px',boxShadow:'0 1px 1px rgba(0,0,0,.3)',zIndex:baseZ+7},
-            hair:bald4?{display:'none'}:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(headTop-hd*0.26),width:(hd*1.08).toFixed(1)+'px',height:(hd*0.68).toFixed(1)+'px',transform:'translateX(-50%)',background:'radial-gradient(circle at 50% 82%,'+hc+',color-mix(in srgb,'+hc+' 62%,#000))',borderRadius:'50% 50% 36% 36%',boxShadow:'inset 0 -2px 2px rgba(0,0,0,.3)',zIndex:baseZ+6},
-            head:{position:'absolute',left:leftPct.toFixed(2)+'%',top:yp(headTop),width:hd.toFixed(1)+'px',height:hd.toFixed(1)+'px',transform:'translateX(-50%)',
-              background:'radial-gradient('+(hd*0.10).toFixed(1)+'px '+(hd*0.10).toFixed(1)+'px at 35% 50%,#241610 60%,transparent 61%),radial-gradient('+(hd*0.10).toFixed(1)+'px '+(hd*0.10).toFixed(1)+'px at 65% 50%,#241610 60%,transparent 61%)'+(beard4?',radial-gradient(70% 42% at 50% 94%,color-mix(in srgb,'+hc+' 84%,#000) 56%,transparent 58%)':'')+',radial-gradient(circle at 44% 34%,color-mix(in srgb,'+sk4+' 82%,#fff 18%),'+sk4+' 60%,color-mix(in srgb,'+sk4+' 72%,#000))',
-              borderRadius:'50%',boxShadow:'0 1px 2px rgba(0,0,0,.4),inset 0 -3px 3px rgba(0,0,0,.16)',zIndex:baseZ+7}
-          });
-          idx++;
-        }
-      });
-      this._mpKey=standCount4; this._mpVal=mps;
-    }
+    let mps=isStage4?this._mpList(standCount4):[];
+    if(isStage4){ this._mpKey=standCount4; this._mpVal=mps; }
     const voteBannerStyle={position:'absolute',left:'50%',top:'8%',transform:'translateX(-50%)',padding:'7px 16px',background:'rgba(60,8,16,.86)',border:'2px solid #d8b440',borderRadius:'12px',color:'#fff',fontFamily:"var(--display,'Anton')",letterSpacing:'1px',fontSize:'15px',zIndex:15,whiteSpace:'nowrap',boxShadow:'0 6px 18px rgba(0,0,0,.5)'};
 
     // menu chips
