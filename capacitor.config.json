@@ -1,0 +1,16 @@
+{
+  "appId": "com.norient.polara",
+  "appName": "POLARA",
+  "webDir": "dist",
+  "backgroundColor": "#03050e",
+  "android": {
+    "backgroundColor": "#03050e"
+  },
+  "ios": {
+    "backgroundColor": "#03050e",
+    "contentInset": "never"
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}
