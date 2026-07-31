@@ -16,10 +16,11 @@ export function renderUI(app) {
     <div data-click="${H(v.onSplashTap)}" style="position: absolute; inset: 0; z-index: 50; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: clamp(10px, 2.4vh, 20px); text-align: center; padding: 24px; background: #000000; cursor: pointer; overflow: hidden;">
       <div style="position: absolute; width: 96vmin; height: 96vmin; border-radius: 50%; background: conic-gradient(from 0deg, transparent 0%, rgba(111,215,168,0.16) 10%, transparent 28%, rgba(201,165,255,0.13) 42%, transparent 58%, rgba(47,168,201,0.16) 72%, transparent 90%); filter: blur(34px); animation: raySpin 18s linear infinite;"></div>
       <div style="position: absolute; width: 60vmin; height: 60vmin; border-radius: 50%; background: conic-gradient(from 180deg, transparent 0%, rgba(142,245,200,0.1) 20%, transparent 45%, rgba(165,200,255,0.1) 70%, transparent 95%); filter: blur(26px); animation: raySpin 26s linear infinite reverse;"></div>
+      <div style="position: absolute; width: 130vmin; height: 78vmin; border-radius: 50%; background: radial-gradient(closest-side, rgba(0,0,0,0.92), rgba(0,0,0,0.6) 55%, transparent 100%);"></div>
       <div style="position: relative; z-index: 1; font-family: 'Space Grotesk', sans-serif; font-size: clamp(11px, 1.9vh, 13px); letter-spacing: 0.42em; color: #7c8db0; text-transform: uppercase; animation: splashText 0.7s ease 0.3s both;">Presented by</div>
       <div style="position: relative; z-index: 1; animation: floatY 5s ease-in-out 2.4s infinite;">
         <div style="display: flex; align-items: center; gap: clamp(14px, 2.4vw, 24px); width: clamp(250px, 42vw, 440px); animation: logoWipe 1.3s cubic-bezier(0.65, 0, 0.35, 1) 0.7s both;">
-          <svg viewBox="0 0 200 200" style="width: clamp(64px, 10vw, 104px); height: auto; flex-shrink: 0; filter: drop-shadow(0 0 22px rgba(28,159,229,0.25));">
+          <svg viewBox="0 0 200 200" style="width: clamp(64px, 10vw, 104px); height: auto; flex-shrink: 0;">
             <circle cx="100" cy="27" r="13" fill="#1C9FE5"></circle>
             <path d="M32 103 L98 69" stroke="#1C9FE5" stroke-width="27" stroke-linecap="round" fill="none"></path>
             <path d="M99 67 Q132 73 167 99" stroke="#23B26D" stroke-width="27" stroke-linecap="round" fill="none"></path>

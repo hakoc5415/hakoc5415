@@ -73,7 +73,8 @@ export class Polara {
         "<circle cx='50' cy='36' r='22' fill='#a5c8ff' opacity='0.18'/><circle cx='50' cy='36' r='12' fill='#a5c8ff' opacity='0.25'/><path d='M50 8 L54 32 L78 36 L54 40 L50 64 L46 40 L22 36 L46 32 Z' fill='#f2f6ff'/><path d='M-4 78 Q50 58 104 78' stroke='url(#g)' stroke-width='6' fill='none' opacity='0.5'/>", '')
     ];
     const AV_NAMES = ['Zümrüt Perde', 'Buz Şafağı', 'Menekşe Tacı', 'Kutup Alevi', 'Gece Nehri', 'Gül Işıması', 'Altın Ufuk', 'Turkuaz Rüzgâr', 'Mor Fırtına', 'Kuzey Yıldızı'];
-    this.AVATARS = AV_NAMES.map((name, i) => ({ id: i, name, bg: 'url("data:image/svg+xml,' + encodeURIComponent(ART[i]) + '") center / cover no-repeat #060b1c' }));
+    // tek tırnak + %27: değer HTML style özniteliğine gömüldüğü için çift tırnak kullanılamaz
+    this.AVATARS = AV_NAMES.map((name, i) => ({ id: i, name, bg: "url('data:image/svg+xml," + encodeURIComponent(ART[i]).replace(/'/g, '%27') + "') center / cover no-repeat #060b1c" }));
     this.THEMES = [
       { id: 'aurora', name: 'Aurora Yeşili', hue: 148, min: 0 },
       { id: 'ice', name: 'Buz Mavisi', hue: 210, min: 0 },
@@ -493,7 +494,7 @@ export class Polara {
         const rot = a.shape === 'diamond' ? 'rotate(45deg)' : 'none';
         return {
           name: this.tn('ach', a.id),
-          iconBg: 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '") center / contain no-repeat',
+          iconBg: "url('data:image/svg+xml," + encodeURIComponent(svg).replace(/'/g, '%27') + "') center / contain no-repeat",
           medalRadius: radius, medalRot: rot, iconRot: rot === 'none' ? 'none' : 'rotate(-45deg)',
           border: sel ? 'hsla(' + H + ',80%,75%,0.7)' : got ? 'hsla(' + H + ',60%,65%,0.3)' : 'rgba(124,141,176,0.18)',
           bg: sel ? 'hsla(' + H + ',70%,60%,0.12)' : got ? 'hsla(' + H + ',60%,55%,0.06)' : 'rgba(10,16,34,0.45)',
