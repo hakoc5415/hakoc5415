@@ -18,9 +18,19 @@ export function renderUI(app) {
       <div style="position: absolute; width: 60vmin; height: 60vmin; border-radius: 50%; background: conic-gradient(from 180deg, transparent 0%, rgba(142,245,200,0.1) 20%, transparent 45%, rgba(165,200,255,0.1) 70%, transparent 95%); filter: blur(26px); animation: raySpin 26s linear infinite reverse;"></div>
       <div style="position: relative; z-index: 1; font-family: 'Space Grotesk', sans-serif; font-size: clamp(11px, 1.9vh, 13px); letter-spacing: 0.42em; color: #7c8db0; text-transform: uppercase; animation: splashText 0.7s ease 0.3s both;">Presented by</div>
       <div style="position: relative; z-index: 1; animation: floatY 5s ease-in-out 2.4s infinite;">
-        <div style="display: block; width: clamp(220px, 36vw, 380px); animation: logoWipe 1.3s cubic-bezier(0.65, 0, 0.35, 1) 0.7s both;">
-          <div style="font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: clamp(30px, 5.4vw, 54px); letter-spacing: 0.16em; color: #f2f6ff; text-shadow: 0 0 44px rgba(111,215,168,0.4);">NORIENT</div>
-          <div style="margin-top: 7px; font-family: 'Space Grotesk', sans-serif; font-size: clamp(10px, 1.5vw, 13px); letter-spacing: 0.34em; color: #7c8db0; text-transform: uppercase;">Innovation &amp; Development</div>
+        <div style="display: flex; align-items: center; gap: clamp(14px, 2.4vw, 24px); width: clamp(250px, 42vw, 440px); animation: logoWipe 1.3s cubic-bezier(0.65, 0, 0.35, 1) 0.7s both;">
+          <svg viewBox="0 0 200 200" style="width: clamp(64px, 10vw, 104px); height: auto; flex-shrink: 0; filter: drop-shadow(0 0 22px rgba(28,159,229,0.25));">
+            <circle cx="100" cy="27" r="13" fill="#1C9FE5"></circle>
+            <path d="M32 103 L98 69" stroke="#1C9FE5" stroke-width="27" stroke-linecap="round" fill="none"></path>
+            <path d="M99 67 Q132 73 167 99" stroke="#23B26D" stroke-width="27" stroke-linecap="round" fill="none"></path>
+            <path d="M32 159 L98 125" stroke="#1C9FE5" stroke-width="27" stroke-linecap="round" fill="none"></path>
+            <path d="M99 123 Q132 129 167 155" stroke="#23B26D" stroke-width="27" stroke-linecap="round" fill="none"></path>
+            <circle cx="100" cy="181" r="13" fill="#1C9FE5"></circle>
+          </svg>
+          <div style="text-align: left;">
+            <div style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: clamp(28px, 4.8vw, 48px); letter-spacing: 0.04em; line-height: 1.05; background: linear-gradient(90deg, #1C9FE5, #23B26D); -webkit-background-clip: text; background-clip: text; color: transparent;">NORIENT</div>
+            <div style="margin-top: 6px; font-family: 'Space Grotesk', sans-serif; font-size: clamp(10px, 1.5vw, 14px); letter-spacing: 0.2em; color: #8b9ab5;">Innovation &amp; Development</div>
+          </div>
         </div>
       </div>
       <div style="position: relative; z-index: 1; width: clamp(200px, 30vw, 340px); height: 2px; border-radius: 2px; background: linear-gradient(90deg, #2fa8c9, #6fd7a8, #c9a5ff); transform-origin: left center; animation: lineGrow 1.2s cubic-bezier(0.65, 0, 0.35, 1) 0.8s both;"></div>

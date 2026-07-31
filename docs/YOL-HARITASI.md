@@ -10,7 +10,7 @@ Durum işaretleri: ✅ tamam · 🔶 kısmen · ⬜ yapılacak
 - ✅ 6 dil desteği (`public/i18n.js` — tr, en, no, fr, es, it)
 - ✅ PWA: manifest, service worker (çevrimdışı), yerel fontlar
 - ✅ Kayıt/ilerleme yedekleme (`aurora_backup`)
-- ⬜ Splash'taki "NORIENT" yazı logosu — elinizde gerçek `norient-logo.png` varsa `src/ui.js` içindeki splash bölümüne koyup değiştirin (tasarım paketinde dosya yoktu, metin logo ile yeniden üretildi)
+- ✅ Splash'taki Norient logosu — markanın gerçek logosu (çift şerit + noktalar + gradyan yazı) SVG olarak birebir işlendi
 
 ## 2. Backend (yayın öncesi zorunlu değil ama planlı)
 
@@ -41,7 +41,7 @@ sıralama için:
 
 - ⬜ **Gizlilik politikası herkese açık URL** — `public/privacy.html` hazır (6 dil).
   En kolayı: GitHub Pages'i aç → `https://<kullanıcı>.github.io/<repo>/privacy.html`
-- ⬜ `polara.game@gmail.com` yer tutucusunu gerçek destek adresiyle değiştir (i18n `privB7` — 6 dilde de)
+- ✅ Destek adresi güncellendi: `norientinndev@gmail.com` (i18n `privB7` — 6 dilde de)
 - ⬜ Play Console "Veri güvenliği" formu + Apple "App Privacy" beyanı (veri: cihazda; backend gelince güncelle)
 - ⬜ Yaş derecelendirme anketleri (oyun şiddet içermiyor → PEGI 3 / 4+ beklenir)
 - ⬜ Google Play: kapalı test gereksinimleri (yeni kişisel hesaplarda 12+ testçi / 14 gün kuralını kontrol et)
