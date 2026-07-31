@@ -5,16 +5,14 @@
 //
 // null bırakılırsa oyun ÇEVRİMDIŞI modda çalışır: hesaplar cihazda tutulur,
 // sıralama ekranı örnek verileri gösterir.
-export const FIREBASE_CONFIG = null;
-// Örnek:
-// export const FIREBASE_CONFIG = {
-//   apiKey: '...',
-//   authDomain: 'polara-xxxxx.firebaseapp.com',
-//   projectId: 'polara-xxxxx',
-//   storageBucket: 'polara-xxxxx.appspot.com',
-//   messagingSenderId: '...',
-//   appId: '...'
-// };
+export const FIREBASE_CONFIG = {
+  apiKey: 'AIzaSyCXU28apdUilQFGNJdFJGdmv0neu53CRMk',
+  authDomain: 'polara-b2258.firebaseapp.com',
+  projectId: 'polara-b2258',
+  storageBucket: 'polara-b2258.firebasestorage.app',
+  messagingSenderId: '869217683600',
+  appId: '1:869217683600:web:07d45c210be66a74d3f015'
+};
 
 // Emülatör testi için (geliştirme): FIREBASE_EMULATOR true ise Auth/Firestore/Functions
 // yerel emülatöre bağlanır (firebase emulators:start).
