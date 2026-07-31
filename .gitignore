@@ -8,3 +8,4 @@ android/.gradle/
 ios/App/Pods/
 ios/App/build/
 ios/DerivedData/
+functions/node_modules/

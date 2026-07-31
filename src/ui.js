@@ -190,7 +190,7 @@ export function renderUI(app) {
         <div style="display: flex; align-items: center; gap: 12px; margin-top: clamp(30px, 6vh, 46px);">
           <div style="flex: 1; display: flex; flex-direction: column; gap: 3px; text-align: left;">
             <div style="font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: clamp(17px, 3.4vh, 24px); color: #f2f6ff;">${v.L.boardTitle}</div>
-            <div style="font-size: clamp(10px, 1.8vh, 11.5px); color: #5b6b8c; line-height: 1.4;">${v.L.demoNote}</div>
+            <div style="font-size: clamp(10px, 1.8vh, 11.5px); color: #5b6b8c; line-height: 1.4;">${v.boardNote}</div>
           </div>
           <button data-click="${H(v.onCloseBoard)}" style="width: 40px; height: 40px; border: 1px solid rgba(159,176,208,0.4); border-radius: 50%; background: rgba(159,176,208,0.08); color: #cfd9ee; font-size: 17px; cursor: pointer; flex-shrink: 0;">✕</button>
         </div>
@@ -416,6 +416,7 @@ export function renderUI(app) {
         </div>
         <div style="display: flex; gap: 12px; flex-wrap: wrap;">
           <button data-click="${H(v.onLogout)}" style="flex: 1 1 160px; min-height: clamp(44px, 6.5vh, 52px); border: 1px solid rgba(255,138,155,0.35); border-radius: 999px; background: rgba(255,138,155,0.06); color: #ff8a9b; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 13px; cursor: pointer;">${v.L.logout}</button>
+          ${v.showDelete ? `<button data-click="${H(v.onDeleteAccount)}" style="flex: 1 1 160px; min-height: clamp(44px, 6.5vh, 52px); border: 1px solid rgba(255,138,155,0.6); border-radius: 999px; background: rgba(255,60,80,0.14); color: #ff8a9b; font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 13px; cursor: pointer;">${v.L.delAccount}</button>` : ''}
         </div>
       </div>
     </div>`);

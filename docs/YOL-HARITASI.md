@@ -12,16 +12,23 @@ Durum işaretleri: ✅ tamam · 🔶 kısmen · ⬜ yapılacak
 - ✅ Kayıt/ilerleme yedekleme (`aurora_backup`)
 - ✅ Splash'taki Norient logosu — markanın gerçek logosu (çift şerit + noktalar + gradyan yazı) SVG olarak birebir işlendi
 
-## 2. Backend (yayın öncesi zorunlu değil ama planlı)
+## 2. Backend — Firebase (kod hazır, proje bağlantısı bekleniyor)
 
-Prototipteki gibi hesap ve skorlar şimdilik **cihazda (localStorage)** tutuluyor. Çevrimiçi
-sıralama için:
+Çevrimiçi skorbord altyapısı **yazıldı ve emülatörde 14/14 testle doğrulandı**:
 
-- ⬜ Auth API: kullanıcı adı + şifre, **bcrypt/argon2 hash** (düz metin YASAK — gizlilik politikası taahhüdü), TLS zorunlu
-- ⬜ Skorbord API: oyuncular + ülke sıralaması (`WORLD` örnek verisinin yerine geçer)
-- ⬜ Hesap/veri silme ucu (politikadaki 30 gün taahhüdü; App Store "hesap silme" zorunluluğu)
-- ⬜ API bağlanınca: `src/game.js` içindeki `WORLD` örnek verisini ve sıralama ekranındaki `demoNote` metnini kaldır
-- Öneri: Cloudflare Workers + D1 veya Supabase — düşük maliyet, TLS hazır
+- ✅ Kimlik: Firebase Auth (kullanıcı adı + şifre; şifreler Firebase'de güvenle saklanır, TLS otomatik)
+- ✅ Skorbord: oyuncular (ilk 100) + ülke sıralaması — `src/online.js`
+- ✅ Skor doğrulama Cloud Function'da (`functions/index.js`): tek yönlü artış, üst sınır, hız limiti — istemciden skor yazılamaz (`firestore.rules`)
+- ✅ Hesap silme: profildeki "Hesabımı Sil" düğmesi hesabı + verileri kalıcı siler
+- ✅ Yapılandırma boşken oyun çevrimdışı modda çalışır (örnek sıralama + cihazda hesap)
+
+**Devreye almak için kalanlar:**
+
+1. ⬜ Firebase Console'da proje aç (`polara`), **Authentication → E-posta/Şifre**'yi etkinleştir, **Firestore** oluştur (bölge: `europe-west1`), projeye **Blaze** faturalandırmasını bağla
+2. ⬜ Web uygulaması ekle → `firebaseConfig`'i `src/firebase-config.js`'e yapıştır
+3. ⬜ Mac'te bir kez: `npm install -g firebase-tools && firebase login` sonra proje klasöründe
+   `firebase deploy --only functions,firestore:rules --project <PROJE-ID>`
+4. ⬜ Config işlenince gizlilik politikası metnini güncelle (veriler artık cihazda değil, Firebase'de) + store veri beyanlarını buna göre doldur
 
 ## 3. Capacitor paketleme
 

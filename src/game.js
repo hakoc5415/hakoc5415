@@ -2,6 +2,8 @@
 // Tasarım paketindeki (design_handoff_polara) çalışan prototip motorunun üretim portu.
 // Oynanış parametreleri prototipte oynanarak dengelendi — değiştirme.
 
+import * as ON from './online.js';
+
 export const CONFIG = {
   hizRampasi: 1,      // 0.5–2 arası; zorluk rampası
   enerjiTuketimi: 1   // 0.5–2 arası; enerji tüketim çarpanı
@@ -177,6 +179,39 @@ export class Polara {
     this.WORLD = [['NovaSky', '🇺🇸', 134200], ['Lumi', '🇫🇮', 118400], ['Yuki', '🇯🇵', 96500], ['PolarBjorn', '🇳🇴', 87200], ['AuroraKid', '🇮🇸', 74800], ['Stella', '🇩🇪', 63100], ['KaanX', '🇹🇷', 55900], ['Mira', '🇰🇷', 48200], ['Frost', '🇸🇪', 41000], ['LeoBR', '🇧🇷', 33600], ['ZoeUK', '🇬🇧', 27400], ['Nils', '🇨🇦', 19800], ['Aylin', '🇹🇷', 12500], ['Pierre', '🇫🇷', 8300], ['Eren', '🇹🇷', 4100]];
     this.overAt = 0;
     this.held = false;
+    // --- çevrimiçi mod (Firebase yapılandırılmışsa) ---
+    this.online = ON.isOnline();
+    if (this.online) {
+      // çevrimiçi modda hesaplar sunucuda: açılışta oturumu geri yükle
+      ON.restoreSession().then((u) => {
+        if (u) {
+          this.user = u;
+          localStorage.setItem('aurora_user', JSON.stringify({ name: u.name, country: u.country, avatar: u.avatar, uid: u.uid }));
+          if ((u.best || 0) > this.best) {
+            this.best = u.best;
+            localStorage.setItem('aurora_flow_best', String(this.best));
+          } else if (this.best > (u.best || 0)) {
+            ON.submitScore(this.best).then((r) => { if (this.user && r && r.best) this.user.best = r.best; }).catch(() => {});
+          }
+        } else {
+          this.user = null;
+          localStorage.removeItem('aurora_user');
+        }
+        this.forceUpdate();
+      }).catch(() => {});
+    }
+  }
+  flagFor(countryName) { const c = this.COUNTRIES.find((x) => x[0] === countryName); return c ? c[1] : '🌍'; }
+  // sıralama verilerini sunucudan çek (açık ekran görüntülenirken bir kez)
+  loadBoard() {
+    if (!this.online || this._boardLoading) return;
+    this._boardLoading = true;
+    Promise.all([ON.fetchLeaderboard(), ON.fetchCountries()]).then(([rows, cs]) => {
+      this.remoteBoard = rows;
+      this.remoteCountries = cs;
+      this._boardLoading = false;
+      this.forceUpdate();
+    }).catch(() => { this._boardLoading = false; });
   }
 
   // ---- durum yönetimi (React yerine hafif eşdeğerler) ----
@@ -210,8 +245,16 @@ export class Polara {
   themeHue() { const t = this.THEMES.find((x) => x.id === this.theme); return t ? t.hue : 148; }
   userFlag() { const c = this.COUNTRIES.find((x) => x[0] === (this.user && this.user.country)); return c ? c[1] : '🌍'; }
   buildLeaderboard(full) {
-    const rows = this.WORLD.map((w) => ({ name: w[0], flag: w[1], s: w[2], me: false }));
-    if (this.user) rows.push({ name: this.user.name, flag: this.userFlag(), s: this.best, me: true });
+    let rows;
+    if (this.online) {
+      // canlı veriler (ilk 100); oyuncu listede yoksa kendi satırı sona eklenir
+      rows = (this.remoteBoard || []).map((r) => ({ name: r.name, flag: this.flagFor(r.country), s: r.s, me: !!(this.user && this.user.uid && r.uid === this.user.uid) }));
+      const mine = this.user ? Math.max(this.best, this.user.best || 0) : 0;
+      if (this.user && mine > 0 && !rows.some((r) => r.me)) rows.push({ name: this.user.name, flag: this.userFlag(), s: mine, me: true });
+    } else {
+      rows = this.WORLD.map((w) => ({ name: w[0], flag: w[1], s: w[2], me: false }));
+      if (this.user) rows.push({ name: this.user.name, flag: this.userFlag(), s: this.best, me: true });
+    }
     rows.sort((a, b) => b.s - a.s);
     const out = [];
     rows.forEach((r, i) => {
@@ -220,6 +263,14 @@ export class Polara {
     return out;
   }
   buildCountryBoard() {
+    if (this.online) {
+      const myC = this.user ? this.user.country : null;
+      return (this.remoteCountries || []).map((c, i) => {
+        const ctry = this.COUNTRIES.find((x) => x[0] === c.country);
+        const me = myC === c.country;
+        return { rank: '#' + (i + 1), flag: ctry ? ctry[1] : '🌍', name: (ctry ? ctry[0] : c.country) + ' · ' + c.n + ' ' + this.t('playersWord'), s: c.top.toLocaleString('tr-TR'), bg: me ? 'rgba(111,215,168,0.15)' : 'transparent', color: me ? '#8ef5c8' : '#c4d2ea' };
+      });
+    }
     const by = {};
     const add = (flag, name, sc) => {
       if (!by[flag]) by[flag] = { flag, top: 0, topName: '', n: 0 };
@@ -236,6 +287,13 @@ export class Polara {
     });
   }
   myWorldRank() {
+    if (this.online) {
+      if (!this.user) return null;
+      const mine = Math.max(this.best, this.user.best || 0);
+      if (!mine) return null;
+      const higher = (this.remoteBoard || []).filter((r) => r.s > mine && r.uid !== this.user.uid).length;
+      return higher + 1;
+    }
     const rows = this.WORLD.map((w) => w[2]);
     if (this.user) rows.push(this.best); rows.sort((a, b) => b - a);
     return this.user ? rows.indexOf(this.best) + 1 : null;
@@ -336,7 +394,7 @@ export class Polara {
       countriesList: this.COUNTRIES.map((c) => ({ label: c[1] + ' ' + c[0], value: c[0] })),
       authTitle: s.authTab === 'login' ? this.t('welcomeBack') : this.t('regTitle'),
       authSub: s.authTab === 'login' ? this.t('loginSub') : this.t('regSub'),
-      authSubmitLabel: s.authTab === 'login' ? this.t('login') : this.t('signupBtn'),
+      authSubmitLabel: s.authBusy ? this.t('loadingW') : (s.authTab === 'login' ? this.t('login') : this.t('signupBtn')),
       isRegisterTab: s.authTab === 'register',
       loginTabBg: s.authTab === 'login' ? 'linear-gradient(135deg, #6fd7a8, #4fb3c9)' : 'transparent',
       loginTabColor: s.authTab === 'login' ? '#04121a' : '#9fb0d0',
@@ -347,6 +405,31 @@ export class Polara {
       onAuthSubmit: () => {
         const n = (this.state.regName || '').trim();
         const p = this.state.regPass || '';
+        if (this.online) {
+          if (this.state.authBusy) return;
+          if (this.state.authTab === 'register') {
+            if (n.length < 3) { this.setState({ regError: this.t('errShortName') }); return; }
+            if (!ON.USERNAME_RE.test(n)) { this.setState({ regError: this.t('errUserFormat') }); return; }
+            if (p.length < 6) { this.setState({ regError: this.t('errShortPass') }); return; }
+          } else if (!n || !p) { this.setState({ regError: this.t('errNoUser') }); return; }
+          this.setState({ authBusy: true, regError: '' });
+          const done = (u) => {
+            this.user = u;
+            localStorage.setItem('aurora_user', JSON.stringify({ name: u.name, country: u.country, avatar: u.avatar, uid: u.uid }));
+            if ((u.best || 0) > this.best) {
+              this.best = u.best;
+              localStorage.setItem('aurora_flow_best', String(this.best));
+            } else if (this.best > (u.best || 0)) {
+              ON.submitScore(this.best).then((r) => { if (this.user && r && r.best) this.user.best = r.best; }).catch(() => {});
+            }
+            this.saveBackup();
+            this.setState({ phase: 'menu', regError: '', regPass: '', authBusy: false });
+          };
+          const fail = (e) => this.setState({ regError: this.t((e && e.key) || 'errNet'), authBusy: false });
+          if (this.state.authTab === 'login') ON.login(n, p).then(done, fail);
+          else ON.register(n, p, this.state.regCountry, this.state.regAvatar).then(done, fail);
+          return;
+        }
         if (this.state.authTab === 'login') {
           const acc = this.accounts[n.toLowerCase()];
           if (!acc) { this.setState({ regError: this.t('errNoUser') }); return; }
@@ -364,10 +447,19 @@ export class Polara {
         this.setState({ phase: 'menu', regError: '', regPass: '' });
       },
       onSkipReg: () => this.setState({ phase: 'menu', regError: '' }),
-      onOpenProfile: () => this.setState({ phase: this.user ? 'profile' : 'register' }),
+      onOpenProfile: () => { if (this.user) this.loadBoard(); this.setState({ phase: this.user ? 'profile' : 'register' }); },
       onCloseProfile: () => this.setState({ phase: 'menu' }),
       onCloseProfileDown: (e) => { e.stopPropagation(); e.preventDefault(); this.setState({ phase: 'menu' }); },
-      onLogout: () => { this.user = null; localStorage.removeItem('aurora_user'); this.setState({ phase: 'register', authTab: 'login', regName: '', regPass: '', regError: '' }); },
+      onLogout: () => { if (this.online) ON.logout(); this.user = null; localStorage.removeItem('aurora_user'); this.setState({ phase: 'register', authTab: 'login', regName: '', regPass: '', regError: '' }); },
+      showDelete: this.online && !!this.user && !!this.user.uid,
+      onDeleteAccount: () => {
+        if (!window.confirm(this.t('delConfirm'))) return;
+        ON.deleteAccount().then(() => {
+          this.user = null;
+          localStorage.removeItem('aurora_user');
+          this.setState({ phase: 'register', authTab: 'register', regName: '', regPass: '', regError: '' });
+        }).catch(() => { window.alert(this.t('errNet')); });
+      },
       hasUser: !!this.user,
       userChip: this.user ? this.userFlag() + ' ' + this.user.name : this.t('registerCta'),
       userName: this.user ? this.user.name : '',
@@ -473,7 +565,8 @@ export class Polara {
       showChase: s.phase === 'over' && !s.isRecord && best > 0,
       chasePct: Math.min(100, Math.round(s.score / Math.max(1, best) * 100)) + '%',
       chaseRemain: this.tf('toRecord', Math.max(0, best - s.score).toLocaleString('tr-TR')),
-      onOpenBoard: () => this.setState({ showBoard: true }),
+      onOpenBoard: () => { this.loadBoard(); this.setState({ showBoard: true }); },
+      boardNote: this.online ? (this.remoteBoard ? this.t('liveNote') : this.t('loadingW')) : this.t('demoNote'),
       onCloseBoard: () => this.setState({ showBoard: false }),
       onBoardTabWorld: () => this.setState({ boardTab: 'world' }),
       onBoardTabCountry: () => this.setState({ boardTab: 'country' }),
@@ -763,6 +856,10 @@ export class Polara {
     this.saveEconomy();
     const isRecord = g.score > this.best;
     if (isRecord) { this.best = g.score; localStorage.setItem('aurora_flow_best', String(g.score)); }
+    // çevrimiçi mod: yeni kişisel rekoru sunucuya bildir (doğrulama Cloud Function'da)
+    if (this.online && this.user && this.user.uid && isRecord && g.score > 0) {
+      ON.submitScore(g.score).then((r) => { if (this.user && r && r.best) this.user.best = r.best; }).catch(() => {});
+    }
     this.history.unshift({ s: g.score });
     this.history = this.history.slice(0, 10);
     localStorage.setItem('aurora_history', JSON.stringify(this.history));
