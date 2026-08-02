@@ -705,7 +705,9 @@ export class Polara {
       };
     }
     this.resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      // mobilde 1.5x yeterli keskinlikte; 2x'e göre doldurulacak piksel ~%45 azalır
+      const dprCap = ('ontouchstart' in window) ? 1.5 : 2;
+      const dpr = Math.min(window.devicePixelRatio || 1, dprCap);
       // dar ekranlarda kamera uzaklaşır: mantıksal dünya webdeki genişlikte kalır,
       // böylece mobilde de aynı anda birden çok halka görünür
       const zoom = Math.max(0.38, Math.min(1, window.innerWidth / 1900));
@@ -1201,11 +1203,17 @@ export class Polara {
     const hue = playing ? g.hue : this.themeHue() + Math.sin(time * 0.3) * 60;
     ctx.save();
     if (g.shake > 0) ctx.translate((Math.random() - 0.5) * g.shake * 8, (Math.random() - 0.5) * g.shake * 8);
-    // gök — mevcut ton ve enerjiyle hafifçe boyanır
-    const grad = ctx.createLinearGradient(0, 0, 0, H);
-    grad.addColorStop(0, '#03050e');
-    grad.addColorStop(0.55, 'hsl(' + Math.round(hue) + ', 45%, ' + (5 + energy * 4).toFixed(1) + '%)');
-    grad.addColorStop(1, '#050a18');
+    // gök — mevcut ton ve enerjiyle hafifçe boyanır (gradyan nesnesi ton/enerji
+    // kovasına göre önbelleklenir; ton yavaş değiştiği için çoğu kare yeniden üretilmez)
+    const skyKey = (Math.round(hue / 4) * 4) + ':' + Math.round(energy * 12) + ':' + Math.round(H);
+    if (this._skyKey !== skyKey) {
+      const sg = ctx.createLinearGradient(0, 0, 0, H);
+      sg.addColorStop(0, '#03050e');
+      sg.addColorStop(0.55, 'hsl(' + Math.round(hue) + ', 45%, ' + (5 + energy * 4).toFixed(1) + '%)');
+      sg.addColorStop(1, '#050a18');
+      this._skyGrad = sg; this._skyKey = skyKey;
+    }
+    const grad = this._skyGrad;
     ctx.fillStyle = grad;
     ctx.fillRect(-20, -20, W + 40, H + 40);
     // paralakslı yıldızlar
@@ -1351,11 +1359,13 @@ export class Polara {
         ctx.globalAlpha = 1;
       }
       // ===== oyuncu: akan aurora kurdele izi =====
+      // ikişer örnek atlanır (yarı yarıya az gradyan); dilimler iki birim genişliğinde
+      // çizildiği için görünüm değişmez
       const rw = 10 + energy * 26; // kurdele yarı-genişliği
-      for (let i = g.trail.length - 1; i >= 1; i--) {
+      for (let i = g.trail.length - 1; i >= 1; i -= 2) {
         const p = g.trail[i], q = g.trail[i - 1];
         const k = 1 - i / g.trail.length; // başta 1
-        const x1 = px - i * (g.speed * 0.016), x2 = px - (i - 1) * (g.speed * 0.016);
+        const x1 = px - i * (g.speed * 0.016), x2 = px - (Math.max(0, i - 2)) * (g.speed * 0.016);
         const wob = Math.sin(time * 5 + i * 0.35) * (3 + (1 - k) * 6);
         const hw = rw * (0.25 + k * 0.75);
         const a = (0.05 + k * 0.3) * (0.4 + energy * 0.6);
