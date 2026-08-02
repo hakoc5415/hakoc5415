@@ -17,6 +17,8 @@ export class Polara {
     this.restoreBackup();
     this.I18 = window.POLARA_I18N || null;
     this.lang = localStorage.getItem('aurora_lang') || 'tr';
+    // büyük harf dönüşümleri (ör. İngilizce i → I) doğru dille yapılsın
+    try { document.documentElement.lang = this.lang; } catch (e) {}
     this.RANKS = [
       { min: 0, name: 'Kıvılcım' },
       { min: 800, name: 'Işık Damlası' },
@@ -323,7 +325,7 @@ export class Polara {
     }
     return this._L;
   }
-  setLang(id) { this.lang = id; localStorage.setItem('aurora_lang', id); this._Llang = null; this.forceUpdate(); }
+  setLang(id) { this.lang = id; localStorage.setItem('aurora_lang', id); this._Llang = null; try { document.documentElement.lang = id; } catch (e) {} this.forceUpdate(); }
   rankFor(s) { let r = this.RANKS[0]; for (const k of this.RANKS) if (s >= k.min) r = k; return r; }
   // mobilde oyuna girerken tam ekran + yatay kilit dene (desteklenmeyen tarayıcıda sessizce geçer)
   goMobileFullscreen() {
