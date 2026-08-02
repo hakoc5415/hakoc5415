@@ -100,7 +100,10 @@ export function renderUI(app) {
           <span style="font-size: clamp(11px, 1.9vh, 13px); padding: 3px 10px; border-radius: 999px; background: rgba(255,233,163,0.12); border: 1px solid rgba(255,233,163,0.25);">✦ ${v.creditsLabel}</span>
         </button>
       </div>
-      <button data-click="${H(v.onOpenPrivacy)}" style="margin-top: clamp(4px, 1.4vh, 12px); border: none; background: transparent; color: #5b6b8c; font-size: clamp(10px, 1.8vh, 12px); letter-spacing: 0.14em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; pointer-events: auto; padding: 6px 12px;">${v.L.privacy}</button>
+      <div style="margin-top: clamp(4px, 1.4vh, 12px); display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; pointer-events: auto;">
+        <button data-click="${H(v.onOpenPrivacy)}" style="border: none; background: transparent; color: #5b6b8c; font-size: clamp(10px, 1.8vh, 12px); letter-spacing: 0.14em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 6px 12px;">${v.L.privacy}</button>
+        <button data-click="${H(v.onOpenAbout)}" style="border: none; background: transparent; color: #5b6b8c; font-size: clamp(10px, 1.8vh, 12px); letter-spacing: 0.14em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 6px 12px;">${v.L.aboutTitle}</button>
+      </div>
     </div>`);
   }
 
@@ -121,6 +124,63 @@ export function renderUI(app) {
           <div style="font-size: clamp(12px, 2.2vh, 14px); font-weight: 700; color: #8ef5c8; letter-spacing: 0.06em;">${p.h}</div>
           <div style="font-size: clamp(11.5px, 2.1vh, 13.5px); line-height: 1.6; color: #cfd9ee;">${p.b}</div>
         </div>`).join('')}
+      </div>
+    </div>`);
+  }
+
+  // ---- 3b. Hakkımızda (Norient) ----
+  if (v.showAbout) {
+    out.push(`
+    <div style="position: absolute; inset: 0; z-index: 56; display: flex; flex-direction: column; align-items: center; background: rgba(3,5,14,0.96); animation: fadeUp 0.35s ease both; overflow-y: auto; touch-action: pan-y; padding: calc(14px + env(safe-area-inset-top)) 20px calc(24px + env(safe-area-inset-bottom)); pointer-events: auto;">
+      <div style="width: min(620px, 100%); display: flex; flex-direction: column; gap: clamp(12px, 2.2vh, 18px); text-align: left;">
+        <div style="display: flex; align-items: center; gap: 14px; margin-top: clamp(30px, 6vh, 46px);">
+          <svg viewBox="0 0 200 200" style="width: clamp(40px, 7vh, 56px); height: auto; flex-shrink: 0;">
+            <circle cx="100" cy="27" r="13" fill="#1C9FE5"></circle>
+            <path d="M32 103 L98 69" stroke="#1C9FE5" stroke-width="27" stroke-linecap="round" fill="none"></path>
+            <path d="M99 67 Q132 73 167 99" stroke="#23B26D" stroke-width="27" stroke-linecap="round" fill="none"></path>
+            <path d="M32 159 L98 125" stroke="#1C9FE5" stroke-width="27" stroke-linecap="round" fill="none"></path>
+            <path d="M99 123 Q132 129 167 155" stroke="#23B26D" stroke-width="27" stroke-linecap="round" fill="none"></path>
+            <circle cx="100" cy="181" r="13" fill="#1C9FE5"></circle>
+          </svg>
+          <div style="flex: 1; display: flex; flex-direction: column; gap: 3px;">
+            <div style="font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: clamp(17px, 3.4vh, 24px); color: #f2f6ff;">${v.L.aboutTitle}</div>
+            <div style="font-size: clamp(10px, 1.8vh, 11.5px); letter-spacing: 0.1em; color: #5b6b8c;">${v.L.aboutSub}</div>
+          </div>
+          <button data-click="${H(v.onCloseAbout)}" style="width: 40px; height: 40px; border: 1px solid rgba(159,176,208,0.4); border-radius: 50%; background: rgba(159,176,208,0.08); color: #cfd9ee; font-size: 17px; cursor: pointer; flex-shrink: 0;">✕</button>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; padding: clamp(12px, 2.2vh, 16px) 16px; border-radius: 16px; background: rgba(111,215,168,0.07); border: 1px solid rgba(142,245,200,0.3);">
+          <div style="font-size: clamp(12px, 2.2vh, 14px); font-weight: 700; color: #8ef5c8; letter-spacing: 0.06em; text-transform: uppercase;">${v.L.aboutWhoH}</div>
+          <div style="font-size: clamp(11.5px, 2.1vh, 13.5px); line-height: 1.65; color: #cfd9ee;">${v.L.aboutWhoB}</div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div style="display: flex; flex-direction: column; gap: 2px; align-items: center; padding: clamp(12px, 2.2vh, 16px); border-radius: 16px; background: rgba(124,141,176,0.07); border: 1px solid rgba(124,141,176,0.18);">
+            <div style="font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: clamp(20px, 4vh, 28px); color: #ffe9a3;">15+</div>
+            <div style="font-size: clamp(9.5px, 1.7vh, 11px); letter-spacing: 0.18em; color: #5b6b8c; text-transform: uppercase; text-align: center;">${v.L.aboutStat1}</div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 2px; align-items: center; padding: clamp(12px, 2.2vh, 16px); border-radius: 16px; background: rgba(124,141,176,0.07); border: 1px solid rgba(124,141,176,0.18);">
+            <div style="font-family: 'Unbounded', sans-serif; font-weight: 900; font-size: clamp(20px, 4vh, 28px); color: #ffe9a3;">30+</div>
+            <div style="font-size: clamp(9.5px, 1.7vh, 11px); letter-spacing: 0.18em; color: #5b6b8c; text-transform: uppercase; text-align: center;">${v.L.aboutStat2}</div>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+          <div style="font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: clamp(13px, 2.5vh, 16px); color: #f2f6ff;">${v.L.aboutMissionH}</div>
+          <div style="font-size: clamp(11.5px, 2.1vh, 13.5px); line-height: 1.65; color: #cfd9ee;">${v.L.aboutMissionB}</div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: clamp(13px, 2.5vh, 16px); color: #f2f6ff;">${v.L.aboutApproachH}</div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">
+            ${[['aboutAp1h', 'aboutAp1b', '#8ef5c8', 'rgba(142,245,200,0.28)'], ['aboutAp2h', 'aboutAp2b', '#a5c8ff', 'rgba(165,200,255,0.28)'], ['aboutAp3h', 'aboutAp3b', '#ffe9a3', 'rgba(255,233,163,0.28)'], ['aboutAp4h', 'aboutAp4b', '#c9a5ff', 'rgba(201,165,255,0.28)']].map(([h, b, col, bor]) => `
+            <div style="display: flex; flex-direction: column; gap: 5px; padding: clamp(10px, 2vh, 14px) 14px; border-radius: 14px; background: rgba(124,141,176,0.07); border: 1px solid ${bor};">
+              <div style="font-size: clamp(11px, 2vh, 13px); font-weight: 700; color: ${col}; letter-spacing: 0.06em; text-transform: uppercase;">${v.L[h]}</div>
+              <div style="font-size: clamp(11px, 2vh, 13px); line-height: 1.55; color: #9fb0d0;">${v.L[b]}</div>
+            </div>`).join('')}
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; padding: clamp(12px, 2.2vh, 16px) 16px; border-radius: 16px; background: linear-gradient(160deg, rgba(28,159,229,0.08), rgba(35,178,109,0.07)); border: 1px solid rgba(28,159,229,0.3);">
+          <div style="font-size: clamp(12px, 2.2vh, 14px); font-weight: 700; color: #59baf0; letter-spacing: 0.06em; text-transform: uppercase;">${v.L.aboutStudioH}</div>
+          <div style="font-size: clamp(11.5px, 2.1vh, 13.5px); line-height: 1.65; color: #cfd9ee;">${v.L.aboutStudioB}</div>
+        </div>
+        <a href="https://norientinndev.com" target="_blank" rel="noopener" style="display: flex; align-items: center; justify-content: center; min-height: clamp(46px, 7vh, 54px); border-radius: 999px; background: linear-gradient(135deg, #1C9FE5, #23B26D); color: #04121a; font-family: 'Unbounded', sans-serif; font-weight: 700; font-size: clamp(12px, 2.2vh, 14px); letter-spacing: 0.14em; text-transform: uppercase; text-decoration: none; cursor: pointer; box-shadow: 0 0 30px rgba(28,159,229,0.3);">${v.L.aboutVisit} ▸</a>
       </div>
     </div>`);
   }
