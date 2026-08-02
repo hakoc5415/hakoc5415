@@ -712,6 +712,7 @@ export class Polara {
       // böylece mobilde de aynı anda birden çok halka görünür
       const zoom = Math.max(0.38, Math.min(1, window.innerWidth / 1900));
       this.zoom = zoom;
+      this.dprUsed = dpr;
       this.W = window.innerWidth / zoom; this.H = window.innerHeight / zoom;
       cv.width = window.innerWidth * dpr; cv.height = window.innerHeight * dpr;
       this.ctx.setTransform(dpr * zoom, 0, 0, dpr * zoom, 0, 0);
@@ -741,13 +742,10 @@ export class Polara {
     this.scheduleFrame();
   }
   scheduleFrame() {
-    const fire = () => {
-      cancelAnimationFrame(this.raf);
-      clearTimeout(this.rafTimer);
-      this.loop(performance.now());
-    };
-    this.raf = requestAnimationFrame(fire);
-    this.rafTimer = setTimeout(fire, 40);
+    // saf rAF; takılırsa ensureLoop bekçisi (700 ms) yeniden başlatır —
+    // kare başına yedek setTimeout kurup iptal etmek mobilde gereksiz yük
+    cancelAnimationFrame(this.raf);
+    this.raf = requestAnimationFrame((t) => this.loop(t));
   }
   destroy() {
     this.unmounted = true;
@@ -1185,6 +1183,38 @@ export class Polara {
     }
   }
 
+  drawMountains(ctx, scroll, W, H) {
+    const k = Math.min(2, Math.max(0.5, (this.dprUsed || 1) * (this.zoom || 1)));
+    if (!this._mtnTiles || this._mtnW !== W || this._mtnH !== H || this._mtnK !== k) {
+      this._mtnTiles = this.mtn.map(() => ({ x0: NaN, cv: null }));
+      this._mtnW = W; this._mtnH = H; this._mtnK = k;
+    }
+    const TILE = Math.ceil(W + 320);
+    for (let j = 0; j < this.mtn.length; j++) {
+      const m = this.mtn[j], t = this._mtnTiles[j];
+      const wx0 = scroll * m.sp;
+      if (!t.cv || !(wx0 >= t.x0 && wx0 + W <= t.x0 + TILE)) {
+        t.x0 = wx0 - 40;
+        if (!t.cv) t.cv = document.createElement('canvas');
+        t.cv.width = Math.ceil(TILE * k); t.cv.height = Math.ceil(H * k);
+        const c2 = t.cv.getContext('2d');
+        c2.setTransform(k, 0, 0, k, 0, 0);
+        c2.fillStyle = m.col;
+        c2.beginPath();
+        c2.moveTo(0, H);
+        for (let x = 0; x <= TILE; x += 10) {
+          const wx = x + t.x0;
+          const y = H - H * m.h * (0.55 + 0.45 * Math.abs(Math.sin(wx * 0.0021 + m.seed) * 0.7 + Math.sin(wx * 0.0057 + m.seed * 2) * 0.3));
+          c2.lineTo(x, y);
+        }
+        c2.lineTo(TILE, H);
+        c2.closePath();
+        c2.fill();
+      }
+      ctx.drawImage(t.cv, (wx0 - t.x0) * k, 0, W * k, H * k, 0, 0, W, H);
+    }
+  }
+
   burst(x, y, hue, big) {
     const n = big ? 26 : 14;
     for (let i = 0; i < n; i++) {
@@ -1216,13 +1246,23 @@ export class Polara {
     const grad = this._skyGrad;
     ctx.fillStyle = grad;
     ctx.fillRect(-20, -20, W + 40, H + 40);
-    // paralakslı yıldızlar
+    // paralakslı yıldızlar — parlaklık kovalarına gruplanıp tek path'te çizilir
+    // (160 ayrı fill yerine ~13; kova adımı ≤0.04 alfa, gözle ayırt edilemez)
     const scroll = playing ? g.dist : time * 30;
+    const SB = this._starBuckets || (this._starBuckets = Array.from({ length: 13 }, () => []));
+    for (const b of SB) b.length = 0;
     for (const s of this.stars) {
       const sx = ((s.x * W - scroll * s.depth * 0.15) % (W + 20) + W + 20) % (W + 20) - 10;
       const a = 0.2 + 0.55 * (0.5 + 0.5 * Math.sin(time * s.sp + s.tw));
-      ctx.fillStyle = 'rgba(215,228,255,' + a.toFixed(2) + ')';
-      ctx.beginPath(); ctx.arc(sx, s.y * H * 0.85, s.r, 0, 6.29); ctx.fill();
+      SB[Math.min(12, Math.round(a * 16))].push(sx, s.y * H * 0.85, s.r);
+    }
+    for (let bi = 0; bi < 13; bi++) {
+      const arr = SB[bi];
+      if (!arr.length) continue;
+      ctx.fillStyle = 'rgba(215,228,255,' + (bi / 16).toFixed(2) + ')';
+      ctx.beginPath();
+      for (let i = 0; i < arr.length; i += 3) { ctx.moveTo(arr[i] + arr[i + 2], arr[i + 1]); ctx.arc(arr[i], arr[i + 1], arr[i + 2], 0, 6.29); }
+      ctx.fill();
     }
     // ay
     ctx.globalCompositeOperation = 'lighter';
@@ -1238,20 +1278,9 @@ export class Polara {
     ctx.beginPath(); ctx.arc(W * 0.82, H * 0.16, 17 * moonK, 0, 6.29); ctx.fill();
     ctx.fillStyle = grad;
     ctx.beginPath(); ctx.arc(W * 0.82 - 7 * moonK, H * 0.16 - 4 * moonK, 14 * moonK, 0, 6.29); ctx.fill();
-    // paralaks dağlar
-    for (const m of this.mtn) {
-      ctx.fillStyle = m.col;
-      ctx.beginPath();
-      ctx.moveTo(0, H);
-      for (let x = 0; x <= W; x += 10) {
-        const wx = x + scroll * m.sp;
-        const y = H - H * m.h * (0.55 + 0.45 * Math.abs(Math.sin(wx * 0.0021 + m.seed) * 0.7 + Math.sin(wx * 0.0057 + m.seed * 2) * 0.3));
-        ctx.lineTo(x, y);
-      }
-      ctx.lineTo(W, H);
-      ctx.closePath();
-      ctx.fill();
-    }
+    // paralaks dağlar — kayan pencereli offscreen önbellekten (her karede
+    // 3×~190 trigonometrik nokta yerine 3 drawImage; pencere ~saniyede bir tazelenir)
+    this.drawMountains(ctx, scroll, W, H);
 
     // ekranın sol kenarına yaklaşan objeler yumuşakça solup tam kenarda kaybolur
     const edgeFade = (x) => Math.max(0, Math.min(1, (x + 20) / 160));
@@ -1321,22 +1350,34 @@ export class Polara {
         ctx.beginPath(); ctx.arc(gx, gate.y, 3.5, 0, 6.29); ctx.fill();
       }
       // karanlık bulutlar — normal modda çizilir (ışığı yutarlar)
+      // puf grubu bulut başına BİR kez offscreen'e işlenir (5 radyal gradyan),
+      // sonra tek drawImage ile salınarak kopyalanır — görünüm birebir aynı
       ctx.globalCompositeOperation = 'source-over';
       for (const c of g.clouds) {
         const cx = c.x - g.dist + px;
         if (cx < -120 || cx > W + 140) continue;
+        if (!c.sprite) {
+          const k = Math.min(2, Math.max(0.5, (this.dprUsed || 1) * (this.zoom || 1)));
+          const ext = c.r * 1.3 + 4;
+          const cvS = document.createElement('canvas');
+          cvS.width = Math.ceil(ext * 2 * k); cvS.height = Math.ceil(ext * 2 * k);
+          const c2 = cvS.getContext('2d');
+          c2.setTransform(k, 0, 0, k, 0, 0);
+          for (let i = 0; i < 5; i++) {
+            const a = c.ph + i * 1.26;
+            const ox = Math.cos(a) * c.r * 0.45, oy = Math.sin(a) * c.r * 0.3;
+            const cg2 = c2.createRadialGradient(ext + ox, ext + oy, 0, ext + ox, ext + oy, c.r * 0.75);
+            cg2.addColorStop(0, 'rgba(6,8,16,0.95)');
+            cg2.addColorStop(0.7, 'rgba(10,12,24,0.75)');
+            cg2.addColorStop(1, 'rgba(10,12,24,0)');
+            c2.fillStyle = cg2;
+            c2.beginPath(); c2.arc(ext + ox, ext + oy, c.r * 0.75, 0, 6.29); c2.fill();
+          }
+          c.sprite = cvS; c.spriteExt = ext;
+        }
         ctx.globalAlpha = edgeFade(cx + c.r);
         const wob = Math.sin(time * 1.5 + c.ph) * 5;
-        for (let i = 0; i < 5; i++) {
-          const a = c.ph + i * 1.26;
-          const ox = Math.cos(a) * c.r * 0.45, oy = Math.sin(a) * c.r * 0.3;
-          const cg2 = ctx.createRadialGradient(cx + ox, c.y + oy + wob, 0, cx + ox, c.y + oy + wob, c.r * 0.75);
-          cg2.addColorStop(0, 'rgba(6,8,16,0.95)');
-          cg2.addColorStop(0.7, 'rgba(10,12,24,0.75)');
-          cg2.addColorStop(1, 'rgba(10,12,24,0)');
-          ctx.fillStyle = cg2;
-          ctx.beginPath(); ctx.arc(cx + ox, c.y + oy + wob, c.r * 0.75, 0, 6.29); ctx.fill();
-        }
+        ctx.drawImage(c.sprite, cx - c.spriteExt, c.y + wob - c.spriteExt, c.spriteExt * 2, c.spriteExt * 2);
         // soluk kızıl şimşek çekirdeği
         ctx.fillStyle = 'rgba(255,110,130,' + (0.25 + 0.2 * Math.sin(time * 6 + c.ph)).toFixed(2) + ')';
         ctx.beginPath(); ctx.arc(cx + wob, c.y, 4, 0, 6.29); ctx.fill();
