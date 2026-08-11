@@ -9,9 +9,13 @@ const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 initializeApp();
 const db = getFirestore();
 
-// Stages 1-8 score roughly 0-4,000 each. Stage 9 (VALHALLA) is ENDLESS —
-// its score is unbounded by design, so it gets its own generous cap.
-const STAGE_SCORE_MAX = 5000;
+// Stage score = 1000 + maxCombo*60 + perfects*25 + time bonus. Stage 6
+// (STADIUM) is round-based and much longer than the others, so a clean run
+// can legitimately reach ~14,000 — the cap only needs to stop absurd
+// forged values, so keep a generous margin above the real ceiling.
+// Stage 9 (VALHALLA) is ENDLESS — its score is unbounded by design, so it
+// gets its own generous cap.
+const STAGE_SCORE_MAX = 25000;
 const ENDLESS_STAGE_ID = 9;
 const ENDLESS_SCORE_MAX = 1000000;
 const TOTAL_SCORE_MAX = 8 * STAGE_SCORE_MAX + ENDLESS_SCORE_MAX;

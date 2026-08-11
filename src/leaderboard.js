@@ -38,8 +38,9 @@ const TOP_N = 100;
 
 // Mirrors the server-side caps in functions/index.js — used only for an
 // instant client-side reject so a corrupt local score never even queues.
+// Stage 6 (STADIUM) is round-based and can legitimately reach ~14,000.
 // Stage 9 (VALHALLA) is endless, so its scores run far beyond the others'.
-const STAGE_SCORE_MAX = 5000;
+const STAGE_SCORE_MAX = 25000;
 const ENDLESS_STAGE_ID = 9;
 const ENDLESS_SCORE_MAX = 1000000;
 function capForStage(stageId) {
